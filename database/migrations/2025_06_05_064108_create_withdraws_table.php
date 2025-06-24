@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('withdraws', function (Blueprint $table) {
             $table->id();
+            $table->date('tgl_withdraw');
+            $table->decimal('nominal_withdraw', 10, 2);
+            $table->string('status_withdraw');
             $table->timestamps();
         });
     }

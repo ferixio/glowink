@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('produk_stoks', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('produk_id')->constrained('produks')->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->integer('stok')->default(0);
             $table->timestamps();
         });
     }

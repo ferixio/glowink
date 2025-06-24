@@ -13,6 +13,10 @@ return new class extends Migration
     {
         Schema::create('penghasilans', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->date('tgl_dapat_bonus');
+            $table->string('keterangan');
+            $table->decimal('nominal_bonus', 10, 2);
             $table->timestamps();
         });
     }

@@ -13,6 +13,17 @@ return new class extends Migration
     {
         Schema::create('pembelians', function (Blueprint $table) {
             $table->id();
+            $table->date('tgl_beli');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('beli_dari')->constrained('users')->onDelete('cascade');
+            $table->string('tujuan_beli');
+            $table->string('nama_penerima');
+            $table->string('no_telp');
+            $table->text('alamat_tujuan');
+            $table->decimal('total_beli', 10, 2);
+            $table->decimal('total_bonus', 10, 2);
+            $table->string('status_pembelian');
+            $table->integer('jumlah_poin_qr');
             $table->timestamps();
         });
     }

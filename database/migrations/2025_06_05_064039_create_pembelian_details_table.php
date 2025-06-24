@@ -13,6 +13,16 @@ return new class extends Migration
     {
         Schema::create('pembelian_details', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('pembelian_id')->constrained('pembelians')->onDelete('cascade');
+            $table->foreignId('produk_id')->constrained('produks')->onDelete('cascade');
+            $table->string('nama_produk');
+            $table->string('paket');
+            $table->integer('jml_beli');
+            $table->decimal('harga_beli', 10, 2);
+            $table->decimal('nominal_bonus_sponsor', 10, 2);
+            $table->decimal('nominal_bonus_generasi', 10, 2);
+            $table->foreignId('user_id_get_bonus_sponsor')->nullable()->constrained('users')->onDelete('set null');
+            $table->string('group_user_id_get_bonus_generasi')->nullable();
             $table->timestamps();
         });
     }
