@@ -16,7 +16,9 @@ class ProdukResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-shopping-bag';
 
-    protected static ?string $navigationLabel = 'Produk';
+    protected static ?string $navigationLabel = 'Data Produk';
+
+    protected static ?string $navigationGroup = "Master Data";
 
     public static function form(Form $form): Form
     {
@@ -62,26 +64,21 @@ class ProdukResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\ImageColumn::make('gambar')
+                    ->disk('public')
+                    ->url(fn($record) => $record->gambar ? asset('storage/products/' . $record->gambar) : null),
+                Tables\Columns\TextColumn::make('nama')
+                    ->searchable()->label("Nama Produk"),
                 Tables\Columns\TextColumn::make('paket')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('nama')
-                    ->searchable(),
+
                 Tables\Columns\TextColumn::make('harga_stokis')
                     ->money('IDR')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('harga_member')
                     ->money('IDR')
                     ->sortable(),
-                Tables\Columns\ImageColumn::make('gambar'),
-                Tables\Columns\TextColumn::make('deskripsi')
-                    ->limit(50)
-                    ->tooltip(function (Tables\Columns\TextColumn $column): ?string {
-                        $state = $column->getState();
-                        if (strlen($state) <= $column->getLimit()) {
-                            return null;
-                        }
-                        return $state;
-                    }),
+
                 Tables\Columns\BadgeColumn::make('status_aktif')
                     ->colors([
                         'success' => 'aktif',

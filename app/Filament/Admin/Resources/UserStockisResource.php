@@ -17,7 +17,9 @@ class UserStockisResource extends Resource
     protected static ?string $model = User::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $navigationLabel = 'User Stockis';
+    protected static ?string $navigationLabel = 'Data Stockis';
+
+    protected static ?string $navigationGroup = "Master Data";
     public static function form(Form $form): Form
     {
         return $form
@@ -154,10 +156,7 @@ class UserStockisResource extends Resource
     {
         return parent::getEloquentQuery()->where('isStockis', true);
     }
-    public static function getNavigationLabel(): string
-    {
-        return 'User Stockis';
-    }
+
 
     public static function getPages(): array
     {

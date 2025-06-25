@@ -17,7 +17,9 @@ class UserMitraResource extends Resource
     protected static ?string $model = User::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $navigationLabel = 'User Mitra';
+    protected static ?string $navigationLabel = 'Data Mitra';
+
+    protected static ?string $navigationGroup = "Master Data";
     public static function form(Form $form): Form
     {
         return $form
@@ -165,8 +167,5 @@ class UserMitraResource extends Resource
         return parent::getEloquentQuery()->where('isMitraBasic', true);
     }
 
-    public static function getNavigationLabel(): string
-    {
-        return 'User Mitra';
-    }
+ 
 }
