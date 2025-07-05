@@ -5,6 +5,7 @@ namespace App\Livewire\User;
 use App\Models\Pembelian;
 use App\Models\PembelianDetail;
 use App\Models\Produk;
+use App\Models\ProdukStok;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -27,11 +28,23 @@ class PembelianProdukStockis extends Component
     public $alamat = '';
     public $tanggal = '';
 
+    // Cart sidebar properties
+    public $showCartSidebar = false;
+
     public function mount()
     {
         $this->cart = Session::get('cart', []);
         $this->loadProduks();
         $this->updateTotals();
+
+        // Auto-fill form dengan data user yang login
+        $user = Auth::user();
+        if ($user) {
+            $this->nama = $user->nama;
+            $this->telepon = $user->no_telp;
+            $this->alamat = $user->alamat;
+            $this->tanggal = now()->format('Y-m-d');
+        }
     }
 
     public function updatedSearch()
@@ -218,7 +231,7 @@ class PembelianProdukStockis extends Component
                 'jumlah_poin_qr' => 0, // isi jika ada logic poin
             ]);
 
-            // 2. Simpan detail produk ke pembelian_details
+            // 2. Simpan detail produk ke pembelian_details dan tambahkan stok
             foreach ($cart as $item) {
                 // Ambil data produk untuk field paket
                 $produk = Produk::find($item['id']);
@@ -234,9 +247,37 @@ class PembelianProdukStockis extends Component
                     'user_id_get_bonus_sponsor' => null, // isi jika ada
                     'group_user_id_get_bonus_generasi' => null, // isi jika ada
                 ]);
+
+                // 3. Tambahkan stok produk ke user yang melakukan pembelian
+                $existingStok = ProdukStok::where('user_id', Auth::id())
+                    ->where('produk_id', $item['id'])
+                    ->first();
+
+                if ($existingStok) {
+                    // Update stok yang sudah ada
+                    $existingStok->update([
+                        'stok' => $existingStok->stok + $item['qty'],
+                    ]);
+                } else {
+                    // Buat stok baru
+                    ProdukStok::create([
+                        'user_id' => Auth::id(),
+                        'produk_id' => $item['id'],
+                        'stok' => $item['qty'],
+                    ]);
+                }
             }
 
-            // 3. Kosongkan cart dan form
+            // 3. Update data user jika ada perubahan
+            DB::table('users')
+                ->where('id', Auth::id())
+                ->update([
+                    'nama' => $this->nama,
+                    'no_telp' => $this->telepon,
+                    'alamat' => $this->alamat,
+                ]);
+
+            // 4. Kosongkan cart dan form
             Session::forget('cart');
             $this->cart = [];
             $this->nama = '';
@@ -244,6 +285,7 @@ class PembelianProdukStockis extends Component
             $this->alamat = '';
             $this->tanggal = '';
             $this->updateTotals();
+            $this->showCartSidebar = false; // Tutup sidebar setelah checkout
 
             DB::commit();
 
@@ -253,6 +295,11 @@ class PembelianProdukStockis extends Component
             DB::rollBack();
             session()->flash('error', 'Checkout gagal: ' . $e->getMessage());
         }
+    }
+
+    public function toggleCartSidebar()
+    {
+        $this->showCartSidebar = !$this->showCartSidebar;
     }
 
     public function render()

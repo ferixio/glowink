@@ -8,13 +8,15 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class PembeliansResource extends Resource
 {
     protected static ?string $model = Pembelian::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $label = 'Daftar Pembelian Stockis';
+    protected static ?string $label = 'Daftar Pembelian';
+    protected static ?string $navigationLabel = 'Daftar Pembelian';
 
     public static function form(Form $form): Form
     {
@@ -32,7 +34,7 @@ class PembeliansResource extends Resource
                     ->searchable()->label("id")
                     ->url(fn($record) => static::getUrl('detail', ['record' => $record])),
                 Tables\Columns\TextColumn::make('nama_penerima')
-                    ->searchable()->label("Nama Penerima"),
+                    ->searchable()->label("Nama Penerima")->url(fn($record) => static::getUrl('detail', ['record' => $record])),
 
             ])
             ->filters([
@@ -54,7 +56,15 @@ class PembeliansResource extends Resource
             //
         ];
     }
-
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->where(function ($query) {
+            $query->where('user_id', auth()->id())
+                ->orWhereHas('user', function ($q) {
+                    $q->where('id', auth()->id());
+                });
+        });
+    }
     public static function getPages(): array
     {
         return [

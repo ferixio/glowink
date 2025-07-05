@@ -9,9 +9,17 @@ class PembelianProduk extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
     protected static string $view = 'filament.user.pages.pembelian-produk';
+
+    protected static ?string $navigationLabel = null;
+
+    public static function getNavigationLabel(): string
+    {
+        return auth()->user()?->isStockis ? 'Pembelian Produk Stockis' : 'Pembelian Produk Mitra';
+    }
     public function getTitle(): string
     {
-        return '';
+        $isStockis = Auth::user()?->isStockis ?? false;
+        return $isStockis ? 'Pembelian Produk Stockis' : 'Pembelian Produk Mitra';
     }
 
     protected function getViewData(): array

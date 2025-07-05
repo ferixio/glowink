@@ -1,4 +1,4 @@
-<div class="flex gap-6 ">
+<div class="flex gap-6">
     {{-- Flash Messages --}}
     @if (session()->has('success'))
         <div class="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded z-50"
@@ -14,10 +14,99 @@
         </div>
     @endif
 
+    {{-- Mobile/Tablet Cart Icon --}}
+    <div class="lg:hidden fixed top-4 right-4 z-40">
+        <button wire:click="toggleCartSidebar"
+            class="relative bg-orange-200 hover:bg-orange-300 text-gray-800 p-3 rounded-full shadow-lg transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01">
+                </path>
+            </svg>
+            @if ($totalQty > 0)
+                <span
+                    class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold">
+                    {{ $totalQty }}
+                </span>
+            @endif
+        </button>
+    </div>
+
+    {{-- Mobile/Tablet Cart Sidebar --}}
+    @if ($showCartSidebar)
+        <div class="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-50" wire:click="toggleCartSidebar"></div>
+        <div class="lg:hidden fixed top-0 right-0 h-full w-80 bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out"
+            x-data x-init="$nextTick(() => {
+                $el.addEventListener('click', (e) => e.stopPropagation());
+            })">
+            <div class="flex items-center justify-between p-4 border-b">
+                <h2 class="text-lg font-semibold text-gray-800">Keranjang Belanja</h2>
+                <button wire:click="toggleCartSidebar" class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+            <div class="flex flex-col h-full">
+                {{-- Cart Items --}}
+                <div class="flex-1 overflow-y-auto p-4 space-y-4">
+                    @forelse ($cart as $item)
+                        <div class="flex items-center justify-between border-b pb-4">
+                            <div class="flex items-center space-x-3">
+                                <img src="{{ $item['gambar'] ? asset('storage/' . $item['gambar']) : asset('images/empty.webp') }}"
+                                    alt="Product" class="w-12 h-12 rounded-full object-cover">
+                                <div>
+                                    <h4 class="text-sm font-semibold text-gray-800">{{ $item['nama'] }}</h4>
+                                    <p class="text-sm text-red-600 font-semibold">Rp.
+                                        {{ number_format($item['harga'], 0, ',', '.') }}</p>
+                                    {{-- Increment-Decrement --}}
+                                    <div class="flex items-center mt-2 space-x-2">
+                                        <button type="button"
+                                            class="w-7 h-7 flex items-center justify-center bg-gray-200 rounded-full hover:bg-gray-300 text-gray-700 text-sm font-bold"
+                                            wire:click="decrement({{ $item['id'] }})">−</button>
+                                        <span class="text-sm font-medium w-6 text-center">{{ $item['qty'] }}</span>
+                                        <button type="button"
+                                            class="w-7 h-7 flex items-center justify-center bg-gray-200 rounded-full hover:bg-gray-300 text-gray-700 text-sm font-bold"
+                                            wire:click="increment({{ $item['id'] }})">+</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="text-red-600 hover:text-red-800 text-lg font-bold"
+                                wire:click="remove({{ $item['id'] }})">×</button>
+                        </div>
+                    @empty
+                        <div class="text-gray-500 text-center py-8">Keranjang kosong</div>
+                    @endforelse
+                </div>
+
+                {{-- Cart Summary --}}
+                <div class="p-4 border-t bg-gray-50">
+                    <h3 class="text-sm font-semibold text-gray-800 mb-2">Total Pembelian</h3>
+                    <div class="flex justify-between text-sm text-gray-700 mb-2">
+                        <span>Total Quantity</span>
+                        <span>{{ $totalQty }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm text-gray-700 mb-4">
+                        <span>Total Pembelian</span>
+                        <span class="font-semibold text-black">Rp. {{ number_format($totalPrice, 0, ',', '.') }}</span>
+                    </div>
+                    <button
+                        class="w-full bg-orange-200 hover:bg-orange-300 text-gray-800 font-semibold py-2 px-4 rounded-md transition"
+                        wire:click="checkout" @if ($totalQty == 0) disabled @endif>
+                        Proses Pembelian
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
     {{-- Produk --}}
-    <div class="w-8/12">
+    <div class="w-full lg:w-8/12 pt-16 lg:pt-0">
         <h1 class="text-3xl my-4 font-bold">Pembelian Produk oleh Stockis</h1>
-        <section class="w-full py-4">
+
+
+        <section class="w-full py-2">
             <form class="space-y-6" wire:submit.prevent>
                 {{-- Baris 1: Nama Pemesan & No Telp --}}
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -25,7 +114,7 @@
                         <label for="nama" class="block text-sm font-medium text-gray-700">Nama Pemesan</label>
                         <input type="text" id="nama" wire:model="nama"
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
-                            placeholder="nama pemesan">
+                            placeholder="Nama akan terisi otomatis dari profil Anda">
                         @error('nama')
                             <span class="text-red-500 text-sm">{{ $message }}</span>
                         @enderror
@@ -34,7 +123,7 @@
                         <label for="telepon" class="block text-sm font-medium text-gray-700">No Telp</label>
                         <input type="text" id="telepon" wire:model="telepon"
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
-                            placeholder="nomor telp / whatsapp pemesan">
+                            placeholder="Nomor telepon akan terisi otomatis">
                         @error('telepon')
                             <span class="text-red-500 text-sm">{{ $message }}</span>
                         @enderror
@@ -47,7 +136,7 @@
                             Pengiriman</label>
                         <input type="text" id="alamat" wire:model="alamat"
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
-                            placeholder="Masukkan alamat pengiriman">
+                            placeholder="Alamat akan terisi otomatis dari profil Anda">
                         @error('alamat')
                             <span class="text-red-500 text-sm">{{ $message }}</span>
                         @enderror
@@ -102,21 +191,21 @@
                 </button>
             </div>
             {{-- Grid Product --}}
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
                 @forelse ($produks as $produk)
                     <button wire:click="addToCart({{ $produk->id }})" class="flex flex-col items-start">
                         {{-- Card: Gambar + Gradient + Teks --}}
                         <div class="rounded-xl shadow-md overflow-hidden relative w-full">
                             {{-- Gambar --}}
                             <img src="{{ $produk->gambar ? asset('storage/' . $produk->gambar) : asset('images/empty.webp') }}"
-                                alt="Product Image" class="w-full h-48 object-cover rounded-t-xl">
+                                alt="Product Image" class="w-full h-32 md:h-40 lg:h-48 object-cover rounded-t-xl">
                             {{-- Gradient hitam dari bawah --}}
                             <div
-                                class="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-black/50 via-black/20 to-transparent z-10 rounded-t-xl">
+                                class="absolute bottom-0 left-0 right-0 h-16 md:h-20 lg:h-20 bg-gradient-to-t from-black/50 via-black/20 to-transparent z-10 rounded-t-xl">
                             </div>
                             {{-- Teks di atas gradient --}}
-                            <div class="absolute bottom-3 left-2 z-20 text-white">
-                                <h3 class="text-sm font-bold leading-tight">
+                            <div class="absolute bottom-2 md:bottom-3 left-2 z-20 text-white">
+                                <h3 class="text-xs md:text-sm font-bold leading-tight">
                                     {{ $produk->nama }}<br>
                                 </h3>
                                 <p class="text-xs mt-1">
@@ -127,13 +216,13 @@
                         </div>
                         {{-- Harga di luar card --}}
                         <div class="mt-2 px-1">
-                            <p class="text-orange-600 font-semibold text-sm">
+                            <p class="text-orange-600 font-semibold text-xs md:text-sm">
                                 Rp. {{ number_format($produk->harga_member, 0, ',', '.') }},-
                             </p>
                         </div>
                     </button>
                 @empty
-                    <div class="col-span-2 md:col-span-4 text-center py-8">
+                    <div class="col-span-2 md:col-span-3 lg:col-span-4 text-center py-8">
                         <div class="text-gray-500">
                             @if (!empty($search))
                                 Tidak ada produk yang cocok dengan pencarian "{{ $search }}"
@@ -147,7 +236,7 @@
         </section>
     </div>
     {{-- keranjang --}}
-    <div class="w-4/12">
+    <div class="hidden lg:block w-4/12">
         {{-- Bagian cart yang sudah ada sebelumnya --}}
         <div class="sticky top-12 w-full max-w-md  shadow p-5 space-y-4 h-[calc(100vh-3rem)] flex flex-col">
             <h2 class="text-base font-semibold text-gray-800">Detail Pembelian</h2>

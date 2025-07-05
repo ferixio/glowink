@@ -4,105 +4,117 @@ namespace App\Filament\Admin\Resources;
 
 use App\Filament\Admin\Resources\UserStockisResource\Pages;
 use App\Models\User;
+use App\Services\LocationService;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Hash;
 
 class UserStockisResource extends Resource
 {
     protected static ?string $model = User::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $navigationLabel = 'Data Stockis';
+    protected static ?string $navigationLabel = null;
+
+    public static function getNavigationLabel(): string
+    {
+        return auth()->user()?->isStockis ? 'Data Stockis' : 'Convert to Stockis';
+    }
 
     protected static ?string $navigationGroup = "Master Data";
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('User Information')
+                Forms\Components\Section::make('Update Data Stockis')
+                    ->description('Pilih Mitra Basic atau Mitra Karir untuk mengubahnya menjadi Stockis')
                     ->schema([
-                        Forms\Components\TextInput::make('id_mitra')
-                            ->label('ID Mitra')
-                            ->unique(ignoreRecord: true),
-                        Forms\Components\TextInput::make('username')
-                            ->required()
-                            ->unique(ignoreRecord: true),
-                        Forms\Components\TextInput::make('email')
-                            ->email()
-                            ->required()
-                            ->unique(ignoreRecord: true),
-                        Forms\Components\TextInput::make('password')
-                            ->password()
-                            ->dehydrated(fn($state) => filled($state))
-                            ->dehydrateStateUsing(fn($state) => Hash::make($state)),
+
                         Forms\Components\Grid::make(2)
                             ->schema([
-                                Forms\Components\Toggle::make('isAdmin')
-                                    ->label('Admin')
-                                    ->default(false),
-                                Forms\Components\Toggle::make('isStockis')
-                                    ->label('Stockis')
-                                    ->default(false),
-                                Forms\Components\Toggle::make('isMitraBasic')
-                                    ->label('Mitra Basic')
-                                    ->default(false),
-                                Forms\Components\Toggle::make('isMitraKarir')
-                                    ->label('Mitra Karir')
-                                    ->default(false),
+                                Forms\Components\Select::make('id')
+                                    ->label('Pilih Mitra')
+                                    ->options(function () {
+                                        return User::where('isMitraBasic', true)
+                                            ->orWhere('isMitraKarir', true)
+                                            ->pluck('nama', 'id')
+                                            ->toArray();
+                                    })
+                                    ->searchable()
+                                    ->required()
+                                    ->disabled(fn($record) => $record !== null)
+                                    ->live()
+                                    ->afterStateUpdated(function ($state, callable $set) {
+                                        if ($state) {
+                                            $user = User::find($state);
+                                            if ($user) {
+                                                $set('nama', $user->nama);
+                                                $set('provinsi', $user->provinsi);
+                                                $set('kabupaten', $user->kabupaten);
+                                            }
+                                        }
+                                    }),
+
+                                Forms\Components\TextInput::make('nama')
+                                    ->required()
+                                    ->label('Nama Lengkap')
+                                    ->disabled(),
+                                Forms\Components\Select::make('provinsi')
+                                    ->label('Provinsi')
+                                    ->options(LocationService::getProvinces())
+                                    ->searchable()
+                                    ->required()
+                                    ->live()
+                                    ->afterStateUpdated(fn() => null),
+                                Forms\Components\Select::make('kabupaten')
+                                    ->label('Kabupaten/Kota')
+                                    ->options(function (callable $get) {
+                                        $provinceId = $get('provinsi');
+                                        if (!$provinceId) {
+                                            return [];
+                                        }
+
+                                        $regencies = LocationService::getRegenciesByProvince($provinceId);
+                                        $options = [];
+                                        foreach ($regencies as $regency) {
+                                            $options[$regency['name']] = $regency['name'];
+                                        }
+                                        return $options;
+                                    })
+                                    ->searchable()
+                                    ->required()
+                                    ->disabled(fn(callable $get) => !$get('provinsi')),
+                                Forms\Components\Placeholder::make('current_status')
+                                    ->label('Status Saat Ini')
+                                    ->content(function (callable $get) {
+                                        $userId = $get('id');
+                                        if ($userId) {
+                                            $user = User::find($userId);
+                                            if ($user) {
+                                                $status = [];
+                                                if ($user->isMitraBasic) {
+                                                    $status[] = 'Mitra Basic';
+                                                }
+
+                                                if ($user->isMitraKarir) {
+                                                    $status[] = 'Mitra Karir';
+                                                }
+
+                                                return implode(', ', $status) ?: 'Tidak ada status';
+                                            }
+                                        }
+                                        return 'Pilih mitra terlebih dahulu';
+                                    }),
+                                Forms\Components\Placeholder::make('new_status')
+                                    ->label('Status Baru')
+                                    ->content('Stockis'),
                             ]),
-                        Forms\Components\TextInput::make('nama')
-                            ->required()
-                            ->label('Nama Lengkap'),
+
                     ]),
 
-                Forms\Components\Section::make('Contact Information')
-                    ->schema([
-                        Forms\Components\TextInput::make('provinsi')->required(),
-                        Forms\Components\TextInput::make('kabupaten')->required(),
-                        Forms\Components\Textarea::make('alamat')
-                            ->required()
-                            ->columnSpanFull(),
-                        Forms\Components\TextInput::make('no_telp')
-                            ->label('No. Telepon')
-                            ->tel()
-                            ->required(),
-                    ]),
-
-                Forms\Components\Section::make('Bank Information')
-                    ->schema([
-                        Forms\Components\TextInput::make('no_rek')
-                            ->label('No. Rekening')
-                            ->required(),
-                        Forms\Components\TextInput::make('nama_rekening')
-                            ->required(),
-                        Forms\Components\TextInput::make('bank')
-                            ->required(),
-                    ]),
-
-                Forms\Components\Section::make('Sponsor Information')
-                    ->schema([
-                        Forms\Components\Select::make('id_sponsor')
-                            ->relationship('sponsor', 'nama')
-                            ->label('Sponsor'),
-                        Forms\Components\TextInput::make('group_sponsor')
-                            ->required(),
-                    ]),
-
-                Forms\Components\Section::make('Career Information')
-                    ->schema([
-                        Forms\Components\TextInput::make('plan_karir_sekarang')
-                            ->required(),
-                        Forms\Components\TextInput::make('next_plan_karir')
-                            ->required(),
-                        Forms\Components\TextInput::make('next_poin_karir')
-                            ->numeric()
-                            ->default(0),
-                    ]),
             ]);
     }
 
@@ -110,25 +122,30 @@ class UserStockisResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ToggleColumn::make('isAdmin')
-                    ->label('Admin'),
-                Tables\Columns\TextColumn::make('id_mitra')
-                    ->label('ID Mitra')
+                Tables\Columns\TextColumn::make('id')
+                    ->label('ID')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('nama')
                     ->label('Nama Mitra')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('email')
+                Tables\Columns\TextColumn::make('provinsi')
+                    ->label('Provinsi')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('no_telp')
-                    ->label('No. Telepon'),
-                Tables\Columns\TextColumn::make('plan_karir_sekarang')
-                    ->label('Plan Karir'),
+                Tables\Columns\TextColumn::make('kabupaten')
+                    ->label('Kabupaten/Kota')
+                    ->searchable(),
+
                 Tables\Columns\TextColumn::make('saldo_penghasilan')
                     ->money('IDR'),
                 Tables\Columns\TextColumn::make('poin_reward')
                     ->numeric(),
-                Tables\Columns\TextColumn::make('created_at')
+                Tables\Columns\TextColumn::make('no_telp')
+                    ->label('No. Telepon')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('plan_karir_sekarang')
+                    ->label('Plan Karir')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -140,9 +157,7 @@ class UserStockisResource extends Resource
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // No bulk actions for update-only resource
             ]);
     }
 
@@ -154,9 +169,15 @@ class UserStockisResource extends Resource
     }
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->where('isStockis', true);
+        return parent::getEloquentQuery()->where(function ($query) {
+            $query->where('isStockis', true);
+        });
     }
 
+    public static function getCreateButtonLabel(): string
+    {
+        return 'Update';
+    }
 
     public static function getPages(): array
     {

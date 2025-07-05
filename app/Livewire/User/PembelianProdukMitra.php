@@ -2,8 +2,14 @@
 
 namespace App\Livewire\User;
 
+use App\Models\Pembelian;
+use App\Models\PembelianDetail;
 use App\Models\Produk;
+use App\Models\ProdukStok;
 use App\Models\User;
+use App\Services\LocationService;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Livewire\Component;
 
@@ -12,6 +18,7 @@ class PembelianProdukMitra extends Component
 
     public $cart = [];
     public $stockistList = [];
+    public $selectedStockist = '';
     public $totalQty = 0;
     public $totalPrice = 0;
     public $produks = [];
@@ -19,23 +26,135 @@ class PembelianProdukMitra extends Component
     public $filteredProduks = [];
     public $activeFilter = 'all';
 
+    public $currentPage = 0;
+
+    // Kabupaten filtering properties
+    public $kabupatenList = [];
+    public $selectedKabupaten = '';
+    public $kabupatenSearch = '';
+    public $showKabupatenDropdown = false;
+    public $filteredKabupatenList = [];
+
     // Form properties
     public $nama = '';
     public $telepon = '';
     public $alamat = '';
     public $tanggal = '';
+    public $nama_bank = '';
+    public $no_rekening = '';
+
+    // Cart sidebar properties
+    public $showCartSidebar = false;
 
     public function mount()
     {
         $this->cart = Session::get('cart', []);
+        $this->currentPage = 0;
         $this->loadProduks();
         $this->updateTotals();
+        $this->loadKabupatenList();
         $this->loadStockis();
+    }
+
+    public function loadKabupatenList()
+    {
+        $regencies = LocationService::getRegencies();
+        $this->kabupatenList = [];
+
+        // Flatten all regencies into a single list
+        foreach ($regencies as $provinceRegencies) {
+            foreach ($provinceRegencies as $regency) {
+                $this->kabupatenList[] = [
+                    'id' => $regency['id'],
+                    'nama' => $regency['name'],
+                ];
+            }
+        }
+
+        // Sort by name
+        usort($this->kabupatenList, function ($a, $b) {
+            return strcmp($a['nama'], $b['nama']);
+        });
+
+        $this->filteredKabupatenList = $this->kabupatenList;
+    }
+
+    public function updatedKabupatenSearch()
+    {
+        if (empty($this->kabupatenSearch)) {
+            $this->filteredKabupatenList = $this->kabupatenList;
+            $this->showKabupatenDropdown = false;
+        } else {
+            $searchTerm = strtolower(trim($this->kabupatenSearch));
+            $this->filteredKabupatenList = array_filter($this->kabupatenList, function ($kabupaten) use ($searchTerm) {
+                return strpos(strtolower($kabupaten['nama']), $searchTerm) !== false;
+            });
+            $this->showKabupatenDropdown = true;
+        }
+
+        // If search matches exactly one item, auto-select it
+        if (count($this->filteredKabupatenList) === 1) {
+            $firstItem = reset($this->filteredKabupatenList);
+            if (strtolower($firstItem['nama']) === strtolower(trim($this->kabupatenSearch))) {
+                $this->selectKabupaten($firstItem['nama']);
+            }
+        }
+    }
+
+    public function selectKabupaten($kabupatenName)
+    {
+        $this->selectedKabupaten = $kabupatenName;
+        $this->kabupatenSearch = $kabupatenName;
+        $this->showKabupatenDropdown = false;
+        $this->selectedStockist = ''; // Reset selected stockist when kabupaten changes
+        $this->loadStockis();
+        $this->loadProduks();
+    }
+
+    public function clearKabupatenSearch()
+    {
+        $this->kabupatenSearch = '';
+        $this->selectedKabupaten = '';
+        $this->showKabupatenDropdown = false;
+        $this->filteredKabupatenList = $this->kabupatenList;
+        $this->selectedStockist = '';
+        $this->loadStockis();
+        $this->loadProduks();
+    }
+
+    public function closeKabupatenDropdown()
+    {
+        $this->showKabupatenDropdown = false;
     }
 
     public function loadStockis()
     {
-        $this->stockistList = User::where('isStockis', true)->get();
+        $query = User::where('isStockis', true);
+
+        // Filter by kabupaten if selected
+        if (!empty($this->selectedKabupaten)) {
+            $query->where('kabupaten', $this->selectedKabupaten);
+        }
+
+        $this->stockistList = $query->get();
+    }
+
+    public function updatedSelectedKabupaten()
+    {
+        $this->selectedStockist = ''; // Reset selected stockist when kabupaten changes
+        $this->loadStockis();
+        $this->loadProduks();
+    }
+
+    public function selectStockist($stockistId)
+    {
+        $this->selectedStockist = $stockistId;
+        $this->loadProduks();
+    }
+
+    public function updatedSelectedStockist()
+    {
+        $this->loadProduks();
     }
 
     public function updatedSearch()
@@ -56,23 +175,54 @@ class PembelianProdukMitra extends Component
 
     private function loadProduks()
     {
-        $query = Produk::query();
+        // Jika tidak ada stockist yang dipilih, tampilkan semua produk tanpa stok
+        if (empty($this->selectedStockist)) {
+            $query = Produk::query();
+
+            // Filter by package type
+            if ($this->activeFilter === 'aktivasi') {
+                $query->where('paket', 1);
+            } elseif ($this->activeFilter === 'quick_reward') {
+                $query->where('paket', 2);
+            }
+
+            if (!empty($this->search)) {
+                $searchTerm = trim($this->search);
+
+                $query->where(function ($q) use ($searchTerm) {
+                    $q->where('nama', 'LIKE', "%{$searchTerm}%")
+                        ->orWhere('paket', 'LIKE', "%{$searchTerm}%")
+                        ->orWhere('deskripsi', 'LIKE', "%{$searchTerm}%")
+                        ->orWhere('id', 'LIKE', "%{$searchTerm}%");
+                });
+            }
+
+            $this->produks = $query->get();
+            $this->filteredProduks = $this->produks;
+            return;
+        }
+
+        // Jika ada stockist yang dipilih, tampilkan produk dengan stok
+        $query = Produk::join('produk_stoks', 'produks.id', '=', 'produk_stoks.produk_id')
+            ->where('produk_stoks.user_id', $this->selectedStockist)
+            ->where('produk_stoks.stok', '>', 0) // Hanya produk dengan stok > 0
+            ->select('produks.*', 'produk_stoks.stok as stok_tersedia');
 
         // Filter by package type
         if ($this->activeFilter === 'aktivasi') {
-            $query->where('paket', 1);
+            $query->where('produks.paket', 1);
         } elseif ($this->activeFilter === 'quick_reward') {
-            $query->where('paket', 2);
+            $query->where('produks.paket', 2);
         }
 
         if (!empty($this->search)) {
             $searchTerm = trim($this->search);
 
             $query->where(function ($q) use ($searchTerm) {
-                $q->where('nama', 'LIKE', "%{$searchTerm}%")
-                    ->orWhere('paket', 'LIKE', "%{$searchTerm}%")
-                    ->orWhere('deskripsi', 'LIKE', "%{$searchTerm}%")
-                    ->orWhere('id', 'LIKE', "%{$searchTerm}%");
+                $q->where('produks.nama', 'LIKE', "%{$searchTerm}%")
+                    ->orWhere('produks.paket', 'LIKE', "%{$searchTerm}%")
+                    ->orWhere('produks.deskripsi', 'LIKE', "%{$searchTerm}%")
+                    ->orWhere('produks.id', 'LIKE', "%{$searchTerm}%");
             });
         }
 
@@ -83,15 +233,42 @@ class PembelianProdukMitra extends Component
     public function addToCart($produkId)
     {
         try {
+            // Validasi apakah kabupaten sudah dipilih
+            if (empty($this->selectedKabupaten)) {
+                session()->flash('error', 'Silakan pilih Kabupaten/Kota terlebih dahulu');
+                return;
+            }
+
+            // Validasi apakah stockist sudah dipilih
+            if (empty($this->selectedStockist)) {
+                session()->flash('error', 'Silakan pilih Stockist terlebih dahulu');
+                return;
+            }
+
+            // Validasi stok tersedia
+            $produkStok = ProdukStok::where('user_id', $this->selectedStockist)
+                ->where('produk_id', $produkId)
+                ->first();
+
+            if (!$produkStok || $produkStok->stok <= 0) {
+                session()->flash('error', 'Stok produk tidak tersedia');
+                return;
+            }
 
             $produk = Produk::find($produkId);
             if (!$produk) {
-
                 session()->flash('error', 'Produk tidak ditemukan');
                 return;
             }
 
             $cart = Session::get('cart', []);
+
+            // Cek apakah sudah ada di cart dan validasi stok
+            $currentQty = isset($cart[$produkId]) ? $cart[$produkId]['qty'] : 0;
+            if ($currentQty >= $produkStok->stok) {
+                session()->flash('error', 'Stok tidak mencukupi untuk menambahkan produk ini');
+                return;
+            }
 
             if (isset($cart[$produkId])) {
                 $cart[$produkId]['qty'] += 1;
@@ -102,6 +279,7 @@ class PembelianProdukMitra extends Component
                     'harga' => $produk->harga_member,
                     'qty' => 1,
                     'gambar' => $produk->gambar,
+                    'stockist_id' => $this->selectedStockist,
                 ];
             }
 
@@ -109,7 +287,6 @@ class PembelianProdukMitra extends Component
             $this->cart = $cart;
             $this->updateTotals();
 
-            // session()->flash('success', 'Produk berhasil ditambahkan ke keranjang');
         } catch (\Exception $e) {
             session()->flash('error', 'Terjadi kesalahan saat menambahkan produk');
         }
@@ -119,9 +296,25 @@ class PembelianProdukMitra extends Component
     {
         $cart = Session::get('cart', []);
 
+        // Validasi stok sebelum increment
+        $produkStok = ProdukStok::where('user_id', $this->selectedStockist)
+            ->where('produk_id', $produkId)
+            ->first();
+
+        if (!$produkStok) {
+            session()->flash('error', 'Stok produk tidak tersedia');
+            return;
+        }
+
         // Cari item berdasarkan id produk, bukan key array
         foreach ($cart as $key => $item) {
             if ($item['id'] == $produkId) {
+                // Cek apakah increment masih dalam batas stok
+                if ($item['qty'] >= $produkStok->stok) {
+                    session()->flash('error', 'Stok tidak mencukupi');
+                    return;
+                }
+
                 $cart[$key]['qty'] += 1;
                 Session::put('cart', $cart);
                 $this->cart = $cart;
@@ -169,6 +362,205 @@ class PembelianProdukMitra extends Component
         $this->totalPrice = collect($this->cart)->sum(function ($item) {
             return $item['qty'] * $item['harga'];
         });
+    }
+
+    public function changePage($page)
+    {
+        $this->currentPage = $page;
+        $this->showCartSidebar = false; // Tutup sidebar setelah pindah halaman
+    }
+
+    public function aktivasiMember()
+    {
+        // Validasi kabupaten dipilih
+        if (empty($this->selectedKabupaten)) {
+            session()->flash('error', 'Silakan pilih Kabupaten/Kota terlebih dahulu');
+            return;
+        }
+
+        // Validasi stockist dipilih
+        if (empty($this->selectedStockist)) {
+            session()->flash('error', 'Silakan pilih Stockist terlebih dahulu');
+            return;
+        }
+
+        // Validate form data
+        $this->validate([
+            'nama' => 'required|string|max:255',
+            'nama_bank' => 'required|string|max:255',
+            'no_rekening' => 'required|string|max:50',
+            'telepon' => 'required|string|max:20',
+            'alamat' => 'required|string|max:500',
+        ], [
+            'nama.required' => 'Nama pemesan harus diisi',
+            'nama_bank.required' => 'Nama bank harus diisi',
+            'no_rekening.required' => 'Nomor rekening harus diisi',
+            'telepon.required' => 'Nomor telepon harus diisi',
+            'alamat.required' => 'Alamat pengiriman harus diisi',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            // Update user data
+            User::where('id', Auth::id())->update([
+                'nama_rekening' => $this->nama,
+                'no_rek' => $this->no_rekening,
+                'bank' => $this->nama_bank,
+                'no_telp' => $this->telepon,
+                'alamat' => $this->alamat,
+            ]);
+
+            // Set tanggal to current date for aktivasi member
+            $this->tanggal = now()->format('Y-m-d');
+
+            // Call private checkout method
+            $this->processCheckout();
+
+            DB::commit();
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            session()->flash('error', 'Aktivasi member gagal: ' . $e->getMessage());
+        }
+    }
+
+    public function checkout()
+    {
+        // Validasi kabupaten dipilih
+        if (empty($this->selectedKabupaten)) {
+            session()->flash('error', 'Silakan pilih Kabupaten/Kota terlebih dahulu');
+            return;
+        }
+
+        // Validasi stockist dipilih
+        if (empty($this->selectedStockist)) {
+            session()->flash('error', 'Silakan pilih Stockist terlebih dahulu');
+            return;
+        }
+
+        // Validate form data
+        $this->validate([
+            'nama' => 'required|string|max:255',
+            'telepon' => 'required|string|max:20',
+            'alamat' => 'required|string|max:500',
+            'tanggal' => 'required|date',
+        ], [
+            'nama.required' => 'Nama pemesan harus diisi',
+            'telepon.required' => 'Nomor telepon harus diisi',
+            'alamat.required' => 'Alamat pengiriman harus diisi',
+            'tanggal.required' => 'Tanggal transaksi harus diisi',
+        ]);
+
+        $this->processCheckout();
+    }
+
+    private function processCheckout()
+    {
+        DB::beginTransaction();
+        try {
+            // Validasi kabupaten dipilih
+            if (empty($this->selectedKabupaten)) {
+                session()->flash('error', 'Silakan pilih Kabupaten/Kota terlebih dahulu');
+                return;
+            }
+
+            $cart = Session::get('cart', []);
+            if (empty($cart)) {
+                session()->flash('error', 'Keranjang kosong!');
+                return;
+            }
+
+            // Validasi stok untuk semua item di cart
+            foreach ($cart as $item) {
+                $produkStok = ProdukStok::where('user_id', $this->selectedStockist)
+                    ->where('produk_id', $item['id'])
+                    ->first();
+
+                if (!$produkStok || $produkStok->stok < $item['qty']) {
+                    session()->flash('error', 'Stok produk ' . $item['nama'] . ' tidak mencukupi');
+                    return;
+                }
+            }
+
+            $pembelian = Pembelian::create([
+                'tgl_beli' => $this->tanggal,
+                'user_id' => Auth::id(),
+                'beli_dari' => $this->selectedStockist,
+                'tujuan_beli' => 'null',
+                'nama_penerima' => $this->nama,
+                'no_telp' => $this->telepon,
+                'alamat_tujuan' => $this->alamat,
+                'total_beli' => collect($cart)->sum(function ($item) {
+                    return $item['qty'] * $item['harga'];
+                }),
+                'total_bonus' => 0,
+                'status_pembelian' => 'pending',
+                'jumlah_poin_qr' => 0,
+            ]);
+
+            // Simpan detail produk dan kurangi stok
+            foreach ($cart as $item) {
+                $produk = Produk::find($item['id']);
+                PembelianDetail::create([
+                    'pembelian_id' => $pembelian->id,
+                    'produk_id' => $item['id'],
+                    'nama_produk' => $item['nama'],
+                    'paket' => $produk ? $produk->paket : '',
+                    'jml_beli' => $item['qty'],
+                    'harga_beli' => $item['harga'],
+                    'nominal_bonus_sponsor' => 0,
+                    'nominal_bonus_generasi' => 0,
+                    'user_id_get_bonus_sponsor' => null,
+                    'group_user_id_get_bonus_generasi' => null,
+                ]);
+
+                // Kurangi stok stockist
+                $produkStok = ProdukStok::where('user_id', $this->selectedStockist)
+                    ->where('produk_id', $item['id'])
+                    ->first();
+
+                if ($produkStok) {
+                    $produkStok->update([
+                        'stok' => $produkStok->stok - $item['qty'],
+                    ]);
+                }
+            }
+
+            // Kosongkan cart dan form
+            Session::forget('cart');
+            $this->cart = [];
+            $this->nama = '';
+            $this->telepon = '';
+            $this->alamat = '';
+            $this->tanggal = '';
+            $this->nama_bank = '';
+            $this->no_rekening = '';
+            $this->updateTotals();
+            $this->showCartSidebar = false; // Tutup sidebar setelah checkout
+
+            // Reload produk untuk update stok
+            $this->loadProduks();
+
+            DB::commit();
+
+            session()->flash('success', 'Pembelian berhasil! Stok telah diperbarui.');
+            return redirect()->route('filament.user.resources.pembelians.detail', ['record' => $pembelian->id]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            session()->flash('error', 'Checkout gagal: ' . $e->getMessage());
+        }
+    }
+
+    public function showAllKabupaten()
+    {
+        $this->filteredKabupatenList = $this->kabupatenList;
+        $this->showKabupatenDropdown = true;
+    }
+
+    public function toggleCartSidebar()
+    {
+        $this->showCartSidebar = !$this->showCartSidebar;
     }
 
     public function render()

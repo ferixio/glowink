@@ -14,13 +14,14 @@ class DetailPembelian extends ViewRecord
 
     public function mount($record): void
     {
-        $this->record = Pembelian::with('details.produk')->findOrFail($record);
+        $this->record = Pembelian::with(['details.produk', 'seller'])->findOrFail($record);
     }
 
     protected function getViewData(): array
     {
         return [
             'pembelian' => $this->record,
+            'stockis' => $this->record->seller,
         ];
     }
 

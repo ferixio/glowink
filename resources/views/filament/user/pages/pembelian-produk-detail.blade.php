@@ -5,10 +5,10 @@
             <div class="bg-green-100 border border-green-400 text-green-800 px-6 py-4 rounded mb-6">
                 <h2 class="font-bold text-lg">Proses Pembelian telah masuk ke system</h2>
                 <p class="text-sm">Silahkan melakukan proses pembayaran ke rekening di bawah ini dan upload bukti
-                    transfer anda agar segera diproses oleh admin kami</p>
+                    transfer anda agar segera diproses oleh stockis</p>
                 <div class="mt-2 font-semibold">
-                    Bank BCA 299394021 <br>
-                    a.n. Surya Atmaja
+                    {{ $stockis->nama }} <br>
+                    a.n. {{ $stockis->nama_rekening }} <br>
                 </div>
             </div>
 
@@ -58,8 +58,8 @@
                         @foreach ($pembelian->details as $detail)
                             <div class="flex items-center justify-between border-b pb-2">
                                 <div class="flex items-center gap-4">
-                                    <img src="{{ $detail->gambar ? asset('storage/' . $detail->gambar) : asset('images/empty.webp') }}" alt="produk"
-                                        class="w-12 h-12 object-cover rounded">
+                                    <img src="{{ $detail->gambar ? asset('storage/' . $detail->gambar) : asset('images/empty.webp') }}"
+                                        alt="produk" class="w-12 h-12 object-cover rounded">
                                     <div>
                                         <p class="text-sm font-semibold">{{ $detail->nama_produk ?? 'Nama Produk' }}</p>
                                         <p class="text-sm text-red-500">

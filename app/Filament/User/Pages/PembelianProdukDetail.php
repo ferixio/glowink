@@ -14,15 +14,20 @@ class PembelianProdukDetail extends Page
 
     public ?Pembelian $pembelian = null;
 
+    public $stockis = null;
+
     public function mount(int $id): void
     {
-        $this->pembelian = Pembelian::with('details.produk')->findOrFail($id);
+        $this->pembelian = Pembelian::with(['details.produk', 'seller'])->findOrFail($id);
+   
+        $this->stockis = $this->pembelian->seller;
     }
 
     protected function getViewData(): array
     {
         return [
             'pembelian' => $this->pembelian,
+            'stockis' => $this->stockis,
         ];
     }
 
@@ -36,5 +41,4 @@ class PembelianProdukDetail extends Page
         return 'pembelian-detail/{id}';
     }
 
-  
 }

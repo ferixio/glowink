@@ -69,4 +69,22 @@ class User extends Authenticatable implements FilamentUser, HasName
     {
         return $this->belongsTo(User::class, 'id_sponsor');
     }
+
+    /**
+     * Relasi dengan stok produk yang dimiliki user
+     */
+    public function produkStoks()
+    {
+        return $this->hasMany(ProdukStok::class);
+    }
+
+    /**
+     * Relasi dengan produk yang dimiliki user (melalui ProdukStok)
+     */
+    public function produk()
+    {
+        return $this->belongsToMany(Produk::class, 'produk_stoks')
+            ->withPivot('stok')
+            ->withTimestamps();
+    }
 }
