@@ -61,4 +61,12 @@ class User extends Authenticatable implements FilamentUser, HasName
     {
         return $this->nama;
     }
+
+    /**
+     * Relasi sponsor untuk kebutuhan Filament Select::relationship('sponsor', 'nama')
+     */
+    public function sponsor()
+    {
+        return $this->belongsTo(User::class, 'id_sponsor');
+    }
 }

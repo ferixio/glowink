@@ -54,7 +54,7 @@ class UserPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ])->viteTheme('resources/css/filament/user/theme.css')->sidebarCollapsibleOnDesktop();
             
     }
 }

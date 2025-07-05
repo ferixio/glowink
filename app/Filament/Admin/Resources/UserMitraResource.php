@@ -42,18 +42,22 @@ class UserMitraResource extends Resource
                             ->dehydrateStateUsing(fn($state) => Hash::make($state)),
                         Forms\Components\Grid::make(2)
                             ->schema([
-                                Forms\Components\Toggle::make('isAdmin')
-                                    ->label('Admin')
-                                    ->default(false),
-                                Forms\Components\Toggle::make('isStockis')
-                                    ->label('Stockis')
-                                    ->default(false),
                                 Forms\Components\Toggle::make('isMitraBasic')
-                                    ->label('Mitra Basic')
-                                    ->default(false),
+                                    ->label('Mitra Basic')->live()
+                                    ->default(false)
+                                    ->afterStateUpdated(function ($state, callable $set) {
+                                        if ($state) {
+                                            $set('isMitraKarir', false);
+                                        }
+                                    }),
                                 Forms\Components\Toggle::make('isMitraKarir')
-                                    ->label('Mitra Karir')
-                                    ->default(false),
+                                    ->label('Mitra Karir')->live()
+                                    ->default(false)
+                                    ->afterStateUpdated(function ($state, callable $set) {
+                                        if ($state) {
+                                            $set('isMitraBasic', false);
+                                        }
+                                    }),
                             ]),
                         Forms\Components\TextInput::make('nama')
                             ->required()
@@ -89,8 +93,7 @@ class UserMitraResource extends Resource
                         Forms\Components\Select::make('id_sponsor')
                             ->relationship('sponsor', 'nama')
                             ->label('Sponsor'),
-                        Forms\Components\TextInput::make('group_sponsor')
-                            ->required(),
+
                     ]),
 
                 Forms\Components\Section::make('Career Information')
@@ -167,5 +170,4 @@ class UserMitraResource extends Resource
         return parent::getEloquentQuery()->where('isMitraBasic', true);
     }
 
- 
 }

@@ -26,9 +26,12 @@ class ProdukResource extends Resource
             ->schema([
                 Forms\Components\Section::make('Informasi Produk')
                     ->schema([
-                        Forms\Components\TextInput::make('paket')
-                            ->required()
-                            ->maxLength(255),
+                        Forms\Components\Select::make('paket')
+                            ->options([
+                                1 => 'Paket Aktivasi',
+                                2 => 'Paket Quick Reward',
+                            ])
+                            ->required(),
                         Forms\Components\TextInput::make('nama')
                             ->required()
                             ->maxLength(255),
@@ -66,7 +69,7 @@ class ProdukResource extends Resource
             ->columns([
                 Tables\Columns\ImageColumn::make('gambar')
                     ->disk('public')
-                    ->url(fn($record) => $record->gambar ? asset('storage/products/' . $record->gambar) : null),
+                    ->url(fn($record) => $record->gambar ? asset('storage/products/' . $record->gambar) : asset('images/empty.webp')),
                 Tables\Columns\TextColumn::make('nama')
                     ->searchable()->label("Nama Produk"),
                 Tables\Columns\TextColumn::make('paket')
