@@ -22,6 +22,7 @@ class DetailPembelian extends ViewRecord
         return [
             'pembelian' => $this->record,
             'stockis' => $this->record->seller,
+            'isApprovePage' => false,
         ];
     }
 

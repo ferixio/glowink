@@ -23,6 +23,7 @@ return new class extends Migration
             $table->decimal('total_beli', 10, 2);
             $table->decimal('total_bonus', 10, 2);
             $table->string('status_pembelian');
+            $table->string('images')->nullable();
             $table->integer('jumlah_poin_qr');
             $table->timestamps();
         });

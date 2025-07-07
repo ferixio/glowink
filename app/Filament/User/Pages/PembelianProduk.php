@@ -12,6 +12,8 @@ class PembelianProduk extends Page
 
     protected static ?string $navigationLabel = null;
 
+    protected static ?int $navigationSort = 2;
+
     public static function getNavigationLabel(): string
     {
         return auth()->user()?->isStockis ? 'Pembelian Produk Stockis' : 'Pembelian Produk Mitra';

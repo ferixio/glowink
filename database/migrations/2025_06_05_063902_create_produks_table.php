@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('nama');
             $table->decimal('harga_stokis', 10, 2);
             $table->decimal('harga_member', 10, 2);
-            $table->string('gambar');
+            $table->string('gambar')->nullable();
             $table->text('deskripsi');
             $table->string('status_aktif')->default('aktif');
             $table->timestamps();

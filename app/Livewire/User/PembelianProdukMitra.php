@@ -37,6 +37,7 @@ class PembelianProdukMitra extends Component
 
     // Form properties
     public $nama = '';
+    public $namaPenerima = '';
     public $telepon = '';
     public $alamat = '';
     public $tanggal = '';
@@ -413,7 +414,7 @@ class PembelianProdukMitra extends Component
             // Set tanggal to current date for aktivasi member
             $this->tanggal = now()->format('Y-m-d');
 
-            // Call private checkout method
+            // Call private checkout method without user data (use form data)
             $this->processCheckout();
 
             DB::commit();
@@ -424,7 +425,7 @@ class PembelianProdukMitra extends Component
         }
     }
 
-    public function checkout()
+    public function stockPribadi()
     {
         // Validasi kabupaten dipilih
         if (empty($this->selectedKabupaten)) {
@@ -438,23 +439,33 @@ class PembelianProdukMitra extends Component
             return;
         }
 
-        // Validate form data
-        $this->validate([
-            'nama' => 'required|string|max:255',
-            'telepon' => 'required|string|max:20',
-            'alamat' => 'required|string|max:500',
-            'tanggal' => 'required|date',
-        ], [
-            'nama.required' => 'Nama pemesan harus diisi',
-            'telepon.required' => 'Nomor telepon harus diisi',
-            'alamat.required' => 'Alamat pengiriman harus diisi',
-            'tanggal.required' => 'Tanggal transaksi harus diisi',
-        ]);
+        $user = Auth::user();
 
-        $this->processCheckout();
+        // Set tanggal to current date if empty
+        $tanggal = !empty($this->tanggal) ? $this->tanggal : now()->format('Y-m-d');
+
+        // Siapkan data user untuk dikirim ke processCheckout
+        $userData = [
+            'nama' => $this->nama,
+            'telepon' => $this->telepon,
+            'alamat' => $this->alamat,
+            'tanggal' => $tanggal,
+            'nama_bank' => $user->bank ?? '',
+            'no_rekening' => $user->no_rek ?? '',
+            'nama_rekening' => $user->nama_rekening ?? $user->nama ?? '',
+            'user_id' => $user->id,
+            'username' => $user->username,
+            'email' => $user->email,
+            'provinsi' => $user->provinsi ?? '',
+            'kabupaten' => $user->kabupaten ?? '',
+            'no_telp' => $user->no_telp ?? '',
+            'alamat_user' => $user->alamat ?? '',
+        ];
+
+        $this->processCheckout($userData);
     }
 
-    private function processCheckout()
+    private function processCheckout($userData = null)
     {
         DB::beginTransaction();
         try {
@@ -482,19 +493,43 @@ class PembelianProdukMitra extends Component
                 }
             }
 
+            // Gunakan data user jika tersedia, jika tidak gunakan data dari form
+            $namaPenerima = $userData['nama'] ?? $this->namaPenerima ?? $this->nama;
+            $noTelp = $userData['telepon'] ?? $this->telepon;
+            $alamatTujuan = $userData['alamat'] ?? $this->alamat;
+            $tanggalBeli = $userData['tanggal'] ?? (!empty($this->tanggal) ? $this->tanggal : now()->format('Y-m-d'));
+            $userId = $userData['user_id'] ?? Auth::id();
+
+            // Jika data form kosong, gunakan data dari user yang login
+            if (empty($namaPenerima)) {
+                $namaPenerima = $userData['nama_rekening'] ?? $userData['no_telp'] ?? Auth::user()->nama ?? '';
+            }
+            if (empty($noTelp)) {
+                $noTelp = $userData['no_telp'] ?? Auth::user()->no_telp ?? '';
+            }
+            if (empty($alamatTujuan)) {
+                $alamatTujuan = $userData['alamat_user'] ?? Auth::user()->alamat ?? '';
+            }
+
+            // Validasi data sebelum insert
+            if (empty($namaPenerima) || empty($noTelp) || empty($alamatTujuan)) {
+                session()->flash('error', 'Data penerima tidak lengkap. Silakan lengkapi data profil Anda terlebih dahulu.');
+                return;
+            }
+
             $pembelian = Pembelian::create([
-                'tgl_beli' => $this->tanggal,
-                'user_id' => Auth::id(),
+                'tgl_beli' => $tanggalBeli,
+                'user_id' => $userId,
                 'beli_dari' => $this->selectedStockist,
                 'tujuan_beli' => 'null',
-                'nama_penerima' => $this->nama,
-                'no_telp' => $this->telepon,
-                'alamat_tujuan' => $this->alamat,
+                'nama_penerima' => $namaPenerima,
+                'no_telp' => $noTelp,
+                'alamat_tujuan' => $alamatTujuan,
                 'total_beli' => collect($cart)->sum(function ($item) {
                     return $item['qty'] * $item['harga'];
                 }),
                 'total_bonus' => 0,
-                'status_pembelian' => 'pending',
+                'status_pembelian' => 'menunggu',
                 'jumlah_poin_qr' => 0,
             ]);
 
@@ -530,15 +565,15 @@ class PembelianProdukMitra extends Component
             Session::forget('cart');
             $this->cart = [];
             $this->nama = '';
+            $this->namaPenerima = '';
             $this->telepon = '';
             $this->alamat = '';
             $this->tanggal = '';
             $this->nama_bank = '';
             $this->no_rekening = '';
             $this->updateTotals();
-            $this->showCartSidebar = false; // Tutup sidebar setelah checkout
+            $this->showCartSidebar = false;
 
-            // Reload produk untuk update stok
             $this->loadProduks();
 
             DB::commit();
@@ -561,6 +596,63 @@ class PembelianProdukMitra extends Component
     public function toggleCartSidebar()
     {
         $this->showCartSidebar = !$this->showCartSidebar;
+    }
+
+    public function repeatOrder()
+    {
+        // Validasi kabupaten dipilih
+        if (empty($this->selectedKabupaten)) {
+            session()->flash('error', 'Silakan pilih Kabupaten/Kota terlebih dahulu');
+            return;
+        }
+
+        // Validasi stockist dipilih
+        if (empty($this->selectedStockist)) {
+            session()->flash('error', 'Silakan pilih Stockist terlebih dahulu');
+            return;
+        }
+
+        // Validasi cart tidak kosong
+        if (empty($this->cart)) {
+            session()->flash('error', 'Keranjang kosong! Silakan pilih produk terlebih dahulu.');
+            return;
+        }
+
+        // Validate form data
+        $this->validate([
+            'namaPenerima' => 'required|string|max:255',
+            'telepon' => 'required|string|max:20',
+            'alamat' => 'required|string|max:500',
+        ], [
+            'namaPenerima.required' => 'Nama penerima harus diisi',
+            'telepon.required' => 'Nomor telepon harus diisi',
+            'alamat.required' => 'Alamat pengiriman harus diisi',
+        ]);
+
+        $user = Auth::user();
+
+        // Set tanggal to current date
+        $tanggal = now()->format('Y-m-d');
+
+        // Siapkan data untuk dikirim ke processCheckout
+        $userData = [
+            'nama' => $this->namaPenerima, // Gunakan namaPenerima dari form
+            'telepon' => $this->telepon,
+            'alamat' => $this->alamat,
+            'tanggal' => $tanggal,
+            'nama_bank' => $user->bank ?? '',
+            'no_rekening' => $user->no_rek ?? '',
+            'nama_rekening' => $user->nama_rekening ?? $user->nama ?? '',
+            'user_id' => $user->id,
+            'username' => $user->username,
+            'email' => $user->email,
+            'provinsi' => $user->provinsi ?? '',
+            'kabupaten' => $user->kabupaten ?? '',
+            'no_telp' => $user->no_telp ?? '',
+            'alamat_user' => $user->alamat ?? '',
+        ];
+
+        $this->processCheckout($userData);
     }
 
     public function render()

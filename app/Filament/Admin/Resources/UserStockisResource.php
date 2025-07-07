@@ -21,7 +21,7 @@ class UserStockisResource extends Resource
 
     public static function getNavigationLabel(): string
     {
-        return auth()->user()?->isStockis ? 'Data Stockis' : 'Convert to Stockis';
+        return 'Data Stockis';
     }
 
     protected static ?string $navigationGroup = "Master Data";

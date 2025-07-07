@@ -20,7 +20,12 @@ class Pembelian extends Model
         'total_beli',
         'total_bonus',
         'status_pembelian',
+        'images',
         'jumlah_poin_qr',
+    ];
+
+    protected $casts = [
+        'images' => 'array',
     ];
 
     public function user()

@@ -15,7 +15,7 @@ class Dashboard extends BaseDashboard
         return 'Dashboard User';
     }
 
-    protected static ?string $title = 'Dashboard Uxxxser';
+    protected static ?string $title = 'Dashboard User';
 
     protected static ?int $navigationSort = -2;
 }

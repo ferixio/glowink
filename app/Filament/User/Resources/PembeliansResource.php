@@ -18,6 +18,8 @@ class PembeliansResource extends Resource
     protected static ?string $label = 'Daftar Pembelian';
     protected static ?string $navigationLabel = 'Daftar Pembelian';
 
+    protected static ?int $navigationSort = 3;
+
     public static function form(Form $form): Form
     {
         return $form
