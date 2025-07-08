@@ -64,7 +64,7 @@ class PembeliansResource extends Resource
             $query->where('user_id', auth()->id())
                 ->orWhereHas('user', function ($q) {
                     $q->where('id', auth()->id());
-                });
+                }) ->orderByDesc('updated_at');
         });
     }
     public static function getPages(): array

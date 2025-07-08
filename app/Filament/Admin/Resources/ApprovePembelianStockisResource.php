@@ -78,7 +78,7 @@ class ApprovePembelianStockisResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->where('beli_dari', 1);
+            ->where('beli_dari', 1) ->orderByDesc('updated_at');
     }
 
     public static function getPages(): array

@@ -81,7 +81,7 @@ class ApprovePembelianResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->where('beli_dari', auth()->id());
+            ->where('beli_dari', auth()->id()) ->orderByDesc('updated_at');
     }
 
     public static function canViewAny(): bool

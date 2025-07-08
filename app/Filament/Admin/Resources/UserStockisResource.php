@@ -170,7 +170,7 @@ class UserStockisResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()->where(function ($query) {
-            $query->where('isStockis', true);
+            $query->where('isStockis', true) ->orderByDesc('updated_at');
         });
     }
 
