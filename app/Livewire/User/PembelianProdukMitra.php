@@ -533,7 +533,7 @@ class PembelianProdukMitra extends Component
                 'jumlah_poin_qr' => 0,
             ]);
 
-            // Simpan detail produk dan kurangi stok
+            // Simpan detail produk (STOK STOCKIST AKAN DIKURANGI SAAT ADMIN APPROVE)
             foreach ($cart as $item) {
                 $produk = Produk::find($item['id']);
                 PembelianDetail::create([
@@ -549,16 +549,8 @@ class PembelianProdukMitra extends Component
                     'group_user_id_get_bonus_generasi' => null,
                 ]);
 
-                // Kurangi stok stockist
-                $produkStok = ProdukStok::where('user_id', $this->selectedStockist)
-                    ->where('produk_id', $item['id'])
-                    ->first();
-
-                if ($produkStok) {
-                    $produkStok->update([
-                        'stok' => $produkStok->stok - $item['qty'],
-                    ]);
-                }
+                // STOK STOCKIST AKAN DIKURANGI SAAT ADMIN APPROVE DI HALAMAN APPROVAL
+                // Tidak perlu mengurangi stok stockist di sini
             }
 
             // Kosongkan cart dan form
@@ -578,7 +570,7 @@ class PembelianProdukMitra extends Component
 
             DB::commit();
 
-            session()->flash('success', 'Pembelian berhasil! Stok telah diperbarui.');
+            session()->flash('success', 'Pembelian berhasil! Menunggu approval dari admin.');
             return redirect()->route('filament.user.resources.pembelians.detail', ['record' => $pembelian->id]);
 
         } catch (\Exception $e) {

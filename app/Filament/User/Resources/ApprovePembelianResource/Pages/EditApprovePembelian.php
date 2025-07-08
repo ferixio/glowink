@@ -18,14 +18,37 @@ class EditApprovePembelian extends EditRecord
             Actions\Action::make('Set Proses')
                 ->label('Diterima')
                 ->color('info')
-                ->visible(fn () => $this->record->status_pembelian === 'menunggu'
+                ->visible(fn() => $this->record->status_pembelian === 'menunggu'
                     || $this->record->status_pembelian === 'ditolak')
                 ->action(function () {
+                    if (!in_array($this->record->status_pembelian, ['proses', 'selesai'])) {
+                        foreach ($this->record->details as $detail) {
+                            // Tambah stok ke user pembeli
+                            $produkStok = \App\Models\ProdukStok::firstOrNew([
+                                'user_id' => $this->record->user_id,
+                                'produk_id' => $detail->produk_id,
+                            ]);
+                            $produkStok->stok = ($produkStok->stok ?? 0) + $detail->jml_beli;
+                            $produkStok->save();
+
+                            // Kurangi stok dari stockist (jika beli dari stockist)
+                            if ($this->record->beli_dari && $this->record->beli_dari != 1) {
+                                $stockistStok = \App\Models\ProdukStok::where('user_id', $this->record->beli_dari)
+                                    ->where('produk_id', $detail->produk_id)
+                                    ->first();
+                                if ($stockistStok && $stockistStok->stok >= $detail->jml_beli) {
+                                    $stockistStok->update([
+                                        'stok' => $stockistStok->stok - $detail->jml_beli,
+                                    ]);
+                                }
+                            }
+                        }
+                    }
                     $this->record->status_pembelian = 'proses';
                     $this->record->save();
                     Notification::make()
                         ->title('Berhasil')
-                        ->body('Status diubah menjadi proses.')
+                        ->body('Status diubah menjadi proses, stok ditambahkan ke pembeli dan dikurangi dari stockist.')
                         ->success()
                         ->send();
                     return redirect()->to($this->getResource()::getUrl('index'));
@@ -33,7 +56,7 @@ class EditApprovePembelian extends EditRecord
             Actions\Action::make('Set Ditolak')
                 ->label('Ditolak')
                 ->color('danger')
-                ->visible(fn () => $this->record->status_pembelian !== 'ditolak' )
+                ->visible(fn() => $this->record->status_pembelian !== 'ditolak')
                 ->action(function () {
                     $this->record->status_pembelian = 'ditolak';
                     $this->record->save();
@@ -47,7 +70,7 @@ class EditApprovePembelian extends EditRecord
             Actions\Action::make('Set Selesai')
                 ->label('Selesai')
                 ->color('success')
-                ->visible(fn () => $this->record->status_pembelian === 'proses' )
+                ->visible(fn() => $this->record->status_pembelian === 'proses')
                 ->action(function () {
                     $this->record->status_pembelian = 'selesai';
                     $this->record->save();
