@@ -2,7 +2,6 @@
     <div class="w-full mx-auto ">
 
         @if ($pembelian )
-            {{-- Informasi Transfer --}}
 
             @if(!$isApprovePage)
             <div class="bg-green-100 border border-green-400 text-green-800 px-6 py-4 rounded mb-6">
@@ -76,7 +75,7 @@
                             <div class="flex items-center justify-between border-b pb-2">
                                 <div class="flex items-center gap-4">
                                     <img src="{{ $detail->gambar ? asset('storage/' . $detail->gambar) : asset('images/empty.webp') }}"
-                                        alt="produk" class="w-12 h-12 object-cover rounded">
+                                        alt="produk" class="w-8 h-8 object-cover rounded">
                                     <div>
                                         <p class="text-sm font-semibold">{{ $detail->nama_produk ?? 'Nama Produk' }}
                                         </p>

@@ -227,7 +227,7 @@ class PembelianProdukStockis extends Component
                     return $item['qty'] * $item['harga'];
                 }),
                 'total_bonus' => 0, // isi sesuai logic bonus
-                'status_pembelian' => 'pending',
+                'status_pembelian' => 'menunggu',
                 'jumlah_poin_qr' => 0, // isi jika ada logic poin
             ]);
 
