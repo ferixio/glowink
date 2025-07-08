@@ -1,31 +1,24 @@
 <x-filament::page>
     <div class="w-full mx-auto ">
 
-        @if ($pembelian)
+        @if ($pembelian )
 
-            @if (!$isApprovePage)
-                <div class="bg-green-100 border border-green-400 text-green-800 px-6 py-4 rounded mb-6">
-                    <h2 class="font-bold text-lg">Proses Pembelian telah masuk ke system</h2>
-                    <p class="text-sm">Silahkan melakukan proses pembayaran ke rekening di bawah ini dan upload bukti
-                        transfer anda agar segera diproses oleh stockis</p>
-                    @if (!empty($company))
-                        <div class="mt-2 font-semibold">
-                            {{ $company->nama ?? '-' }} <br>
-                            {{ $company->alamat ?? '-' }} <br>
-                            Telp: {{ $company->telepon ?? '-' }} <br>
-                            Email: {{ $company->email ?? '-' }} <br>
-                            {{ $company->bank_name ?? '-' }} <br>
-                            a.n. {{ $company->bank_atas_nama ?? '-' }} <br>
-                            No. Rek: {{ $company->no_rek ?? '-' }} <br>
-                        </div>
+            @if(!$isApprovePage)
+            <div class="bg-green-100 border border-green-400 text-green-800 px-6 py-4 rounded mb-6">
+                <h2 class="font-bold text-lg">Proses Pembelian telah masuk ke system</h2>
+                <p class="text-sm">Silahkan melakukan proses pembayaran ke rekening di bawah ini dan upload bukti
+                    transfer anda agar segera diproses oleh  {{ $company ? 'Admin' : 'Stockis' }}</p>
+                <div class="mt-2 font-semibold">
+                    @if($company)
+                    {{ $company->bank_name }} <br>
+                    a.n. {{ $company->bank_atas_nama }} <br>
                     @else
-                        <div class="mt-2 font-semibold">
-                            {{ $stockis->nama ?? '-' }} <br>
-                            a.n. {{ $stockis->nama_rekening ?? '-' }} <br>
-                        </div>
+                    {{ $stockis->nama }} <br>
+                    a.n. {{ $stockis->nama_rekening }} <br>
                     @endif
-
+                    
                 </div>
+            </div>
             @endif
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -48,7 +41,7 @@
                         <p class="text-sm"><span class="font-semibold">Status Pembelian:</span>
                             @php
                                 $displayStatus =
-                                    $pembelian->images === 'menunggu' && !empty($pembelian->images)
+                                    $pembelian->images === "menunggu" && !empty($pembelian->images)
                                         ? 'transfer'
                                         : $pembelian->status_pembelian;
                                 $statusColor =

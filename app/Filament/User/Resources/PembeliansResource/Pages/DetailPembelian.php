@@ -4,6 +4,7 @@ namespace App\Filament\User\Resources\PembeliansResource\Pages;
 
 use App\Filament\User\Resources\PembeliansResource;
 use App\Models\Pembelian;
+use App\Models\Setting;
 use Filament\Resources\Pages\ViewRecord;
 
 class DetailPembelian extends ViewRecord
@@ -12,9 +13,14 @@ class DetailPembelian extends ViewRecord
 
     protected static string $view = 'filament.user.pages.pembelian-produk-detail';
 
+    public $company = null;
     public function mount($record): void
     {
         $this->record = Pembelian::with(['details.produk', 'seller'])->findOrFail($record);
+        if(auth()->user()?->isStockis) {
+            $this->company = Setting::first();
+        } 
+
     }
 
     protected function getViewData(): array
@@ -23,6 +29,7 @@ class DetailPembelian extends ViewRecord
             'pembelian' => $this->record,
             'stockis' => $this->record->seller,
             'isApprovePage' => false,
+            'company' => $this->company,
         ];
     }
 
