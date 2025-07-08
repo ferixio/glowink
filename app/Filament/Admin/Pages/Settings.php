@@ -50,14 +50,14 @@ class Settings extends Page implements HasForms
         return $form->schema([
 
             Fieldset::make('Data Perusahaan')->schema([
-                TextInput::make('name')->required(),
-                TextInput::make('email')->email()->required(),
-                TextInput::make('alamat')->required(),
+                TextInput::make('nama'),
+                TextInput::make('email')->email(),
+                TextInput::make('alamat'),
                 
-                TextInput::make('telepon')->label('Office Phone'),
-                TextInput::make('bank_name')->label('Mobile Phone'),
-                TextInput::make('bank_atas_nama')->label('Mobile Phone'),
-                TextInput::make('no_rek')->label('Office Location'),
+                TextInput::make('telepon')->label('Telepon'),
+                TextInput::make('bank_name')->label('Nama Bank'),
+                TextInput::make('bank_atas_nama')->label('Bank Atas Nama'),
+                TextInput::make('no_rek')->label('Nomer Rekening'),
 
 
             ]),

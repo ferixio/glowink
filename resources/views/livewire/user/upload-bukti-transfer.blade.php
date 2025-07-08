@@ -8,7 +8,7 @@
                 <div class="relative group">
                     <div class="relative">
                         <img src="{{ $preview->temporaryUrl() }}"
-                            class="w-24 h-24 object-cover rounded border opacity-70 cursor-pointer hover:opacity-100 transition-all duration-200 hover:scale-105"
+                            class="w-32 h-32 object-cover rounded border opacity-70 cursor-pointer hover:opacity-100 transition-all duration-200 hover:scale-105"
                             onclick="Livewire.find('{{ $this->getId() }}').call('showImageModal', '{{ $preview->temporaryUrl() }}')" />
                         <div
                             class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 rounded flex items-center justify-center pointer-events-none">
@@ -45,7 +45,7 @@
             @enderror
 
             <button type="submit"
-                class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded shadow-md transition duration-200">
+                class="w-full border bg-yellow-500 hover:bg-yellow-600 text-black font-semibold py-2 px-4 rounded shadow-md transition duration-200">
                 Kirim Bukti Transfer
             </button>
         </form>

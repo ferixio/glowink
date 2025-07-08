@@ -3,6 +3,7 @@
 namespace App\Filament\User\Pages;
 
 use App\Models\Pembelian;
+use App\Models\Setting;
 use Filament\Pages\Page;
 use Livewire\WithFileUploads;
 
@@ -18,8 +19,7 @@ class PembelianProdukDetail extends Page
     public ?Pembelian $pembelian = null;
 
     public $stockis = null;
-
- 
+    public $company = null;
 
     public $bukti_transfer = [];
     protected $rules = [
@@ -29,8 +29,11 @@ class PembelianProdukDetail extends Page
     public function mount(int $id): void
     {
         $this->pembelian = Pembelian::with(['details.produk', 'seller'])->findOrFail($id);
-
         $this->stockis = $this->pembelian->seller;
+        $this->company = Setting::first();
+
+        dd($this->company);
+
     }
 
     protected function getViewData(): array
@@ -38,6 +41,7 @@ class PembelianProdukDetail extends Page
         return [
             'pembelian' => $this->pembelian,
             'stockis' => $this->stockis,
+            'company' => $this->company,
         ];
     }
 
