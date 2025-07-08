@@ -13,7 +13,43 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
+        // Load provinces
+        $provinces = [];
+        if (($handle = fopen(public_path('data/provinces.csv'), 'r')) !== false) {
+            while (($data = fgetcsv($handle)) !== false) {
+                $provinces[$data[0]] = $data[1];
+            }
+            fclose($handle);
+        }
+
+        // Load regencies
+        $regencies = [];
+        if (($handle = fopen(public_path('data/regencies.csv'), 'r')) !== false) {
+            while (($data = fgetcsv($handle)) !== false) {
+                $regencies[] = [
+                    'id' => $data[0],
+                    'province_id' => $data[1],
+                    'name' => $data[2],
+                ];
+            }
+            fclose($handle);
+        }
+
+        // Helper to get random province and regency
+        function getRandomProvinceAndRegency($provinces, $regencies)
+        {
+            $provinceId = array_rand($provinces);
+            $provinceName = $provinces[$provinceId];
+            $filteredRegencies = array_filter($regencies, function ($regency) use ($provinceId) {
+                return $regency['province_id'] == $provinceId;
+            });
+            $regency = $filteredRegencies ? $filteredRegencies[array_rand($filteredRegencies)] : null;
+            $regencyName = $regency ? $regency['name'] : null;
+            return [$provinceName, $regencyName];
+        }
+
         // Create Admin
+        list($provinsi, $kabupaten) = getRandomProvinceAndRegency($provinces, $regencies);
         User::create([
             'id_mitra' => 'ADM001',
             'username' => 'admin',
@@ -24,8 +60,8 @@ class UserSeeder extends Seeder
             'isMitraBasic' => false,
             'isMitraKarir' => false,
             'nama' => 'Administrator',
-            'provinsi' => 'DKI Jakarta',
-            'kabupaten' => 'Jakarta Selatan',
+            'provinsi' => $provinsi,
+            'kabupaten' => $kabupaten,
             'alamat' => 'Jl. Admin No. 1',
             'no_telp' => '081234567890',
             'no_rek' => '1234567890',
@@ -41,6 +77,7 @@ class UserSeeder extends Seeder
         ]);
 
         // Create Stockis
+        list($provinsi, $kabupaten) = getRandomProvinceAndRegency($provinces, $regencies);
         User::create([
             'id_mitra' => 'STK001',
             'username' => 'stockis',
@@ -51,8 +88,8 @@ class UserSeeder extends Seeder
             'isMitraBasic' => false,
             'isMitraKarir' => false,
             'nama' => 'Stockis Glowink',
-            'provinsi' => 'DKI Jakarta',
-            'kabupaten' => 'Jakarta Pusat',
+            'provinsi' => $provinsi,
+            'kabupaten' => $kabupaten,
             'alamat' => 'Jl. Stockis No. 1',
             'no_telp' => '081234567891',
             'no_rek' => '1234567891',
@@ -68,6 +105,7 @@ class UserSeeder extends Seeder
         ]);
 
         // Create Mitra Basic
+        list($provinsi, $kabupaten) = getRandomProvinceAndRegency($provinces, $regencies);
         User::create([
             'id_mitra' => 'MTR001',
             'username' => 'mitra',
@@ -78,8 +116,8 @@ class UserSeeder extends Seeder
             'isMitraBasic' => true,
             'isMitraKarir' => false,
             'nama' => 'Mitra Glowink',
-            'provinsi' => 'DKI Jakarta',
-            'kabupaten' => 'Jakarta Barat',
+            'provinsi' => $provinsi,
+            'kabupaten' => $kabupaten,
             'alamat' => 'Jl. Mitra No. 1',
             'no_telp' => '081234567892',
             'no_rek' => '1234567892',
