@@ -81,7 +81,7 @@ class ApprovePembelianResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->where('beli_dari', auth()->id()) ->orderByDesc('updated_at');
+            ->where('beli_dari', auth()->id())->orderByDesc('updated_at');
     }
 
     public static function canViewAny(): bool
@@ -89,7 +89,10 @@ class ApprovePembelianResource extends Resource
         $user = auth()->user();
         return $user && ($user->isAdmin || $user->isStockis);
     }
-
+    public static function getNavigationBadge(): ?string
+    {
+        return Pembelian::where('beli_dari', auth()->id())->where('status_pembelian', 'menunggu')->count();
+    }
     public static function getPages(): array
     {
         return [

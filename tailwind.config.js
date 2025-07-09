@@ -10,8 +10,12 @@ export default {
         "./app/Livewire/**/*.php",
         "./resources/views/livewire/**/*.blade.php",
     ],
+    darkMode: "false",
     theme: {
-        extend: {},
+        
+        extend: {
+            
+        },
     },
     plugins: [],
 };

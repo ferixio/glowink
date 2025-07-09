@@ -36,20 +36,23 @@ class UserSeeder extends Seeder
         }
 
         // Helper to get random province and regency
-        function getRandomProvinceAndRegency($provinces, $regencies)
+        function getFirstProvinceAndRegency($provinces, $regencies)
         {
-            $provinceId = array_rand($provinces);
-            $provinceName = $provinces[$provinceId];
+            // Ambil provinsi pertama
+            reset($provinces);
+            $provinceId = key($provinces);
+            $provinceName = current($provinces);
+            // Ambil kabupaten pertama yang sesuai provinsi
             $filteredRegencies = array_filter($regencies, function ($regency) use ($provinceId) {
                 return $regency['province_id'] == $provinceId;
             });
-            $regency = $filteredRegencies ? $filteredRegencies[array_rand($filteredRegencies)] : null;
+            $regency = $filteredRegencies ? reset($filteredRegencies) : null;
             $regencyName = $regency ? $regency['name'] : null;
             return [$provinceName, $regencyName];
         }
 
         // Create Admin
-        list($provinsi, $kabupaten) = getRandomProvinceAndRegency($provinces, $regencies);
+        list($provinsi, $kabupaten) = getFirstProvinceAndRegency($provinces, $regencies);
         User::create([
             'id_mitra' => 'ADM001',
             'username' => 'admin',
@@ -77,7 +80,7 @@ class UserSeeder extends Seeder
         ]);
 
         // Create Stockis
-        list($provinsi, $kabupaten) = getRandomProvinceAndRegency($provinces, $regencies);
+        list($provinsi, $kabupaten) = getFirstProvinceAndRegency($provinces, $regencies);
         User::create([
             'id_mitra' => 'STK001',
             'username' => 'stockis',
@@ -105,7 +108,7 @@ class UserSeeder extends Seeder
         ]);
 
         // Create Mitra Basic
-        list($provinsi, $kabupaten) = getRandomProvinceAndRegency($provinces, $regencies);
+        list($provinsi, $kabupaten) = getFirstProvinceAndRegency($provinces, $regencies);
         User::create([
             'id_mitra' => 'MTR001',
             'username' => 'mitra',

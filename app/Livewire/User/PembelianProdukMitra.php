@@ -402,20 +402,46 @@ class PembelianProdukMitra extends Component
 
         DB::beginTransaction();
         try {
-            // Update user data
-            User::where('id', Auth::id())->update([
+            // Buat user baru
+            $userBaru = User::create([
+                'nama' => $this->nama,
+                'isMitraBasic' => true,
                 'nama_rekening' => $this->nama,
                 'no_rek' => $this->no_rekening,
                 'bank' => $this->nama_bank,
                 'no_telp' => $this->telepon,
                 'alamat' => $this->alamat,
+                'provinsi' => null, // bisa diisi dari form jika ada
+                'kabupaten' => $this->selectedKabupaten,
+                'email' => null, // bisa diisi dari form jika ada
+                'username' => null, // bisa diisi dari form jika ada
+                'password' => bcrypt('password_default'), // atau generate random password
+                // tambahkan field lain yang diperlukan sesuai migration User
             ]);
 
-            // Set tanggal to current date for aktivasi member
+            // Set tanggal ke hari ini
             $this->tanggal = now()->format('Y-m-d');
 
-            // Call private checkout method without user data (use form data)
-            $this->processCheckout();
+            // Siapkan data user baru untuk checkout
+            $userData = [
+                'nama' => $this->nama,
+                'telepon' => $this->telepon,
+                'alamat' => $this->alamat,
+                'tanggal' => $this->tanggal,
+                'nama_bank' => $this->nama_bank,
+                'no_rekening' => $this->no_rekening,
+                'nama_rekening' => $this->nama,
+                'user_id' => $userBaru->id,
+                'username' => $userBaru->username,
+                'email' => $userBaru->email,
+                'provinsi' => $userBaru->provinsi,
+                'kabupaten' => $userBaru->kabupaten,
+                'no_telp' => $userBaru->no_telp,
+                'alamat_user' => $userBaru->alamat,
+            ];
+
+            // Proses checkout atas nama user baru
+            $this->processCheckout($userData);
 
             DB::commit();
 

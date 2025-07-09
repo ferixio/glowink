@@ -81,6 +81,11 @@ class ApprovePembelianStockisResource extends Resource
             ->where('beli_dari', 1) ->orderByDesc('updated_at');
     }
 
+        public static function getNavigationBadge(): ?string
+    {
+        return Pembelian::where('beli_dari', 1)->where('status_pembelian', 'menunggu')->count();
+    }
+
     public static function getPages(): array
     {
         return [
