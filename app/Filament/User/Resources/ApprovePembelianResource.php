@@ -14,7 +14,7 @@ class ApprovePembelianResource extends Resource
 {
     protected static ?string $model = Pembelian::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-check';
     protected static ?string $label = 'Approve Daftar Pembelian';
     protected static ?string $navigationLabel = 'Approve Pembelian';
 

@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Auth;
 
 class PembelianProduk extends Page
 {
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
     protected static string $view = 'filament.user.pages.pembelian-produk';
 
     protected static ?string $navigationLabel = null;

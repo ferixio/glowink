@@ -14,7 +14,7 @@ class PembeliansResource extends Resource
 {
     protected static ?string $model = Pembelian::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-shopping-bag';
     protected static ?string $label = 'Daftar Pembelian';
     protected static ?string $navigationLabel = 'Daftar Pembelian';
 

@@ -18,4 +18,11 @@ class Dashboard extends BaseDashboard
     protected static ?string $title = 'Dashboard sssssAdmin';
 
     protected static ?int $navigationSort = -2;
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            // \App\Filament\Admin\Widgets\StatsOverviewWidget::class,
+        ];
+    }
 }

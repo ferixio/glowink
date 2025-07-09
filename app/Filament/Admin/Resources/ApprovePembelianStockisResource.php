@@ -14,7 +14,7 @@ class ApprovePembelianStockisResource extends Resource
 {
     protected static ?string $model = Pembelian::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-check';
     protected static ?string $navigationLabel = 'Approve Pembelian Stockis';
 
     public static function form(Form $form): Form

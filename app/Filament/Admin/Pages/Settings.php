@@ -20,7 +20,7 @@ use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 class Settings extends Page implements HasForms
 {
     use InteractsWithForms;
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
 
     protected static string $view = 'filament.admin.pages.settings';
 

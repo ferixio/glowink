@@ -11,7 +11,7 @@ class PembelianProdukDetail extends Page
 {
     use WithFileUploads;
 
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected static ?string $navigationIcon = 'heroicon-o-shopping-bag';
     protected static bool $shouldRegisterNavigation = false;
 
     // protected static string $view = 'filament.user.pages.pembelian-produk-detail';
