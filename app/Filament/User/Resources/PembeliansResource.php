@@ -37,16 +37,16 @@ class PembeliansResource extends Resource
                     ->url(fn($record) => static::getUrl('detail', ['record' => $record])),
             Tables\Columns\TextColumn::make('user.nama')
                     ->searchable()
-                    ->label("Nama Pembeli"),
+                    ->label("Nama Pembeli")->url(fn($record) => static::getUrl('detail', ['record' => $record])),
                 Tables\Columns\TextColumn::make('nama_penerima')
                     ->searchable()
-                    ->label("Nama Penerima"),
+                    ->label("Nama Penerima")->url(fn($record) => static::getUrl('detail', ['record' => $record])),
                 Tables\Columns\TextColumn::make('alamat_tujuan')
                     ->searchable()
-                    ->label("Alamat Tujuan"),
+                    ->label("Alamat Tujuan")->url(fn($record) => static::getUrl('detail', ['record' => $record])),
                 Tables\Columns\TextColumn::make('no_telp')
                     ->searchable()
-                    ->label("No HP Penerima"),
+                    ->label("No HP Penerima")->url(fn($record) => static::getUrl('detail', ['record' => $record])),
 
                     
                      Tables\Columns\BadgeColumn::make('status_pembelian')
