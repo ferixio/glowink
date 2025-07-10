@@ -16,8 +16,8 @@ class ProdukSeeder extends Seeder
             [
                 'paket' => 1,
                 'nama' => 'Barilkha Coffe',
-                'harga_stokis' => 1000000,
-                'harga_member' => 1200000,
+                'harga_stokis' => 10000,
+                'harga_member' => 12000,
                 'gambar' => null,
                 'deskripsi' => 'Paket starter untuk member baru',
                 'status_aktif' => 'aktif',
@@ -25,8 +25,8 @@ class ProdukSeeder extends Seeder
             [
                 'paket' => 1,
                 'nama' => 'Barilkha Coffe',
-                'harga_stokis' => 2000000,
-                'harga_member' => 2500000,
+                'harga_stokis' => 20000,
+                'harga_member' => 25000,
                 'gambar' => null,
                 'deskripsi' => 'Paket premium dengan fitur lengkap',
                 'status_aktif' => 'aktif',
@@ -34,8 +34,8 @@ class ProdukSeeder extends Seeder
             [
                 'paket' => 2,
                 'nama' => 'Barilkha Queen',
-                'harga_stokis' => 5000000,
-                'harga_member' => 6000000,
+                'harga_stokis' => 50000,
+                'harga_member' => 60000,
                 'gambar' => null,
                 'deskripsi' => 'Paket VIP dengan semua keuntungan',
                 'status_aktif' => 'aktif',

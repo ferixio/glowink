@@ -74,8 +74,8 @@ class UserSeeder extends Seeder
             'group_sponsor' => 'ADMIN',
             'saldo_penghasilan' => 0,
             'poin_reward' => 0,
-            'plan_karir_sekarang' => 'Admin',
-            'next_plan_karir' => 'Admin',
+            'plan_karir_sekarang' => 'Platinum',
+            'next_plan_karir' => 'Platinum',
             'next_poin_karir' => 0,
         ]);
 
@@ -102,8 +102,8 @@ class UserSeeder extends Seeder
             'group_sponsor' => 'STOCKIS',
             'saldo_penghasilan' => 0,
             'poin_reward' => 0,
-            'plan_karir_sekarang' => 'Stockis',
-            'next_plan_karir' => 'Stockis',
+            'plan_karir_sekarang' => 'Gold',
+            'next_plan_karir' => 'Gold',
             'next_poin_karir' => 0,
         ]);
 
@@ -130,8 +130,8 @@ class UserSeeder extends Seeder
             'group_sponsor' => 'MITRA',
             'saldo_penghasilan' => 0,
             'poin_reward' => 0,
-            'plan_karir_sekarang' => 'Mitra Basic',
-            'next_plan_karir' => 'Mitra Karir',
+            'plan_karir_sekarang' => 'bronze',
+            'next_plan_karir' => 'bronze',
             'next_poin_karir' => 0,
         ]);
     }

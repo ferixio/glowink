@@ -46,6 +46,14 @@ class EditApprovePembelianStockis extends EditRecord
                             }
                         }
                     }
+                    // Tambah saldo ke user stockist jika beli_dari ada dan bukan 1
+                    if ($this->record->beli_dari && $this->record->beli_dari != 1) {
+                        $stockist = \App\Models\User::find($this->record->beli_dari);
+                        if ($stockist) {
+                            $stockist->saldo_penghasilan += $this->record->total_beli;
+                            $stockist->save();
+                        }
+                    }
                     $this->record->status_pembelian = 'proses';
                     $this->record->save();
                     Notification::make()
