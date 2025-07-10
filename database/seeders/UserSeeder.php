@@ -53,31 +53,33 @@ class UserSeeder extends Seeder
 
         // Create Admin
         list($provinsi, $kabupaten) = getFirstProvinceAndRegency($provinces, $regencies);
-        User::create([
-            'id_mitra' => 'ADM001',
-            'username' => 'admin',
-            'email' => 'admin@glowink.com',
-            'password' => Hash::make('admin123'),
-            'isAdmin' => true,
-            'isStockis' => false,
-            'isMitraBasic' => false,
-            'isMitraKarir' => false,
-            'nama' => 'Administrator',
-            'provinsi' => $provinsi,
-            'kabupaten' => $kabupaten,
-            'alamat' => 'Jl. Admin No. 1',
-            'no_telp' => '081234567890',
-            'no_rek' => '1234567890',
-            'nama_rekening' => 'Admin Glowink',
-            'bank' => 'BCA',
-            'tgl_daftar' => now(),
-            'group_sponsor' => 'ADMIN',
-            'saldo_penghasilan' => 0,
-            'poin_reward' => 0,
-            'plan_karir_sekarang' => 'Platinum',
-            'next_plan_karir' => 'Platinum',
-            'next_poin_karir' => 0,
-        ]);
+        User::updateOrCreate(
+            ['id_mitra' => 'ADM001'],
+            [
+                'username' => 'admin',
+                'email' => 'admin@glowink.com',
+                'password' => Hash::make('admin123'),
+                'isAdmin' => true,
+                'isStockis' => false,
+                'isMitraBasic' => false,
+                'isMitraKarir' => false,
+                'nama' => 'Administrator',
+                'provinsi' => $provinsi,
+                'kabupaten' => $kabupaten,
+                'alamat' => 'Jl. Admin No. 1',
+                'no_telp' => '081234567890',
+                'no_rek' => '1234567890',
+                'nama_rekening' => 'Admin Glowink',
+                'bank' => 'BCA',
+                'tgl_daftar' => now(),
+                'group_sponsor' => 'ADMIN',
+                'saldo_penghasilan' => 0,
+                'poin_reward' => 0,
+                'plan_karir_sekarang' => 'Platinum',
+                'next_plan_karir' => 'Platinum',
+                'next_poin_karir' => 0,
+            ]
+        );
 
         // Create Stockis
         list($provinsi, $kabupaten) = getFirstProvinceAndRegency($provinces, $regencies);

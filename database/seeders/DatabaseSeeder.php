@@ -16,7 +16,8 @@ class DatabaseSeeder extends Seeder
             ProdukSeeder::class,
             ProdukStokSeeder::class,
             UserSeeder::class,
-
+            PembelianSeeder::class,
+            PembelianDetailSeeder::class,
         ]);
 
     }

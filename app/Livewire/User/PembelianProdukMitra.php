@@ -7,7 +7,6 @@ use App\Models\PembelianDetail;
 use App\Models\Produk;
 use App\Models\ProdukStok;
 use App\Models\User;
-use App\Services\LocationService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
@@ -59,23 +58,24 @@ class PembelianProdukMitra extends Component
 
     public function loadKabupatenList()
     {
-        $regencies = LocationService::getRegencies();
-        $this->kabupatenList = [];
+        // Ambil kabupaten unik dari user yang isStockis = true
+        $kabupatenList = \App\Models\User::where('isStockis', true)
+            ->whereNotNull('kabupaten')
+            ->pluck('kabupaten')
+            ->unique()
+            ->filter(function ($value) {
+                return !empty($value);
+            })
+            ->sort()
+            ->values()
+            ->all();
 
-        // Flatten all regencies into a single list
-        foreach ($regencies as $provinceRegencies) {
-            foreach ($provinceRegencies as $regency) {
-                $this->kabupatenList[] = [
-                    'id' => $regency['id'],
-                    'nama' => $regency['name'],
-                ];
-            }
-        }
-
-        // Sort by name
-        usort($this->kabupatenList, function ($a, $b) {
-            return strcmp($a['nama'], $b['nama']);
-        });
+        $this->kabupatenList = collect($kabupatenList)->map(function ($nama, $idx) {
+            return [
+                'id' => $idx, // id tidak penting di sini, hanya untuk keperluan dropdown
+                'nama' => $nama,
+            ];
+        })->toArray();
 
         $this->filteredKabupatenList = $this->kabupatenList;
     }
