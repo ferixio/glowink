@@ -35,9 +35,28 @@ class PembeliansResource extends Resource
                 Tables\Columns\TextColumn::make('id')
                     ->searchable()->label("id")
                     ->url(fn($record) => static::getUrl('detail', ['record' => $record])),
+            Tables\Columns\TextColumn::make('user.nama')
+                    ->searchable()
+                    ->label("Nama Pembeli"),
                 Tables\Columns\TextColumn::make('nama_penerima')
-                    ->searchable()->label("Nama Penerima")->url(fn($record) => static::getUrl('detail', ['record' => $record])),
+                    ->searchable()
+                    ->label("Nama Penerima"),
+                Tables\Columns\TextColumn::make('alamat_tujuan')
+                    ->searchable()
+                    ->label("Alamat Tujuan"),
+                Tables\Columns\TextColumn::make('no_telp')
+                    ->searchable()
+                    ->label("No HP Penerima"),
 
+                    
+                     Tables\Columns\BadgeColumn::make('status_pembelian')
+                    ->color(fn(string $state): string => match ($state) {
+                        'menunggu' => 'gray',
+                        'transfer' => 'warning',
+                        'proses' => 'info',
+                        'ditolak' => 'danger',
+                        'selesai' => 'success',
+                    })                    ->url(fn($record) => static::getUrl('detail', ['record' => $record])),
             ])
             ->filters([
                 //

@@ -3,6 +3,7 @@
 namespace App\Filament\User\Pages;
 
 use Filament\Pages\Dashboard as BaseDashboard;
+use Illuminate\Contracts\Support\Htmlable;
 
 class Dashboard extends BaseDashboard
 {
@@ -12,10 +13,18 @@ class Dashboard extends BaseDashboard
 
     public static function getNavigationLabel(): string
     {
-        return 'Dashboard User';
+     return auth()->user()?->isStockis ? 'Dashboard Stokis' : 'Dashboard Mitra';
+
+    }
+
+       public function getTitle(): string | Htmlable
+    {
+return auth()->user()?->isStockis ? 'Dashboard Stokis' : 'Dashboard Mitra';
     }
 
     protected static ?string $title = 'Dashboard User';
+
+    
 
     protected static ?int $navigationSort = -2;
 
