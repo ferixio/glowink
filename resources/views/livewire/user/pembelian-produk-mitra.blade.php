@@ -50,9 +50,9 @@
             </div>
             <div class="flex flex-col h-full">
                 {{-- Cart Items --}}
-                <div class="flex-1 overflow-y-auto p-4 space-y-4">
+                <div class="flex-1 overflow-y-auto max-h-96 px-4 pt-2">
                     @forelse ($cart as $item)
-                        <div class="flex items-center justify-between border-b pb-4">
+                        <div class="flex items-center  justify-between border-b pb-4">
                             <div class="flex items-center space-x-3">
                                 <img src="{{ $item['gambar'] ? asset('storage/' . $item['gambar']) : asset('images/empty.webp') }}"
                                     alt="Product" class="w-12 h-12 rounded-full object-cover">
@@ -104,10 +104,15 @@
                             Stock Pribadi
                         </button>
                         <button
-                            class="w-full bg-orange-200 hover:bg-orange-300 text-gray-800 font-semibold py-2 px-4 rounded-md transition"
+                            class="w-full mb-2 bg-orange-200 hover:bg-orange-300 text-gray-800 font-semibold py-2 px-4 rounded-md transition"
                             wire:click="changePage(3)" @if ($totalQty == 0) disabled @endif>
                             Repeat Order / Dropshop
                         </button>
+                        {{-- <button
+                            class="w-full bg-orange-200 hover:bg-orange-300 text-gray-800 font-semibold py-2 px-4 rounded-md transition"
+                            wire:click="changePage(3)" @if ($totalQty == 0) disabled @endif>
+                            Repeat Order / Dropshop
+                        </button> --}}
                     @endif
                 </div>
             </div>
