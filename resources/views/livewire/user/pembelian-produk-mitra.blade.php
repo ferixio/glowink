@@ -15,12 +15,12 @@
     @endif
 
     {{-- Mobile/Tablet Cart Icon --}}
-    <div class="lg:hidden fixed top-4 right-4 z-40">
+    <div class="lg:hidden fixed bottom-4 right-4 z-40">
         <button wire:click="toggleCartSidebar"
-            class="relative bg-orange-200 hover:bg-orange-300 text-gray-800 p-3 rounded-full shadow-lg transition-colors">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01">
+            class="relative bg-orange-200 hover:bg-orange-300 text-gray-800  p-3 rounded-full shadow-lg transition-colors">
+            <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" id="cart">
+                <path
+                    d="M8.5,19A1.5,1.5,0,1,0,10,20.5,1.5,1.5,0,0,0,8.5,19ZM19,16H7a1,1,0,0,1,0-2h8.49121A3.0132,3.0132,0,0,0,18.376,11.82422L19.96143,6.2749A1.00009,1.00009,0,0,0,19,5H6.73907A3.00666,3.00666,0,0,0,3.92139,3H3A1,1,0,0,0,3,5h.92139a1.00459,1.00459,0,0,1,.96142.7251l.15552.54474.00024.00506L6.6792,12.01709A3.00006,3.00006,0,0,0,7,18H19a1,1,0,0,0,0-2ZM17.67432,7l-1.2212,4.27441A1.00458,1.00458,0,0,1,15.49121,12H8.75439l-.25494-.89221L7.32642,7ZM16.5,19A1.5,1.5,0,1,0,18,20.5,1.5,1.5,0,0,0,16.5,19Z">
                 </path>
             </svg>
             @if ($totalQty > 0)
@@ -115,7 +115,7 @@
     @endif
 
     {{-- Produk --}}
-    <section class="w-full lg:w-8/12 pt-16 lg:pt-0">
+    <section class="w-full lg:w-8/12 ">
         @php
             switch ($currentPage) {
                 case 0:
@@ -135,7 +135,7 @@
             }
         @endphp
 
-        <h1 class="text-3xl my-4 font-bold">{{ $title }}</h1>
+        <h1 class="md:text-3xl text-2xl my-4 font-bold">{{ $title }}</h1>
         @if ($currentPage === 0)
 
             <section class="w-full">
