@@ -40,25 +40,7 @@ class UserMitraResource extends Resource
                             ->password()
                             ->dehydrated(fn($state) => filled($state))
                             ->dehydrateStateUsing(fn($state) => Hash::make($state)),
-                        Forms\Components\Grid::make(2)
-                            ->schema([
-                                Forms\Components\Toggle::make('isMitraBasic')
-                                    ->label('Mitra Basic')->live()
-                                    ->default(false)
-                                    ->afterStateUpdated(function ($state, callable $set) {
-                                        if ($state) {
-                                            $set('isMitraKarir', false);
-                                        }
-                                    }),
-                                Forms\Components\Toggle::make('isMitraKarir')
-                                    ->label('Mitra Karir')->live()
-                                    ->default(false)
-                                    ->afterStateUpdated(function ($state, callable $set) {
-                                        if ($state) {
-                                            $set('isMitraBasic', false);
-                                        }
-                                    }),
-                            ]),
+
                         Forms\Components\TextInput::make('nama')
                             ->required()
                             ->label('Nama Lengkap'),
@@ -167,7 +149,7 @@ class UserMitraResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->where('isMitraBasic', true);
+        return parent::getEloquentQuery()->where('isStockis', false);
     }
 
 }

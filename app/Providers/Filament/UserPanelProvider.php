@@ -2,11 +2,11 @@
 
 namespace App\Providers\Filament;
 
-use App\Models\User;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\MenuItem;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -18,8 +18,6 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use App\Filament\User\Pages\Dashboard;
-use Filament\Navigation\MenuItem;
 
 class UserPanelProvider extends PanelProvider
 {
@@ -32,17 +30,19 @@ class UserPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Amber,
             ])
-            ->discoverResources(in: app_path('Filament/User/Resources'), for: 'App\\Filament\\User\\Resources')
+            ->discoverResources(in: app_path('Filament/User/Resources'), for :'App\\Filament\\User\\Resources')
             ->discoverPages(in: app_path('Filament/User/Pages'), for: 'App\\Filament\\User\\Pages')
             ->pages([
-                // Dashboard::class
+                \App\Filament\User\Pages\Dashboard::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/User/Widgets'), for: 'App\\Filament\\User\\Widgets')
+            ->discoverWidgets(in: app_path('Filament/User/Widgets'), for :'App\\Filament\\User\\Widgets')
             ->widgets([
+
                 // Widgets\AccountWidget::class,
                 // Widgets\FilamentInfoWidget::class,
-            ])->userMenuItems([
-            'profile' => MenuItem::make()->url('/user/profile')->icon('heroicon-s-user'), ])
+            ])
+            ->userMenuItems([
+                'profile' => MenuItem::make()->url('/user/profile')->icon('heroicon-s-user')])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
@@ -57,6 +57,6 @@ class UserPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])->viteTheme('resources/css/filament/user/theme.css')->sidebarCollapsibleOnDesktop();
-            
     }
+
 }

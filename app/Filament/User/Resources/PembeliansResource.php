@@ -15,8 +15,7 @@ class PembeliansResource extends Resource
     protected static ?string $model = Pembelian::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-shopping-bag';
-    protected static ?string $label = 'Daftar Pembelian';
-    protected static ?string $navigationLabel = 'Daftar Pembelian';
+    protected static ?string $navigationLabel = 'Laporan Laporan';
 
     protected static ?int $navigationSort = 3;
 
@@ -35,7 +34,7 @@ class PembeliansResource extends Resource
                 Tables\Columns\TextColumn::make('id')
                     ->searchable()->label("id")
                     ->url(fn($record) => static::getUrl('detail', ['record' => $record])),
-            Tables\Columns\TextColumn::make('user.nama')
+                Tables\Columns\TextColumn::make('user.nama')
                     ->searchable()
                     ->label("Nama Pembeli")->url(fn($record) => static::getUrl('detail', ['record' => $record])),
                 Tables\Columns\TextColumn::make('nama_penerima')
@@ -48,15 +47,14 @@ class PembeliansResource extends Resource
                     ->searchable()
                     ->label("No HP Penerima")->url(fn($record) => static::getUrl('detail', ['record' => $record])),
 
-                    
-                     Tables\Columns\BadgeColumn::make('status_pembelian')
+                Tables\Columns\BadgeColumn::make('status_pembelian')
                     ->color(fn(string $state): string => match ($state) {
                         'menunggu' => 'gray',
                         'transfer' => 'warning',
                         'proses' => 'info',
                         'ditolak' => 'danger',
                         'selesai' => 'success',
-                    })                    ->url(fn($record) => static::getUrl('detail', ['record' => $record])),
+                    })->url(fn($record) => static::getUrl('detail', ['record' => $record])),
             ])
             ->filters([
                 //
@@ -83,7 +81,7 @@ class PembeliansResource extends Resource
             $query->where('user_id', auth()->id())
                 ->orWhereHas('user', function ($q) {
                     $q->where('id', auth()->id());
-                }) ->orderByDesc('updated_at');
+                })->orderByDesc('updated_at');
         });
     }
     public static function getPages(): array

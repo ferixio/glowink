@@ -38,8 +38,7 @@ class UserStockisResource extends Resource
                                 Forms\Components\Select::make('id')
                                     ->label('Pilih Mitra')
                                     ->options(function () {
-                                        return User::where('isMitraBasic', true)
-                                            ->orWhere('isMitraKarir', true)
+                                        return User::where('isStockis', false)
                                             ->pluck('nama', 'id')
                                             ->toArray();
                                     })
@@ -95,12 +94,10 @@ class UserStockisResource extends Resource
                                             $user = User::find($userId);
                                             if ($user) {
                                                 $status = [];
-                                                if ($user->isMitraBasic) {
-                                                    $status[] = 'Mitra Basic';
-                                                }
-
-                                                if ($user->isMitraKarir) {
+                                                if ($user->status_qr) {
                                                     $status[] = 'Mitra Karir';
+                                                }else{
+                                                    $status[] = 'Mitra Basic';
                                                 }
 
                                                 return implode(', ', $status) ?: 'Tidak ada status';

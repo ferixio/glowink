@@ -15,8 +15,10 @@ class ApprovePembelianResource extends Resource
     protected static ?string $model = Pembelian::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-check';
-    protected static ?string $label = 'Approve Daftar Pembelian';
-    protected static ?string $navigationLabel = 'Approve Pembelian';
+
+    protected static ?string $navigationLabel = 'Terima Pembelian';
+
+    protected static ?string $navigationGroup = "Menu Stockis";
 
     protected static ?int $navigationSort = 4;
 

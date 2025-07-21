@@ -15,7 +15,7 @@ class PembelianSeeder extends Seeder
     {
         // Get users for seeding
         $stockists = User::where('isStockis', true)->get();
-        $basicMembers = User::where('isMitraBasic', true)->get();
+        $basicMembers = User::where('isStockis', false)->get();
         $adminUser = User::where('id', 1)->first(); // Admin user with ID 1
 
      

@@ -149,43 +149,15 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                             <div class="relative">
-                                <label for="kabupaten" class="block text-sm font-medium text-gray-700 mb-1">Cari
+                                <label for="kabupaten" class="block text-sm font-medium text-gray-700 mb-1">Pilih
                                     Kabupaten/Kota</label>
-                                <div class="relative">
-                                    <input type="text" id="kabupaten" wire:model.live="kabupatenSearch"
-                                        wire:click="showAllKabupaten"
-                                        placeholder="Ketik untuk mencari kabupaten/kota..."
-                                        class="w-full border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 pr-10">
-
-                                    @if (!empty($kabupatenSearch))
-                                        <button type="button" wire:click="clearKabupatenSearch"
-                                            class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M6 18L18 6M6 6l12 12"></path>
-                                            </svg>
-                                        </button>
-                                    @endif
-                                </div>
-
-                                @if ($showKabupatenDropdown && !empty($filteredKabupatenList))
-                                    <div class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto"
-                                        x-data x-init="$nextTick(() => {
-                                            $el.addEventListener('click', (e) => e.stopPropagation());
-                                            document.addEventListener('click', () => {
-                                                @this.closeKabupatenDropdown();
-                                            });
-                                        })">
-                                        @foreach ($filteredKabupatenList as $kabupaten)
-                                            <button type="button"
-                                                wire:click="selectKabupaten('{{ $kabupaten['nama'] }}')"
-                                                class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 focus:bg-gray-100 focus:outline-none">
-                                                {{ $kabupaten['nama'] }}
-                                            </button>
-                                        @endforeach
-                                    </div>
-                                @endif
+                                <select id="kabupaten" wire:model.live="selectedKabupaten"
+                                    class="w-full border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                                    <option value="">Pilih Kabupaten/Kota</option>
+                                    @foreach ($kabupatenList as $kabupaten)
+                                        <option value="{{ $kabupaten['nama'] }}">{{ $kabupaten['nama'] }}</option>
+                                    @endforeach
+                                </select>
 
                             </div>
 

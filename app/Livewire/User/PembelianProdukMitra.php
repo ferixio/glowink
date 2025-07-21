@@ -405,7 +405,7 @@ class PembelianProdukMitra extends Component
             // Buat user baru
             $userBaru = User::create([
                 'nama' => $this->nama,
-                'isMitraBasic' => true,
+                'isStockis' => false,
                 'nama_rekening' => $this->nama,
                 'no_rek' => $this->no_rekening,
                 'bank' => $this->nama_bank,

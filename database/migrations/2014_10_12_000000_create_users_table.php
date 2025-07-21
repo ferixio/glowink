@@ -19,8 +19,7 @@ return new class extends Migration
             $table->string('password');
             $table->boolean('isAdmin')->default(false);
             $table->boolean('isStockis')->default(false);
-            $table->boolean('isMitraBasic')->default(false);
-            $table->boolean('isMitraKarir')->default(false);
+            $table->boolean('status_qr')->default(false);
             $table->string('nama')->nullable();
             $table->string('provinsi')->nullable();
             $table->string('kabupaten')->nullable();

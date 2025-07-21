@@ -44,9 +44,7 @@ class CreateUserStockis extends CreateRecord
             throw new \Exception('User not found');
         }
 
-        // Update only the specific fields we want to change
-        $user->isMitraBasic = false;
-        $user->isMitraKarir = false;
+      
         $user->isStockis = true;
         $user->provinsi = $data['provinsi'] ?? $user->provinsi;
         $user->kabupaten = $data['kabupaten'] ?? $user->kabupaten;
