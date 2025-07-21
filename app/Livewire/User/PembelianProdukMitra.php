@@ -30,9 +30,6 @@ class PembelianProdukMitra extends Component
     // Kabupaten filtering properties
     public $kabupatenList = [];
     public $selectedKabupaten = '';
-    public $kabupatenSearch = '';
-    public $showKabupatenDropdown = false;
-    public $filteredKabupatenList = [];
 
     // Form properties
     public $nama = '';
@@ -50,7 +47,7 @@ class PembelianProdukMitra extends Component
     {
         $this->cart = Session::get('cart', []);
         $this->currentPage = 0;
-        $this->loadProduks();
+        // $this->loadProduks();
         $this->updateTotals();
         $this->loadKabupatenList();
         $this->loadStockis();
@@ -76,56 +73,20 @@ class PembelianProdukMitra extends Component
                 'nama' => $nama,
             ];
         })->toArray();
-
-        $this->filteredKabupatenList = $this->kabupatenList;
     }
 
-    public function updatedKabupatenSearch()
+    public function updatedSelectedKabupaten()
     {
-        if (empty($this->kabupatenSearch)) {
-            $this->filteredKabupatenList = $this->kabupatenList;
-            $this->showKabupatenDropdown = false;
-        } else {
-            $searchTerm = strtolower(trim($this->kabupatenSearch));
-            $this->filteredKabupatenList = array_filter($this->kabupatenList, function ($kabupaten) use ($searchTerm) {
-                return strpos(strtolower($kabupaten['nama']), $searchTerm) !== false;
-            });
-            $this->showKabupatenDropdown = true;
-        }
+        $this->selectedStockist = ''; // Reset selected stockist when kabupaten changes
+        $this->loadStockis();
 
-        // If search matches exactly one item, auto-select it
-        if (count($this->filteredKabupatenList) === 1) {
-            $firstItem = reset($this->filteredKabupatenList);
-            if (strtolower($firstItem['nama']) === strtolower(trim($this->kabupatenSearch))) {
-                $this->selectKabupaten($firstItem['nama']);
-            }
-        }
     }
 
     public function selectKabupaten($kabupatenName)
     {
         $this->selectedKabupaten = $kabupatenName;
-        $this->kabupatenSearch = $kabupatenName;
-        $this->showKabupatenDropdown = false;
-        $this->selectedStockist = ''; // Reset selected stockist when kabupaten changes
         $this->loadStockis();
-        $this->loadProduks();
-    }
 
-    public function clearKabupatenSearch()
-    {
-        $this->kabupatenSearch = '';
-        $this->selectedKabupaten = '';
-        $this->showKabupatenDropdown = false;
-        $this->filteredKabupatenList = $this->kabupatenList;
-        $this->selectedStockist = '';
-        $this->loadStockis();
-        $this->loadProduks();
-    }
-
-    public function closeKabupatenDropdown()
-    {
-        $this->showKabupatenDropdown = false;
     }
 
     public function loadStockis()
@@ -140,21 +101,12 @@ class PembelianProdukMitra extends Component
         $this->stockistList = $query->get();
     }
 
-    public function updatedSelectedKabupaten()
-    {
-        $this->selectedStockist = ''; // Reset selected stockist when kabupaten changes
-        $this->loadStockis();
-        $this->loadProduks();
-    }
-
-    public function selectStockist($stockistId)
-    {
-        $this->selectedStockist = $stockistId;
-        $this->loadProduks();
-    }
-
     public function updatedSelectedStockist()
     {
+        // Kosongkan keranjang setiap ganti stockist
+        $this->cart = [];
+        Session::forget('cart');
+        $this->updateTotals();
         $this->loadProduks();
     }
 
@@ -229,6 +181,16 @@ class PembelianProdukMitra extends Component
 
         $this->produks = $query->get();
         $this->filteredProduks = $this->produks;
+
+        // Kurangi stok_tersedia dengan qty di cart jika stockist dipilih
+        if (!empty($this->selectedStockist)) {
+            $cart = Session::get('cart', []);
+            foreach ($this->produks as $produk) {
+                $qtyInCart = isset($cart[$produk->id]) ? $cart[$produk->id]['qty'] : 0;
+                // Pastikan stok_tersedia tidak minus
+                $produk->stok_tersedia = max(0, $produk->stok_tersedia - $qtyInCart);
+            }
+        }
     }
 
     public function addToCart($produkId)
@@ -287,6 +249,7 @@ class PembelianProdukMitra extends Component
             Session::put('cart', $cart);
             $this->cart = $cart;
             $this->updateTotals();
+            $this->loadProduks(); // Tambahkan ini
 
         } catch (\Exception $e) {
             session()->flash('error', 'Terjadi kesalahan saat menambahkan produk');
@@ -320,6 +283,7 @@ class PembelianProdukMitra extends Component
                 Session::put('cart', $cart);
                 $this->cart = $cart;
                 $this->updateTotals();
+                $this->loadProduks(); // Tambahkan ini
                 return;
             }
         }
@@ -336,6 +300,7 @@ class PembelianProdukMitra extends Component
                 Session::put('cart', $cart);
                 $this->cart = $cart;
                 $this->updateTotals();
+                $this->loadProduks(); // Tambahkan ini
                 return;
             }
         }
@@ -352,6 +317,7 @@ class PembelianProdukMitra extends Component
                 Session::put('cart', $cart);
                 $this->cart = $cart;
                 $this->updateTotals();
+                $this->loadProduks(); // Tambahkan ini
                 return;
             }
         }
@@ -603,12 +569,6 @@ class PembelianProdukMitra extends Component
             DB::rollBack();
             session()->flash('error', 'Checkout gagal: ' . $e->getMessage());
         }
-    }
-
-    public function showAllKabupaten()
-    {
-        $this->filteredKabupatenList = $this->kabupatenList;
-        $this->showKabupatenDropdown = true;
     }
 
     public function toggleCartSidebar()

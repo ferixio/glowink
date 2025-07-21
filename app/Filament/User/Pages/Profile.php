@@ -64,6 +64,10 @@ class Profile extends Page implements HasForms
                 TextInput::make('no_rek')->label('No. Rekening'),
                 TextInput::make('nama_rekening')->label('Nama Rekening'),
                 TextInput::make('bank')->label('Bank'),
+                TextInput::make('password')
+                    ->label('Password (Kosongkan jika tidak ingin mengubah)')
+                    ->password()
+                    ->dehydrated(fn($state) => filled($state)),
             ]),
             Actions::make([
                 ActionsAction::make('update')
@@ -79,6 +83,12 @@ class Profile extends Page implements HasForms
         $user = \App\Models\User::find(Auth::id());
         $data = $this->form->getState();
         foreach ($data as $key => $value) {
+            if ($key === 'password') {
+                if (!empty($value)) {
+                    $user->password = $value;
+                }
+                continue;
+            }
             $user->{$key} = $value;
         }
         $user->save();

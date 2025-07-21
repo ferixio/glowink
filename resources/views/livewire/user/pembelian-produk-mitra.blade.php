@@ -94,12 +94,12 @@
 
                     @if ($currentPage === 0)
                         <button
-                            class="w-full mb-2 bg-orange-200 hover:bg-orange-300 text-gray-800 font-semibold py-2 px-4 rounded-md transition"
+                            class="w-full mb-2 bg-teal-700 hover:bg-teal-800 text-white font-semibold py-2 px-4 rounded-md transition"
                             wire:click="changePage(1)" @if ($totalQty == 0) disabled @endif>
                             Aktivasi Member Baru
                         </button>
                         <button
-                            class="w-full mb-2 bg-orange-200 hover:bg-orange-300 text-gray-800 font-semibold py-2 px-4 rounded-md transition"
+                            class="w-full mb-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md transition"
                             wire:click="stockPribadi" @if ($totalQty == 0) disabled @endif>
                             Stock Pribadi
                         </button>
@@ -219,58 +219,62 @@
                         </button>
                     </div>
                     {{-- Grid Product --}}
-                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
-                        @forelse ($produks as $produk)
-                            <button wire:click="addToCart({{ $produk->id }})" class="flex flex-col items-start">
-                                {{-- Card: Gambar + Gradient + Teks --}}
-                                <div class="rounded-xl shadow-md overflow-hidden relative w-full">
-                                    {{-- Gambar --}}
-                                    <img src="{{ $produk->gambar ? asset('storage/' . $produk->gambar) : asset('images/empty.webp') }}"
-                                        alt="Product Image"
-                                        class="w-full h-32 md:h-40 lg:h-48 object-cover rounded-t-xl">
-                                    {{-- Gradient hitam dari bawah --}}
-                                    <div
-                                        class="absolute bottom-0 left-0 right-0 h-16 md:h-20 lg:h-20 bg-gradient-to-t from-black/50 via-black/20 to-transparent z-10 rounded-t-xl">
-                                    </div>
-                                    {{-- Teks di atas gradient --}}
-                                    <div class="absolute bottom-2 md:bottom-3 left-2 z-20 text-white">
-                                        <h3 class="text-xs md:text-sm font-bold leading-tight">
-                                            {{ $produk->nama }}<br>
-                                        </h3>
-                                        <p class="text-xs mt-1">
-                                            {{ $produk->paket == 1 ? 'Paket Aktivasi' : 'Paket Quick Reward' }}</p>
+                    @if (!empty($selectedStockist))
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
+                            @forelse ($produks as $produk)
+                                <button wire:click="addToCart({{ $produk->id }})"
+                                    class="flex flex-col items-start">
+                                    {{-- Card Gambar --}}
+                                    <div class="rounded-xl shadow-md overflow-hidden relative w-full">
+                                        {{-- Gambar --}}
+                                        <img src="{{ $produk->gambar ? asset('storage/' . $produk->gambar) : asset('images/empty.webp') }}"
+                                            alt="Product Image"
+                                            class="w-full h-32 md:h-40 lg:h-48 object-cover rounded-t-xl">
+
+                                        {{-- Info Stok di atas gambar --}}
                                         @if (isset($produk->stok_tersedia))
-                                            <p class="text-xs mt-1 bg-green-600 px-2 py-1 rounded">
+                                            <div
+                                                class="absolute bottom-2 left-2 bg-green-600 text-white text-xs px-2 py-1 rounded z-20 shadow">
                                                 Stok: {{ $produk->stok_tersedia }}
-                                            </p>
+                                            </div>
+                                        @endif
+
+                                        {{-- Glow (jika masih ingin pakai) --}}
+                                        <div class="absolute inset-0 rounded-t-xl ring-4 ring-white opacity-80 z-0">
+                                        </div>
+                                    </div>
+
+                                    {{-- Info Produk di bawah gambar --}}
+                                    <div class="mt-2 px-1 text-left w-full">
+                                        <h3 class="text-xs md:text-sm font-bold leading-tight text-gray-800">
+                                            {{ $produk->nama }}
+                                        </h3>
+                                        <p class="text-xs text-gray-600 mt-1">
+                                            {{ $produk->paket == 1 ? 'Paket Aktivasi' : 'Paket Quick Reward' }}
+                                        </p>
+                                        <p class="text-orange-600 font-semibold text-xs md:text-sm mt-2">
+                                            Rp. {{ number_format($produk->harga_member, 0, ',', '.') }},-
+                                        </p>
+                                    </div>
+                                </button>
+                            @empty
+                                <div class="col-span-2 md:col-span-3 lg:col-span-4 text-center py-8">
+                                    <div class="text-gray-500">
+                                        @if (!empty($search))
+                                            Tidak ada produk yang cocok dengan pencarian "{{ $search }}"
+                                        @else
+                                            Stockist ini tidak memiliki stok produk yang tersedia
                                         @endif
                                     </div>
-                                    {{-- Glow effect (di bawah semuanya) --}}
-                                    <div class="absolute inset-0 rounded-t-xl ring-4 ring-white opacity-80 z-0"></div>
                                 </div>
-                                {{-- Harga di luar card --}}
-                                <div class="mt-2 px-1">
-                                    <p class="text-orange-600 font-semibold text-xs md:text-sm">
-                                        Rp. {{ number_format($produk->harga_member, 0, ',', '.') }},-
-                                    </p>
-                                </div>
-                            </button>
-                        @empty
-                            <div class="col-span-2 md:col-span-3 lg:col-span-4 text-center py-8">
-                                <div class="text-gray-500">
-                                    @if (!empty($search))
-                                        Tidak ada produk yang cocok dengan pencarian "{{ $search }}"
-                                    @elseif (empty($selectedKabupaten))
-                                        Silakan pilih Kabupaten/Kota terlebih dahulu
-                                    @elseif (empty($selectedStockist))
-                                        Silakan pilih Stockist untuk melihat stok produk yang tersedia
-                                    @else
-                                        Stockist ini tidak memiliki stok produk yang tersedia
-                                    @endif
-                                </div>
-                            </div>
-                        @endforelse
-                    </div>
+                            @endforelse
+                        </div>
+                    @else
+                        <div class="text-gray-500 text-center py-8">
+                            Silakan pilih Stockist untuk melihat stok produk yang tersedia
+                        </div>
+                    @endif
+
 
                 </section>
             </section>
@@ -339,9 +343,14 @@
                     </div>
                 </form>
                 <button
-                    class="w-full mt-6  bg-orange-200 hover:bg-orange-300 text-gray-800 font-semibold py-1.5 px-4 rounded-md transition"
+                    class="w-full mt-6  bg-teal-700 hover:bg-teal-800 text-white font-semibold py-1.5 px-4 rounded-md transition"
                     wire:click="aktivasiMember" @if ($totalQty == 0) disabled @endif>
                     Proses Pesanan
+                </button>
+                <button
+                    class="w-full mt-3  bg-orange-200 hover:bg-orange-300 text-gray-800 font-semibold py-1.5 px-4 rounded-md transition"
+                    wire:click="changePage(0)">
+                    Kembali
                 </button>
             </section>
 
@@ -383,12 +392,21 @@
                             @enderror
                         </div>
 
+
+                    </div>
+                    <div class="flex flex-col w-full">
+
+
                         <button
-                            class="w-full mt-6  bg-orange-200 hover:bg-orange-300 text-gray-800 font-semibold py-1.5 px-4 rounded-md transition"
+                            class="w-full mt-6  bg-orange-500 hover:bg-orange-600 text-white font-semibold py-1.5 px-4 rounded-md transition"
                             wire:click="repeatOrder" @if ($totalQty == 0) disabled @endif>
                             Proses Pesanan
                         </button>
-
+                        <button
+                            class="w-full mt-2  bg-orange-200 hover:bg-orange-300 text-gray-800 font-semibold py-1.5 px-4 rounded-md transition"
+                            wire:click="changePage(0)">
+                            Kembali
+                        </button>
                     </div>
                 </form>
             </section>
@@ -450,12 +468,12 @@
                 </div>
                 @if ($currentPage === 0)
                     <button
-                        class="w-full mb-2 bg-orange-200 hover:bg-orange-300 text-gray-800 font-semibold py-1.5 px-4 rounded-md transition"
+                        class="w-full mb-2 bg-teal-700 hover:bg-teal-800 text-white font-semibold py-1.5 px-4 rounded-md transition"
                         wire:click="changePage(1)" @if ($totalQty == 0) disabled @endif>
                         Aktivasi Member Baru
                     </button>
                     <button
-                        class="w-full mb-2 bg-orange-200 hover:bg-orange-300 text-gray-800 font-semibold py-1.5 px-4 rounded-md transition"
+                        class="w-full mb-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1.5 px-4 rounded-md transition"
                         wire:click="stockPribadi" @if ($totalQty == 0) disabled @endif>
                         Stock Pribadi
                     </button>

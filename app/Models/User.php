@@ -41,6 +41,7 @@ class User extends Authenticatable implements FilamentUser, HasName
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'group_sponsor' => 'array',
         'password' => 'hashed',
         'tgl_daftar' => 'date',
         'saldo_penghasilan' => 'decimal:2',

@@ -79,8 +79,7 @@
 
     {{-- Modal untuk preview gambar full --}}
     @if ($showModal)
-        <div class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4"
-            onclick="Livewire.find('{{ $this->getId() }}').call('hideImageModal')"
+        <div class="image-modal-overlay" onclick="Livewire.find('{{ $this->getId() }}').call('hideImageModal')"
             onkeydown="if(event.key === 'Escape') Livewire.find('{{ $this->getId() }}').call('hideImageModal')"
             tabindex="0">
             <div class="relative max-w-5xl max-h-full w-full h-full flex items-center justify-center">
@@ -100,6 +99,19 @@
                 </div>
             </div>
         </div>
+        <style>
+            .image-modal-overlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.7);
+                /* Transparan gelap */
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 50;
+                padding: 1rem;
+            }
+        </style>
         <script>
             document.addEventListener('keydown', function(event) {
                 if (event.key === 'Escape') {

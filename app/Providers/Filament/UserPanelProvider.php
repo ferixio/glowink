@@ -27,6 +27,7 @@ class UserPanelProvider extends PanelProvider
             ->id('user')
             ->path('user')
             ->login()
+            ->brandName("Glowink")
             ->colors([
                 'primary' => Color::Amber,
             ])
