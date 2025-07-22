@@ -7,27 +7,31 @@
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4">
             <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm">
                 <div class="text-sm text-gray-500">ID</div>
-                <div class="mt-1 text-lg font-semibold text-gray-700">GO979A0001</div>
+                <div class="mt-1 text-lg font-semibold text-gray-700">{{ $user->id_mitra }}</div>
             </div>
             <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm">
                 <div class="text-sm text-gray-500">Karir Level</div>
-                <div class="mt-1 text-lg font-semibold text-gray-700">Gold</div>
+                <div class="mt-1 text-lg font-semibold text-gray-700">{{ $user->plan_karir_sekarang }}</div>
             </div>
             <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm">
                 <div class="text-sm text-gray-500">Status QR</div>
-                <div class="mt-1 text-lg font-semibold text-green-600">QR AKTIF</div>
+                <div class="mt-1 text-lg font-semibold text-green-600">
+                    {{ $user->status_qr ? 'QR AKTIF' : 'QR NONAKTIF' }}
+                </div>
             </div>
             <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm">
                 <div class="text-sm text-gray-500">Total Penghasilan</div>
-                <div class="mt-1 text-lg font-semibold text-blue-600">Rp 46.711.650</div>
+                <div class="mt-1 text-lg font-semibold text-blue-600">Rp
+                    {{ number_format($user->saldo_penghasilan, 0, ',', '.') }}</div>
             </div>
             <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm">
                 <div class="text-sm text-gray-500">Pending Income</div>
-                <div class="mt-1 text-lg font-semibold text-gray-700">Rp 139.811</div>
+                <div class="mt-1 text-lg font-semibold text-gray-700">-</div>
             </div>
             <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm">
                 <div class="text-sm text-gray-500">Point</div>
-                <div class="mt-1 text-lg font-semibold text-gray-700">1.222</div>
+                <div class="mt-1 text-lg font-semibold text-gray-700">
+                    {{ number_format($user->poin_reward, 0, ',', '.') }}</div>
             </div>
         </div>
     </div>

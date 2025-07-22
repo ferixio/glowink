@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Events\BonusGenerasi;
+use App\Events\BonusSponsor;
 use App\Events\PembelianDiterima;
 
 class ProsesPembelianDiterima
@@ -41,8 +42,8 @@ class ProsesPembelianDiterima
                 $stockist->save();
             }
         }
-        // Trigger BonusGenerasi jika kategori_pembelian adalah 'aktivasi member'
-        if ($pembelian->kategori_pembelian === 'aktivasi member') {
+        if ($pembelian->kategori_pembelian == 'aktivasi member') {
+            event(new BonusSponsor($pembelian));
             event(new BonusGenerasi($pembelian));
         }
     }
