@@ -22,7 +22,8 @@ class Pembelian extends Model
         'status_pembelian',
         'images',
         'jumlah_poin_qr',
-       'kategori_pembelian', 
+        'kategori_pembelian',
+        'cashback',
     ];
 
     protected $casts = [

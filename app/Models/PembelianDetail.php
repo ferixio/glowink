@@ -20,6 +20,7 @@ class PembelianDetail extends Model
         'nominal_bonus_generasi',
         'user_id_get_bonus_sponsor',
         'group_user_id_get_bonus_generasi',
+        'cashback',
     ];
 
     public function pembelian()

@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Events\BonusGenerasi;
+use App\Events\BonusReward;
 use App\Events\BonusSponsor;
 use App\Events\PembelianDiterima;
 
@@ -45,6 +46,10 @@ class ProsesPembelianDiterima
         if ($pembelian->kategori_pembelian == 'aktivasi member') {
             event(new BonusSponsor($pembelian));
             event(new BonusGenerasi($pembelian));
+
+        }
+        if ($pembelian->kategori_pembelian == 'repeat order' || $pembelian->kategori_pembelian == 'stock pribadi') {
+            event(new BonusReward($pembelian));
         }
     }
 }

@@ -2,8 +2,12 @@
 
 namespace App\Providers;
 
+use App\Events\BonusCashback;
 use App\Events\BonusGenerasi;
+use App\Events\BonusReward;
+use App\Listeners\BonusCashbackListener;
 use App\Listeners\BonusGenerasiListener;
+use App\Listeners\BonusRewardListener;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -25,6 +29,12 @@ class EventServiceProvider extends ServiceProvider
         ],
         \App\Events\BonusSponsor::class => [
             \App\Listeners\BonusSponsorListener::class,
+        ],
+        BonusCashback::class => [
+            BonusCashbackListener::class,
+        ],
+        BonusReward::class => [
+            BonusRewardListener::class,
         ],
         \App\Events\PembelianDiterima::class => [
             \App\Listeners\ProsesPembelianDiterima::class,

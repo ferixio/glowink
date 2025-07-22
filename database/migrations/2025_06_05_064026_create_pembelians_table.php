@@ -29,6 +29,7 @@ return new class extends Migration
                 'stock pribadi',
                 'repeat order',
             ])->default('stock pribadi');
+            $table->decimal('cashback', 10, 2)->nullable();;
 
             $table->integer('jumlah_poin_qr');
             $table->timestamps();

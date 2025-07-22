@@ -24,6 +24,22 @@ class BonusSponsorListener
             ]);
             $sponsor->saldo_penghasilan += $nominalBonus;
             $sponsor->save();
+            if ($statusQr) {
+                foreach ($pembelian->details as $detail) {
+                    if ($detail->paket == 2) {
+                        \App\Models\Penghasilan::create([
+                            'user_id' => $sponsor->id,
+                            'kategori_bonus' => 'bonus sponsor',
+                            'status_qr' => $statusQr,
+                            'tgl_dapat_bonus' => now(),
+                            'keterangan' => 'bonus sponsor',
+                            'nominal_bonus' => 20000,
+                        ]);
+                        $sponsor->saldo_penghasilan += 20000;
+                        $sponsor->save();
+                    }
+                }
+            }
         }
     }
 }
