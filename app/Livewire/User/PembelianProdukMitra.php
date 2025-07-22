@@ -383,8 +383,39 @@ class PembelianProdukMitra extends Component
                 'username' => null, // bisa diisi dari form jika ada
                 'password' => bcrypt('password'),
                 'id_sponsor' => Auth::id(), // ID sponsor diisi dari user yang login
-
             ]);
+
+            // Tambahan logika MLM: status_qr, id_sponsor, group_sponsor
+            // Cek apakah ada produk dengan paket == 2 di cart
+            $cart = Session::get('cart', []);
+            $adaPaketQR = false;
+            foreach ($cart as $item) {
+                $produk = \App\Models\Produk::find($item['id']);
+                if ($produk && $produk->paket == 2) {
+                    $adaPaketQR = true;
+                    break;
+                }
+            }
+
+            // Siapkan group_sponsor
+            $sponsor = Auth::user();
+            $groupSponsor = [];
+            if ($sponsor) {
+                // Ambil group_sponsor sponsor jika ada, lalu tambahkan id sponsor
+                if (is_array($sponsor->group_sponsor)) {
+                    $groupSponsor = $sponsor->group_sponsor;
+                } elseif (!empty($sponsor->group_sponsor)) {
+                    // Jika group_sponsor disimpan sebagai string JSON
+                    $groupSponsor = json_decode($sponsor->group_sponsor, true) ?? [];
+                }
+                $groupSponsor[] = $sponsor->id;
+            }
+
+            // Update userBaru
+            $userBaru->status_qr = $adaPaketQR;
+            $userBaru->id_sponsor = $sponsor ? $sponsor->id : null;
+            $userBaru->group_sponsor = $groupSponsor;
+            $userBaru->save();
 
             // Set tanggal ke hari ini
             $this->tanggal = now()->format('Y-m-d');
