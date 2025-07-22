@@ -381,8 +381,9 @@ class PembelianProdukMitra extends Component
                 'kabupaten' => $this->selectedKabupaten,
                 'email' => null, // bisa diisi dari form jika ada
                 'username' => null, // bisa diisi dari form jika ada
-                'password' => bcrypt('password_default'), // atau generate random password
-                // tambahkan field lain yang diperlukan sesuai migration User
+                'password' => bcrypt('password'),
+                'id_sponsor' => Auth::id(), // ID sponsor diisi dari user yang login
+
             ]);
 
             // Set tanggal ke hari ini
