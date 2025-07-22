@@ -124,7 +124,7 @@
         @php
             switch ($currentPage) {
                 case 0:
-                    $title = 'Pembelian Produk oleh Mitra';
+                    $title = 'Belanja';
                     break;
                 case 1:
                     $title = 'Aktivasi Member Baru';
@@ -136,7 +136,7 @@
                     $title = 'Repeat Order / Dropshop';
                     break;
                 default:
-                    $title = 'Pembelian Produk oleh Mitra';
+                    $title = 'Belanja';
             }
         @endphp
 
@@ -150,10 +150,10 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                             <div class="relative">
                                 <label for="kabupaten" class="block text-sm font-medium text-gray-700 mb-1">Pilih
-                                    Kabupaten/Kota</label>
+                                    Kabupaten</label>
                                 <select id="kabupaten" wire:model.live="selectedKabupaten"
                                     class="w-full border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400">
-                                    <option value="">Pilih Kabupaten/Kota</option>
+                                    <option value="">Pilih Kabupaten</option>
                                     @foreach ($kabupatenList as $kabupaten)
                                         <option value="{{ $kabupaten['nama'] }}">{{ $kabupaten['nama'] }}</option>
                                     @endforeach
@@ -167,7 +167,7 @@
                                 <select id="stockist" name="stockist" wire:model.live="selectedStockist"
                                     class="w-full border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400">
                                     @if (empty($selectedKabupaten))
-                                        <option value="">Pilih Kabupaten/Kota terlebih dahulu</option>
+                                        <option value="">Pilih Kabupaten terlebih dahulu</option>
                                     @elseif ($stockistList->isEmpty())
                                         <option value="">Tidak ada Stockist di {{ $selectedKabupaten }}</option>
                                     @else

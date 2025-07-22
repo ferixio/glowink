@@ -69,7 +69,7 @@ class UserStockisResource extends Resource
                                     ->live()
                                     ->afterStateUpdated(fn() => null),
                                 Forms\Components\Select::make('kabupaten')
-                                    ->label('Kabupaten/Kota')
+                                    ->label('Kabupaten')
                                     ->options(function (callable $get) {
                                         $provinceId = $get('provinsi');
                                         if (!$provinceId) {
@@ -129,7 +129,7 @@ class UserStockisResource extends Resource
                     ->label('Provinsi')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('kabupaten')
-                    ->label('Kabupaten/Kota')
+                    ->label('Kabupaten')
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('saldo_penghasilan')

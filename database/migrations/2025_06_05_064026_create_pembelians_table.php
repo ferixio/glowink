@@ -24,6 +24,12 @@ return new class extends Migration
             $table->decimal('total_bonus', 10, 2);
             $table->string('status_pembelian');
             $table->string('images')->nullable();
+            $table->enum('kategori_pembelian', [
+                'aktivasi member',
+                'stock pribadi',
+                'repeat order',
+            ])->default('stock pribadi');
+
             $table->integer('jumlah_poin_qr');
             $table->timestamps();
         });

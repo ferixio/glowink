@@ -198,7 +198,7 @@ class PembelianProdukMitra extends Component
         try {
             // Validasi apakah kabupaten sudah dipilih
             if (empty($this->selectedKabupaten)) {
-                session()->flash('error', 'Silakan pilih Kabupaten/Kota terlebih dahulu');
+                session()->flash('error', 'Silakan pilih Kabupaten terlebih dahulu');
                 return;
             }
 
@@ -341,7 +341,7 @@ class PembelianProdukMitra extends Component
     {
         // Validasi kabupaten dipilih
         if (empty($this->selectedKabupaten)) {
-            session()->flash('error', 'Silakan pilih Kabupaten/Kota terlebih dahulu');
+            session()->flash('error', 'Silakan pilih Kabupaten terlebih dahulu');
             return;
         }
 
@@ -406,8 +406,7 @@ class PembelianProdukMitra extends Component
                 'alamat_user' => $userBaru->alamat,
             ];
 
-            // Proses checkout atas nama user baru
-            $this->processCheckout($userData);
+            $this->processCheckout($userData, 'aktivasi member');
 
             DB::commit();
 
@@ -421,7 +420,7 @@ class PembelianProdukMitra extends Component
     {
         // Validasi kabupaten dipilih
         if (empty($this->selectedKabupaten)) {
-            session()->flash('error', 'Silakan pilih Kabupaten/Kota terlebih dahulu');
+            session()->flash('error', 'Silakan pilih Kabupaten terlebih dahulu');
             return;
         }
 
@@ -454,16 +453,16 @@ class PembelianProdukMitra extends Component
             'alamat_user' => $user->alamat ?? '',
         ];
 
-        $this->processCheckout($userData);
+        $this->processCheckout($userData, 'stock pribadi');
     }
 
-    private function processCheckout($userData = null)
+    private function processCheckout($userData = null, $kategoriPembelian = 'stock pribadi')
     {
         DB::beginTransaction();
         try {
             // Validasi kabupaten dipilih
             if (empty($this->selectedKabupaten)) {
-                session()->flash('error', 'Silakan pilih Kabupaten/Kota terlebih dahulu');
+                session()->flash('error', 'Silakan pilih Kabupaten terlebih dahulu');
                 return;
             }
 
@@ -523,6 +522,7 @@ class PembelianProdukMitra extends Component
                 'total_bonus' => 0,
                 'status_pembelian' => 'menunggu',
                 'jumlah_poin_qr' => 0,
+                'kategori_pembelian' => $kategoriPembelian,
             ]);
 
             // Simpan detail produk (STOK STOCKIST AKAN DIKURANGI SAAT ADMIN APPROVE)
@@ -580,7 +580,7 @@ class PembelianProdukMitra extends Component
     {
         // Validasi kabupaten dipilih
         if (empty($this->selectedKabupaten)) {
-            session()->flash('error', 'Silakan pilih Kabupaten/Kota terlebih dahulu');
+            session()->flash('error', 'Silakan pilih Kabupaten terlebih dahulu');
             return;
         }
 
@@ -630,7 +630,7 @@ class PembelianProdukMitra extends Component
             'alamat_user' => $user->alamat ?? '',
         ];
 
-        $this->processCheckout($userData);
+        $this->processCheckout($userData, 'repeat order');
     }
 
     public function render()

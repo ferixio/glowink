@@ -22,35 +22,7 @@ class EditApprovePembelian extends EditRecord
                     || $this->record->status_pembelian === 'ditolak')
                 ->action(function () {
                     if (!in_array($this->record->status_pembelian, ['proses', 'selesai'])) {
-                        foreach ($this->record->details as $detail) {
-                            // Tambah stok ke user pembeli
-                            $produkStok = \App\Models\ProdukStok::firstOrNew([
-                                'user_id' => $this->record->user_id,
-                                'produk_id' => $detail->produk_id,
-                            ]);
-                            $produkStok->stok = ($produkStok->stok ?? 0) + $detail->jml_beli;
-                            $produkStok->save();
-
-                            // Kurangi stok dari stockist (jika beli dari stockist)
-                            if ($this->record->beli_dari && $this->record->beli_dari != 1) {
-                                $stockistStok = \App\Models\ProdukStok::where('user_id', $this->record->beli_dari)
-                                    ->where('produk_id', $detail->produk_id)
-                                    ->first();
-                                if ($stockistStok && $stockistStok->stok >= $detail->jml_beli) {
-                                    $stockistStok->update([
-                                        'stok' => $stockistStok->stok - $detail->jml_beli,
-                                    ]);
-                                }
-                            }
-                        }
-                    }
-                    // Tambah saldo ke user stockist jika beli_dari ada dan bukan 1
-                    if ($this->record->beli_dari && $this->record->beli_dari != 1) {
-                        $stockist = \App\Models\User::find($this->record->beli_dari);
-                        if ($stockist) {
-                            $stockist->saldo_penghasilan += $this->record->total_beli;
-                            $stockist->save();
-                        }
+                        event(new \App\Events\PembelianDiterima($this->record));
                     }
                     $this->record->status_pembelian = 'proses';
                     $this->record->save();
