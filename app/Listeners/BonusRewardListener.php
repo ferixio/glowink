@@ -17,6 +17,7 @@ class BonusRewardListener
                 if ($detail->paket == 2) {
                     $user->poin_reward += 1;
                     $user->save();
+                    event(new \App\Events\ChangeLevelUser($user, $user->poin_reward));
                     break; // hanya tambah 1 poin jika ada minimal 1 paket == 2
                 }
             }
@@ -34,6 +35,7 @@ class BonusRewardListener
                     if ($detail->paket == 2) {
                         $sponsor->poin_reward += 1;
                         $sponsor->save();
+                        event(new \App\Events\ChangeLevelUser($sponsor, $sponsor->poin_reward));
                         break; // hanya tambah 1 poin jika ada minimal 1 paket == 2
                     }
                 }

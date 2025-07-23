@@ -12,27 +12,7 @@
             <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm">
                 <div class="text-sm text-gray-500">Karir Level</div>
                 <div class="mt-1 text-lg font-semibold text-gray-700">
-                    @php
-                        $poin = $user->poin_reward ?? 0;
-                        if ($poin >= 150000) {
-                            $level = 'Chairman';
-                        } elseif ($poin >= 60000) {
-                            $level = 'Ambassador';
-                        } elseif ($poin >= 15000) {
-                            $level = 'Titanium';
-                        } elseif ($poin >= 3000) {
-                            $level = 'Platinum';
-                        } elseif ($poin >= 750) {
-                            $level = 'Gold';
-                        } elseif ($poin >= 100) {
-                            $level = 'Silver';
-                        } elseif ($poin >= 20) {
-                            $level = 'Bronze';
-                        } else {
-                            $level = 'Bronze';
-                        }
-                    @endphp
-                    {{ $level }}
+                    {{ $user->plan_karir_sekarang }}
                 </div>
             </div>
             <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm">

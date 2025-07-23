@@ -230,6 +230,13 @@ class PembelianProdukStockis extends Component
                 'jumlah_poin_qr' => 0, // isi jika ada logic poin
             ]);
 
+            // Tambahkan logika cashback di sini
+            $totalQty = collect($cart)->sum('qty');
+            $totalCashback = $totalQty * 10000;
+            $pembelian->total_cashback = $totalCashback;
+            $pembelian->total_beli = $pembelian->total_beli - $totalCashback;
+            $pembelian->save();
+
             // 2. Simpan detail produk ke pembelian_details (STOK AKAN DITAMBAHKAN SAAT ADMIN APPROVE)
             foreach ($cart as $item) {
                 // Ambil data produk untuk field paket

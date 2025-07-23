@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('paket');
             $table->integer('jml_beli');
             $table->decimal('harga_beli', 10, 2);
-            $table->decimal('cashback', 10, 2)->nullable();;
+            $table->decimal('cashback', 10, 2)->default(10000);
             $table->decimal('nominal_bonus_sponsor', 10, 2);
             $table->decimal('nominal_bonus_generasi', 10, 2);
             $table->foreignId('user_id_get_bonus_sponsor')->nullable()->constrained('users')->onDelete('set null');

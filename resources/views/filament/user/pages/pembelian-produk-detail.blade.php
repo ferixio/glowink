@@ -1,24 +1,24 @@
 <x-filament::page>
     <div class="w-full mx-auto ">
 
-        @if ($pembelian )
+        @if ($pembelian)
 
-            @if(!$isApprovePage)
-            <div class="bg-green-100 border border-green-400 text-green-800 px-6 py-4 rounded mb-6">
-                <h2 class="font-bold text-lg">Proses Pembelian telah masuk ke system</h2>
-                <p class="text-sm">Silahkan melakukan proses pembayaran ke rekening di bawah ini dan upload bukti
-                    transfer anda agar segera diproses oleh  {{ $company ? 'Admin' : 'Stockis' }}</p>
-                <div class="mt-2 font-semibold">
-                    @if($company)
-                    {{ $company->bank_name }} <br>
-                    a.n. {{ $company->bank_atas_nama }} <br>
-                    @else
-                    {{ $stockis->nama }} <br>
-                    a.n. {{ $stockis->nama_rekening }} <br>
-                    @endif
-                    
+            @if (!$isApprovePage)
+                <div class="bg-green-100 border border-green-400 text-green-800 px-6 py-4 rounded mb-6">
+                    <h2 class="font-bold text-lg">Proses Pembelian telah masuk ke system</h2>
+                    <p class="text-sm">Silahkan melakukan proses pembayaran ke rekening di bawah ini dan upload bukti
+                        transfer anda agar segera diproses oleh {{ $company ? 'Admin' : 'Stockis' }}</p>
+                    <div class="mt-2 font-semibold">
+                        @if ($company)
+                            {{ $company->bank_name }} <br>
+                            a.n. {{ $company->bank_atas_nama }} <br>
+                        @else
+                            {{ $stockis->nama }} <br>
+                            a.n. {{ $stockis->nama_rekening }} <br>
+                        @endif
+
+                    </div>
                 </div>
-            </div>
             @endif
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -41,7 +41,7 @@
                         <p class="text-sm"><span class="font-semibold">Status Pembelian:</span>
                             @php
                                 $displayStatus =
-                                    $pembelian->images === "menunggu" && !empty($pembelian->images)
+                                    $pembelian->images === 'menunggu' && !empty($pembelian->images)
                                         ? 'transfer'
                                         : $pembelian->status_pembelian;
                                 $statusColor =
@@ -88,9 +88,11 @@
                                         <p class="text-sm text-red-500">
                                             Rp {{ number_format($detail->harga_beli, 0, ',', '.') }}
                                         </p>
+                                        <p class="text-xs text-green-600">Cashback: Rp
+                                            {{ number_format($detail->jml_beli * 10000, 0, ',', '.') }}</p>
                                     </div>
                                 </div>
-                                <p class="text-sm">{{ $detail->jml_beli }}</p>
+                                <p class="text-sm">Qty: {{ $detail->jml_beli }}</p>
                             </div>
                         @endforeach
                     </div>
@@ -99,6 +101,11 @@
                         <div class="flex justify-between">
                             <span>Total Quantity</span>
                             <span>{{ $pembelian->details->sum('jml_beli') }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="font-semibold text-green-700">Total Cashback</span>
+                            <span class="font-semibold text-green-700">Rp
+                                {{ number_format($pembelian->total_cashback, 0, ',', '.') }}</span>
                         </div>
                         <div class="flex justify-between font-bold">
                             <span>Total Pembelian</span>

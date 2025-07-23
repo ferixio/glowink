@@ -34,6 +34,15 @@ class BonusGenerasiListener
             // Tambahkan nominalBonus ke saldo_penghasilan sponsor
             $sponsor->saldo_penghasilan += $nominalBonus;
             $sponsor->save();
+            // Buat juga data penghasilan untuk penambahan saldo
+            \App\Models\Penghasilan::create([
+                'user_id' => $sponsor->id,
+                'kategori_bonus' => 'Bonus Generasi',
+                'status_qr' => $statusQr,
+                'tgl_dapat_bonus' => now(),
+                'keterangan' => 'penambahan saldo bonus generasi',
+                'nominal_bonus' => $nominalBonus,
+            ]);
         }
     }
 }

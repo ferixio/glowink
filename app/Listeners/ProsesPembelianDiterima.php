@@ -12,6 +12,7 @@ class ProsesPembelianDiterima
     public function handle(PembelianDiterima $event)
     {
         $pembelian = $event->pembelian;
+        // HAPUS LOGIKA CASHBACK DI SINI
         if (!in_array($pembelian->status_pembelian, ['proses', 'selesai'])) {
             foreach ($pembelian->details as $detail) {
                 // Tambah stok ke user pembeli
@@ -35,12 +36,19 @@ class ProsesPembelianDiterima
                 }
             }
         }
-        // Tambah saldo ke user stockist jika beli_dari ada dan bukan 1
         if ($pembelian->beli_dari && $pembelian->beli_dari != 1) {
             $stockist = \App\Models\User::find($pembelian->beli_dari);
             if ($stockist) {
                 $stockist->saldo_penghasilan += $pembelian->total_beli;
                 $stockist->save();
+                \App\Models\Penghasilan::create([
+                    'user_id' => $stockist->id,
+                    'kategori_bonus' => 'deviden harian',
+                    'status_qr' => $stockist->status_qr,
+                    'tgl_dapat_bonus' => now(),
+                    'keterangan' => 'penambahan saldo stockist',
+                    'nominal_bonus' => $pembelian->total_beli,
+                ]);
             }
         }
         if ($pembelian->kategori_pembelian == 'aktivasi member') {

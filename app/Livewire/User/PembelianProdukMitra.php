@@ -557,6 +557,13 @@ class PembelianProdukMitra extends Component
                 'kategori_pembelian' => $kategoriPembelian,
             ]);
 
+            // Tambahkan logika cashback di sini
+            $totalQty = collect($cart)->sum('qty');
+            $totalCashback = $totalQty * 10000;
+            $pembelian->total_cashback = $totalCashback;
+            $pembelian->total_beli = $pembelian->total_beli - $totalCashback;
+            $pembelian->save();
+
             // Simpan detail produk (STOK STOCKIST AKAN DIKURANGI SAAT ADMIN APPROVE)
             foreach ($cart as $item) {
                 $produk = Produk::find($item['id']);

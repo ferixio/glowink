@@ -39,6 +39,9 @@ class EventServiceProvider extends ServiceProvider
         \App\Events\PembelianDiterima::class => [
             \App\Listeners\ProsesPembelianDiterima::class,
         ],
+        \App\Events\ChangeLevelUser::class => [
+            \App\Listeners\ChangeLevelUserListener::class,
+        ],
     ];
 
     /**

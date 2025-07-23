@@ -46,6 +46,9 @@ class PembeliansResource extends Resource
                 Tables\Columns\TextColumn::make('no_telp')
                     ->searchable()
                     ->label("No HP Penerima")->url(fn($record) => static::getUrl('detail', ['record' => $record])),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->searchable()
+                    ->label("Tanggal Pembelian")->url(fn($record) => static::getUrl('detail', ['record' => $record])),
 
                 Tables\Columns\BadgeColumn::make('status_pembelian')
                     ->color(fn(string $state): string => match ($state) {

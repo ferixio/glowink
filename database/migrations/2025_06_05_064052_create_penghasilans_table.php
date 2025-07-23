@@ -20,7 +20,8 @@ return new class extends Migration
                 'Bonus Reward',
                 'deviden harian',
                 'deviden bulanan',
-            ]);
+            ])->nullable();
+
             $table->string('status_qr');
             $table->date('tgl_dapat_bonus');
             $table->string('keterangan');
