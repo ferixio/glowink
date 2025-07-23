@@ -4,6 +4,7 @@ namespace App\Filament\Admin\Pages;
 
 use App\Models\DevidenHarian as ModelDevidenHarian;
 use App\Models\PembelianDetail;
+use App\Models\Setting;
 use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\DatePicker;
@@ -60,7 +61,7 @@ class DevidenHarian extends Page implements HasForms
 
     public function prosesDeviden()
     {
-        $angkaDeviden = 1500;
+        $angkaDeviden = Setting::first()->angka_deviden ?? 1500;
         $selectedDate = $this->data['selectedDate'] ?? now()->format('Y-m-d');
 
         // Cek apakah sudah ada data deviden_harians untuk tanggal ini
@@ -99,7 +100,6 @@ class DevidenHarian extends Page implements HasForms
         if ($totalMemberUpTo20Point > 0) {
             $rumusDeviden = $angkaDeviden * ($omsetNasionalTotal + $RObasicTotal) / $totalMemberUpTo20Point;
 
-            // Simpan ke tabel deviden_harians
             $deviden = ModelDevidenHarian::create([
                 'omzet_aktivasi' => $omsetNasionalTotal,
                 'omzet_ro_basic' => $RObasicTotal,

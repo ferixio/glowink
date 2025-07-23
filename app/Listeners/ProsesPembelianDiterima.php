@@ -43,7 +43,7 @@ class ProsesPembelianDiterima
                 $stockist->save();
                 \App\Models\Penghasilan::create([
                     'user_id' => $stockist->id,
-                    'kategori_bonus' => 'deviden harian',
+                    'kategori_bonus' => 'Pemasukan',
                     'status_qr' => $stockist->status_qr,
                     'tgl_dapat_bonus' => now(),
                     'keterangan' => 'penambahan saldo stockist',
