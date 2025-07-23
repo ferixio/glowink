@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('alamat')->nullable();
             $table->string('telepon')->nullable();
             $table->string('logo')->nullable();
+            $table->decimal('angka_deviden', 15, 2)->nullable();
             $table->text('val')->nullable();
             $table->timestamps();
         });

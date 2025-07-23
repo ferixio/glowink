@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\Pembelian;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
@@ -17,8 +16,6 @@ class PembelianSeeder extends Seeder
         $stockists = User::where('isStockis', true)->get();
         $basicMembers = User::where('isStockis', false)->get();
         $adminUser = User::where('id', 1)->first(); // Admin user with ID 1
-
-     
 
         $statuses = ['menunggu', 'transfer', 'proses', 'ditolak', 'selesai'];
 
@@ -41,9 +38,9 @@ class PembelianSeeder extends Seeder
         for ($i = 0; $i < $purchaseCount; $i++) {
             $status = $statuses[array_rand($statuses)];
             $totalBeli = rand(500000, 2000000); // Random total between 500k - 2M
-
-            Pembelian::create([
-                'tgl_beli' => now()->subDays(rand(1, 30))->format('Y-m-d'),
+            $tglBeli = ($i == 0) ? now()->format('Y-m-d') : now()->subDays(rand(1, 30))->format('Y-m-d');
+            \App\Models\Pembelian::create([
+                'tgl_beli' => $tglBeli,
                 'user_id' => $stockist->id,
                 'beli_dari' => $adminUser->id, // Stockists buy from admin (ID 1)
                 'tujuan_beli' => 'null',
@@ -54,12 +51,17 @@ class PembelianSeeder extends Seeder
                 'total_bonus' => 0, // Will be calculated later
                 'status_pembelian' => $status,
                 'jumlah_poin_qr' => 0, // Will be calculated later
+                'kategori_pembelian' => 'stock pribadi',
             ]);
         }
     }
 
     private function createMemberPurchases($member, $stockists, $statuses)
     {
+        // Skip if this user is a mitra created by MitraSeeder (identified by id_mitra starting with 'G')
+        if (isset($member->id_mitra) && str_starts_with($member->id_mitra, 'G')) {
+            return;
+        }
         // Create 2-4 purchases per member
         $purchaseCount = rand(2, 4);
 
@@ -67,9 +69,9 @@ class PembelianSeeder extends Seeder
             $randomStockist = $stockists->random();
             $status = $statuses[array_rand($statuses)];
             $totalBeli = rand(200000, 1000000); // Random total between 200k - 1M
-
-            Pembelian::create([
-                'tgl_beli' => now()->subDays(rand(1, 30))->format('Y-m-d'),
+            $tglBeli = ($i == 0) ? now()->format('Y-m-d') : now()->subDays(rand(1, 30))->format('Y-m-d');
+            \App\Models\Pembelian::create([
+                'tgl_beli' => $tglBeli,
                 'user_id' => $member->id,
                 'beli_dari' => $randomStockist->id, // Members buy from stockists
                 'tujuan_beli' => 'null',
@@ -80,6 +82,7 @@ class PembelianSeeder extends Seeder
                 'total_bonus' => 0, // Will be calculated later
                 'status_pembelian' => $status,
                 'jumlah_poin_qr' => 0, // Will be calculated later
+                'kategori_pembelian' => 'stock pribadi',
             ]);
         }
     }
