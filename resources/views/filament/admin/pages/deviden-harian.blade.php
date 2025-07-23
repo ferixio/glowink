@@ -49,7 +49,7 @@
         </div>
     @else
         <div class="p-8 text-center text-gray-400">
-            Data deviden harian belum tersedia {{ $this->data['selectedDate'] }}.
+            Data deviden harian belum tersedia pada tanggal : {{ $this->data['selectedDate'] }}.
         </div>
     @endif
 </x-filament-panels::page>

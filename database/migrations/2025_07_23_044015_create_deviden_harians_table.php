@@ -17,6 +17,7 @@ return new class extends Migration
             $table->decimal('omzet_ro_basic', 15, 2)->nullable();
             $table->integer('total_member')->nullable();
             $table->decimal('deviden_diterima', 15, 2)->nullable();
+            $table->date('tanggal_deviden')->nullable();
             $table->timestamps();
         });
     }

@@ -14,5 +14,6 @@ class DevidenHarian extends Model
         'omzet_ro_basic',
         'total_member',
         'deviden_diterima',
+        'tanggal_deviden',
     ];
 }
