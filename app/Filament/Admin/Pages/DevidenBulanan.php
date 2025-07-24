@@ -11,6 +11,7 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Pages\Page;
+use Illuminate\Support\Facades\Log;
 
 class DevidenBulanan extends Page implements HasForms
 {
@@ -73,17 +74,33 @@ class DevidenBulanan extends Page implements HasForms
     {
         $startDate = $this->data['startDate'];
         $endDate = $this->data['endDate'];
-        $getPembelians = Pembelian::where('kategori_pembelian', 'repeat order bulanan')->whereBetween('tanggal', [$startDate, $endDate])->whereIn('status_pembelian', ['proses', 'selesai'])->get();
+        $getPembelians = Pembelian::where('kategori_pembelian', 'repeat order bulanan')->whereBetween('created_at', [$startDate, $endDate])->whereIn('status_pembelian', ['proses', 'selesai'])->get();
 
-        $omsetRObulanan = $getPembelians->sum('total_beli')->whereHas('details', function ($q) {
-            $q->where('paket', 1);
-        })
-            ->with(['details' => function ($q) {
-                $q->where('paket', 1);
-            }])
-            ->get()
-            ->pluck('details')
-            ->flatten()
+        // --- Tambahan logic pencarian jumlah mitra dan transaksi per level karir ---
+        $levels = \App\Models\LevelKarir::all();
+        $result = [];
+        foreach ($levels as $level) {
+            $namaLevel = $level->nama_level;
+            $minimalROQR = $level->minimal_RO_QR;
+            $jumlahMitra = \App\Models\User::where('plan_karir_sekarang', $namaLevel)->count();
+            $jumlahMitraTransaksi = \App\Models\User::where('plan_karir_sekarang', $namaLevel)
+                ->where('jml_ro_bulanan', '>=', $minimalROQR)
+                ->count();
+            $result[$namaLevel] = [
+                'jumlahMitra' => $jumlahMitra,
+                'jumlahMitraTransaksi' => $jumlahMitraTransaksi,
+            ];
+        }
+        $this->data['levelKarirStats'] = $result;
+
+        Log::info('LevelKarirStats:', $result);
+
+        $omsetRObulanan = $getPembelians
+            ->flatMap(function ($pembelian) {
+                return $pembelian->details->where('paket', 1);
+            })
             ->sum('harga_beli');
+
     }
+
 }

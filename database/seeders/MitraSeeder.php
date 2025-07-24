@@ -35,26 +35,18 @@ class MitraSeeder extends Seeder
             fclose($handle);
         }
 
-        // Simpan semua mitra yang sudah dibuat
         $createdUsers = [];
-
         for ($i = 0; $i < 15; $i++) {
             $urutan = str_pad($i + 1, 2, '0', STR_PAD_LEFT);
             $today = '20250723';
             $idMitra = 'G' . $today . $urutan;
-
             $username = 'mitra' . ($i + 2);
             $email = $username . '@gmail.com';
-
             [$provinsi, $kabupaten] = $this->getFirstProvinceAndRegency($provinces, $regencies);
-
-            // group_sponsor = 9 mitra sebelumnya (jika ada)
             $groupSponsor = array_column(array_slice($createdUsers, max(0, $i - 9), 9), 'id');
 
-            // id_sponsor = id dari mitra sebelumnya
             $idSponsor = $i > 0 ? $createdUsers[$i - 1]['id'] : null;
 
-            // status_qr: dua pertama false, sisanya true
             $statusQR = $i < 2 ? false : true;
 
             $user = User::create([
