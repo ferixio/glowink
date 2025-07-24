@@ -89,7 +89,6 @@ class UserSeeder extends Seeder
             'password' => Hash::make('password'),
             'isAdmin' => false,
             'isStockis' => true,
-
             'nama' => 'Stockis Glowink',
             'provinsi' => $provinsi,
             'kabupaten' => $kabupaten,
