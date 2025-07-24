@@ -28,6 +28,7 @@ return new class extends Migration
                 'aktivasi member',
                 'stock pribadi',
                 'repeat order',
+                'repeat order bulanan',
             ])->default('stock pribadi');
             $table->decimal('total_cashback', 10, 2)->nullable();
             $table->integer('jumlah_poin_qr');

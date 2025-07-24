@@ -59,5 +59,11 @@ class ProsesPembelianDiterima
         if ($pembelian->kategori_pembelian == 'repeat order' || $pembelian->kategori_pembelian == 'stock pribadi') {
             event(new BonusReward($pembelian));
         }
+
+        if ($pembelian->kategori_pembelian == 'repeat order bulanan') {
+            $user = \App\Models\User::find($pembelian->user_id);
+            $user->jml_ro_bulanan = $user->jml_ro_bulanan + 1;
+            $user->save();
+        }
     }
 }

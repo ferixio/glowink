@@ -36,6 +36,8 @@ return new class extends Migration
             $table->string('plan_karir_sekarang')->nullable();
             $table->string('next_plan_karir')->nullable();
             $table->decimal('next_poin_karir')->default(0);
+            $table->integer('jml_ro_bulanan')->default(0);
+            $table->integer('minimal_ro_bulanan')->default(0);
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();
             $table->timestamps();

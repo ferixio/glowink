@@ -64,7 +64,6 @@ class DevidenHarian extends Page implements HasForms
         $angkaDeviden = Setting::first()->angka_deviden ?? 1500;
         $selectedDate = $this->data['selectedDate'] ?? now()->format('Y-m-d');
 
-        // Cek apakah sudah ada data deviden_harians untuk tanggal ini
         $exists = ModelDevidenHarian::whereDate('tanggal_deviden', $selectedDate)->exists();
         if ($exists) {
             \Filament\Notifications\Notification::make()
@@ -77,6 +76,7 @@ class DevidenHarian extends Page implements HasForms
 
         $pembelianIds = \App\Models\Pembelian::where('kategori_pembelian', 'aktivasi member')
             ->whereDate('tgl_beli', $selectedDate)
+            ->whereIn('status_pembelian', ['proses', 'selesai'])
             ->pluck('id');
         $detailQuery = PembelianDetail::where('paket', 1)
             ->whereIn('pembelian_id', $pembelianIds);
@@ -84,6 +84,7 @@ class DevidenHarian extends Page implements HasForms
         $omsetNasionalTotal = PembelianDetail::whereIn('id', $detailIds)->sum('harga_beli');
         $RObasicTotal = \App\Models\Pembelian::whereDate('tgl_beli', $selectedDate)
             ->where('kategori_pembelian', 'repeat order')
+            ->whereIn('status_pembelian', ['proses', 'selesai'])
             ->whereHas('details', function ($q) {
                 $q->where('paket', 1);
             })
@@ -107,6 +108,11 @@ class DevidenHarian extends Page implements HasForms
                 'deviden_diterima' => $rumusDeviden,
                 'tanggal_deviden' => $selectedDate,
             ]);
+
+            \App\Models\User::where('poin_reward', '>=', 20)->get()->each(function ($user) use ($rumusDeviden) {
+                $user->saldo_penghasilan += $rumusDeviden;
+                $user->save();
+            });
             $this->loadDevidenHarian();
             Notification::make()
                 ->title('Sukses')

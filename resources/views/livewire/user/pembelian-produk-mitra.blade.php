@@ -106,13 +106,14 @@
                         <button
                             class="w-full mb-2 bg-orange-200 hover:bg-orange-300 text-gray-800 font-semibold py-2 px-4 rounded-md transition"
                             wire:click="changePage(3)" @if ($totalQty == 0) disabled @endif>
-                            Repeat Order / Dropshop
+                            Repeat Order / Dropship
                         </button>
-                        {{-- <button
-                            class="w-full bg-orange-200 hover:bg-orange-300 text-gray-800 font-semibold py-2 px-4 rounded-md transition"
-                            wire:click="changePage(3)" @if ($totalQty == 0) disabled @endif>
-                            Repeat Order / Dropshop
-                        </button> --}}
+
+                        <button
+                            class="w-full mb-2 bg-orange-200 hover:bg-orange-300 text-gray-800 font-semibold py-2 px-4 rounded-md transition"
+                            wire:click="changePage(4)" @if ($totalQty == 0) disabled @endif>
+                            Repeat Order Bulanan
+                        </button>
                     @endif
                 </div>
             </div>
@@ -133,7 +134,10 @@
                     $title = 'Stock Pribadi';
                     break;
                 case 3:
-                    $title = 'Repeat Order / Dropshop';
+                    $title = 'Repeat Order / Dropship';
+                    break;
+                case 4:
+                    $title = 'Repeat Order Bulanan';
                     break;
                 default:
                     $title = 'Belanja';
@@ -410,6 +414,61 @@
                     </div>
                 </form>
             </section>
+        @elseif ($currentPage === 4)
+            <section class="w-full">
+                <form class="space-y-6">
+                    <div>
+                        <label for="namaPenerima" class="block text-sm font-medium text-gray-700">Nama
+                            Penerima</label>
+                        <input type="text" id="namaPenerima" wire:model="namaPenerima"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
+                            placeholder="Masukkan nama penerima">
+                        @error('namaPenerima')
+                            <span class="text-red-500 text-sm">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="telepon" class="block text-sm font-medium text-gray-700">No telepon /
+                                whatsapp</label>
+                            <input type="text" id="telepon" wire:model="telepon"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
+                                placeholder="Masukkan nomor telepon atau whatsapp Pemesan">
+                            @error('telepon')
+                                <span class="text-red-500 text-sm">{{ $message }}</span>
+                            @enderror
+                        </div>
+                        <div>
+                            <label for="alamat" class="block text-sm font-medium text-gray-700">Alamat
+                                Pengiriman</label>
+                            <input type="text" id="alamat" wire:model="alamat"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
+                                placeholder="Masukkan alamat pengiriman">
+                            @error('alamat')
+                                <span class="text-red-500 text-sm">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+
+                    </div>
+                    <div class="flex flex-col w-full">
+
+
+                        <button
+                            class="w-full mt-6  bg-orange-500 hover:bg-orange-600 text-white font-semibold py-1.5 px-4 rounded-md transition"
+                            wire:click="repeatOrderBulanan" @if ($totalQty == 0) disabled @endif>
+                            Proses Pesanan
+                        </button>
+                        <button
+                            class="w-full mt-2  bg-orange-200 hover:bg-orange-300 text-gray-800 font-semibold py-1.5 px-4 rounded-md transition"
+                            wire:click="changePage(0)">
+                            Kembali
+                        </button>
+                    </div>
+                </form>
+            </section>
         @else
             <section>
                 <h2>Default</h2>
@@ -478,9 +537,14 @@
                         Stock Pribadi
                     </button>
                     <button
-                        class="w-full  bg-orange-200 hover:bg-orange-300 text-gray-800 font-semibold py-1.5 px-4 rounded-md transition"
+                        class="w-full mb-2 bg-orange-200 hover:bg-orange-300 text-gray-800 font-semibold py-1.5 px-4 rounded-md transition"
                         wire:click="changePage(3)" @if ($totalQty == 0) disabled @endif>
-                        Repeat Order / Dropshop
+                        Repeat Order / Dropship
+                    </button>
+                    <button
+                        class="w-full  bg-orange-200 hover:bg-orange-300 text-gray-800 font-semibold py-1.5 px-4 rounded-md transition"
+                        wire:click="changePage(4)" @if ($totalQty == 0) disabled @endif>
+                        Repeat Order Bulanan
                     </button>
                 @endif
             </div>
