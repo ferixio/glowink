@@ -29,6 +29,8 @@ class DevidenBulanan extends Page implements HasForms
     public $searchPerformed = false;
     public $omzetROQR = 0;
 
+    protected $listeners = ['makeIncomeForUser' => 'makeIncomeForUser'];
+
     public function mount()
     {
 
@@ -226,6 +228,102 @@ class DevidenBulanan extends Page implements HasForms
                 ->send();
 
             Log::error('Error saat menyimpan deviden bulanan:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+        }
+    }
+
+    public function makeIncomeForUser()
+    {
+        try {
+            // Mulai transaction untuk memastikan data konsisten
+            DB::beginTransaction();
+
+            $devidenBulanan = \App\Models\DevidenBulanan::where('tanggal_input', $this->devidenBulananData['tanggal_input'])->first();
+
+            if (!$devidenBulanan) {
+                Notification::make()
+                    ->title('Data tidak ditemukan')
+                    ->body('Data deviden bulanan tidak ditemukan untuk tanggal tersebut.')
+                    ->warning()
+                    ->send();
+                return;
+            }
+
+            $detailDevidenBulanan = \App\Models\DetailDevidenBulanan::where('deviden_bulanan_id', $devidenBulanan->id)->get();
+            $totalUsersUpdated = 0;
+            $totalIncomeDistributed = 0;
+
+            foreach ($detailDevidenBulanan as $detail) {
+                // Ambil level karir untuk mendapatkan minimal RO QR
+                $levelKarir = \App\Models\LevelKarir::where('nama_level', $detail->nama_level)->first();
+                $minimalROQR = $levelKarir ? $levelKarir->minimal_RO_QR : 0;
+
+                // Ambil user yang memenuhi syarat
+                $users = \App\Models\User::where('plan_karir_sekarang', $detail->nama_level)
+                    ->where('jml_ro_bulanan', '>=', $minimalROQR)
+                    ->get();
+
+                foreach ($users as $user) {
+                    // Update saldo penghasilan user
+                    $oldSaldo = $user->saldo_penghasilan;
+                    $user->saldo_penghasilan += $detail->nominal_deviden_bulanan;
+                    $user->save();
+
+                    // Catat history ke tabel Penghasilan
+                    \App\Models\Penghasilan::create([
+                        'user_id' => $user->id,
+                        'tgl_dapat_bonus' => $this->devidenBulananData['tanggal_input'],
+                        'keterangan' => "Deviden Bulanan - Level {$detail->nama_level} - Periode {$this->devidenBulananData['start_date']} s/d {$this->devidenBulananData['end_date']}",
+                        'nominal_bonus' => $detail->nominal_deviden_bulanan,
+                        'kategori_bonus' => 'deviden_bulanan',
+                        'status_qr' => 'selesai',
+                    ]);
+
+                    $totalUsersUpdated++;
+                    $totalIncomeDistributed += $detail->nominal_deviden_bulanan;
+
+                    // Log untuk tracking
+                    Log::info("User {$user->name} (ID: {$user->id}) mendapat deviden bulanan:", [
+                        'level' => $detail->nama_level,
+                        'old_saldo' => $oldSaldo,
+                        'new_saldo' => $user->saldo_penghasilan,
+                        'nominal_deviden' => $detail->nominal_deviden_bulanan,
+                        'periode' => $this->devidenBulananData['start_date'] . ' s/d ' . $this->devidenBulananData['end_date'],
+                    ]);
+                }
+            }
+
+            // Commit transaction
+            DB::commit();
+
+            // Notifikasi sukses dengan detail
+            Notification::make()
+                ->title('Penghasilan berhasil didistribusikan')
+                ->body("Total {$totalUsersUpdated} user telah menerima deviden bulanan sebesar Rp " . number_format($totalIncomeDistributed, 0, ',', '.') . " untuk periode {$this->devidenBulananData['start_date']} s/d {$this->devidenBulananData['end_date']}")
+                ->success()
+                ->send();
+
+            Log::info('Distribusi deviden bulanan berhasil:', [
+                'tanggal_input' => $this->devidenBulananData['tanggal_input'],
+                'total_users_updated' => $totalUsersUpdated,
+                'total_income_distributed' => $totalIncomeDistributed,
+                'periode' => $this->devidenBulananData['start_date'] . ' s/d ' . $this->devidenBulananData['end_date'],
+            ]);
+
+        } catch (\Exception $e) {
+            // Rollback transaction jika terjadi error
+            DB::rollBack();
+
+            // Notifikasi error
+            Notification::make()
+                ->title('Gagal mendistribusikan penghasilan')
+                ->body('Terjadi kesalahan saat mendistribusikan deviden bulanan: ' . $e->getMessage())
+                ->danger()
+                ->send();
+
+            Log::error('Error saat mendistribusikan deviden bulanan:', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);

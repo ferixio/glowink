@@ -5,17 +5,37 @@
 
     @if ($this->searchPerformed && $this->devidenBulananData)
         <div style="margin-top: 2rem; display: flex; flex-direction: column; gap: 1.5rem;">
+            <!-- Action Buttons -->
+            {{-- <div
+                style="background: white; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); padding: 1.5rem;">
+                <h3 style="font-size: 1.125rem; font-weight: 600; color: #111827; margin-bottom: 1rem;">Aksi</h3>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <button onclick="Livewire.dispatch('makeIncomeForUser')"
+                        style="background: #059669; color: white; padding: 0.75rem 1.5rem; border-radius: 0.375rem; font-weight: 500; border: none; cursor: pointer; transition: background-color 0.2s;"
+                        onmouseover="this.style.backgroundColor='#047857'"
+                        onmouseout="this.style.backgroundColor='#059669'">
+                        🎯 Distribusikan Penghasilan
+                    </button>
+                    <button onclick="Livewire.dispatch('processDevidenBulanan')"
+                        style="background: #2563eb; color: white; padding: 0.75rem 1.5rem; border-radius: 0.375rem; font-weight: 500; border: none; cursor: pointer; transition: background-color 0.2s;"
+                        onmouseover="this.style.backgroundColor='#1d4ed8'"
+                        onmouseout="this.style.backgroundColor='#2563eb'">
+                        💾 Simpan Data
+                    </button>
+                </div>
+            </div> --}}
+
             <!-- Deviden Bulanan Summary Card -->
             <div
                 style="background: white; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); padding: 1.5rem;">
-                <h3 style="font-size: 1.125rem; font-weight: 600; color: #111827; margin-bottom: 1rem;">Ringkasan Deviden
+                <h3 style="font-size: 1.125rem; font-weight: 600; color: #111827; margin-bottom: 1rem;">Ringkasan
+                    Deviden
                     Bulanan</h3>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
                     <div style="background: #eff6ff; padding: 1rem; border-radius: 0.5rem;">
                         <div style="font-size: 0.875rem; font-weight: 500; color: #2563eb;">Omzet RO QR</div>
                         <div style="font-size: 1.125rem; font-weight: 600; color: #1e3a8a;">
-                            {{ number_format($this->devidenBulananData['omzet_ro_qr'], 0, ',', '.') }}</div>
-
+                            Rp {{ number_format($this->devidenBulananData['omzet_ro_qr'], 0, ',', '.') }}</div>
                     </div>
                     <div style="background: #f0fdf4; padding: 1rem; border-radius: 0.5rem;">
                         <div style="font-size: 0.875rem; font-weight: 500; color: #16a34a;">Tanggal Awal</div>
@@ -29,7 +49,7 @@
                     </div>
                     <div style="background: #faf5ff; padding: 1rem; border-radius: 0.5rem;">
                         <div style="font-size: 0.875rem; font-weight: 500; color: #9333ea;">Tanggal Input</div>
-                        <div style="font-size: 1.125rem; font-weight: 600; color: #7c3aed;">Rp
+                        <div style="font-size: 1.125rem; font-weight: 600; color: #7c3aed;">
                             {{ $this->devidenBulananData['tanggal_input'] }}</div>
                     </div>
                 </div>
