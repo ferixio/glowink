@@ -19,7 +19,7 @@ return new class extends Migration
             $table->integer('jumlah_mitra_transaksi')->default(0);
             $table->decimal('omzet_ro_qr', 10, 2)->default(0);
             $table->integer('angka_deviden')->default(0);
-            $table->decimal('nominal_deviden_bulanan', 10, 2)->default(0);
+            $table->decimal('nominal_deviden_bulanan', 16, 2)->default(0);
 
             $table->timestamps();
         });
