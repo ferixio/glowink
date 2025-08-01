@@ -69,9 +69,9 @@ class MitraSeeder extends Seeder
                 'tgl_daftar' => now(),
                 'group_sponsor' => $groupSponsor,
                 'saldo_penghasilan' => 0,
-                'poin_reward' => 20,
-                'plan_karir_sekarang' => 'bronze',
-                'next_plan_karir' => 'bronze',
+                'poin_reward' => in_array($i, [2, 6]) ? 25 : 0,
+                'plan_karir_sekarang' => (in_array($i, [2, 6]) ? 25 : 0) == 0 ? null : 'bronze',
+                'next_plan_karir' => null,
                 'next_poin_karir' => 0,
             ]);
 
