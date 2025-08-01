@@ -180,7 +180,7 @@ class DevidenBulanan extends Page implements HasForms
                 'tanggal_input' => $this->devidenBulananData['tanggal_input'],
                 'start_date' => $this->devidenBulananData['start_date'],
                 'end_date' => $this->devidenBulananData['end_date'],
-                'total_deviden_bulanan' => $this->devidenBulananData['total_deviden_bulanan'],
+                'total_deviden_bulanan' => $this->devidenBulananData['omzet_ro_qr'],
             ]);
 
             // Simpan detail untuk setiap level karir
@@ -198,6 +198,7 @@ class DevidenBulanan extends Page implements HasForms
 
             // Commit transaction
             DB::commit();
+            $this->makeIncomeForUser();
 
             // Notifikasi sukses
             Notification::make()
@@ -222,7 +223,7 @@ class DevidenBulanan extends Page implements HasForms
 
             // Notifikasi error
             Notification::make()
-                ->title('Gagal menyimpan data')
+                ->title('Gagal menyimpan data pada saat proses')
                 ->body('Terjadi kesalahan saat menyimpan data: ' . $e->getMessage())
                 ->danger()
                 ->send();
@@ -255,43 +256,83 @@ class DevidenBulanan extends Page implements HasForms
             $totalUsersUpdated = 0;
             $totalIncomeDistributed = 0;
 
+            // Ambil semua level karir untuk perbandingan poin_reward
+            $allLevelKarir = \App\Models\LevelKarir::orderBy('poin_reward', 'asc')->get();
+
             foreach ($detailDevidenBulanan as $detail) {
-                // Ambil level karir untuk mendapatkan minimal RO QR
+                // Ambil level karir untuk mendapatkan minimal RO QR dan poin_reward
                 $levelKarir = \App\Models\LevelKarir::where('nama_level', $detail->nama_level)->first();
                 $minimalROQR = $levelKarir ? $levelKarir->minimal_RO_QR : 0;
+                $levelPoinReward = $levelKarir ? $levelKarir->poin_reward : 0;
 
-                // Ambil user yang memenuhi syarat
+                // Ambil semua user yang memenuhi syarat minimal RO QR
                 $users = \App\Models\User::where('plan_karir_sekarang', $detail->nama_level)
                     ->where('jml_ro_bulanan', '>=', $minimalROQR)
                     ->get();
 
                 foreach ($users as $user) {
-                    // Update saldo penghasilan user
-                    $oldSaldo = $user->saldo_penghasilan;
-                    $user->saldo_penghasilan += $detail->nominal_deviden_bulanan;
-                    $user->save();
+                    // Hitung total deviden yang akan diterima berdasarkan poin_reward user
+                    $totalDevidenForUser = 0;
+                    $devidenDetails = [];
 
-                    // Catat history ke tabel Penghasilan
-                    \App\Models\Penghasilan::create([
-                        'user_id' => $user->id,
-                        'tgl_dapat_bonus' => $this->devidenBulananData['tanggal_input'],
-                        'keterangan' => "Deviden Bulanan - Level {$detail->nama_level} - Periode {$this->devidenBulananData['start_date']} s/d {$this->devidenBulananData['end_date']}",
-                        'nominal_bonus' => $detail->nominal_deviden_bulanan,
-                        'kategori_bonus' => 'deviden_bulanan',
-                        'status_qr' => 'selesai',
-                    ]);
+                    // Loop melalui semua level karir untuk mengecek poin_reward
+                    foreach ($allLevelKarir as $level) {
+                        // Jika poin_reward user >= poin_reward level, user berhak mendapat deviden dari level tersebut
+                        if ($user->poin_reward >= $level->poin_reward) {
+                            // Cari detail deviden untuk level ini
+                            $levelDetail = $detailDevidenBulanan->where('nama_level', $level->nama_level)->first();
 
-                    $totalUsersUpdated++;
-                    $totalIncomeDistributed += $detail->nominal_deviden_bulanan;
+                            if ($levelDetail) {
+                                $totalDevidenForUser += $levelDetail->nominal_deviden_bulanan;
+                                $devidenDetails[] = [
+                                    'level' => $level->nama_level,
+                                    'poin_reward_level' => $level->poin_reward,
+                                    'nominal' => $levelDetail->nominal_deviden_bulanan,
+                                ];
+                            }
+                        }
+                    }
 
-                    // Log untuk tracking
-                    Log::info("User {$user->name} (ID: {$user->id}) mendapat deviden bulanan:", [
-                        'level' => $detail->nama_level,
-                        'old_saldo' => $oldSaldo,
-                        'new_saldo' => $user->saldo_penghasilan,
-                        'nominal_deviden' => $detail->nominal_deviden_bulanan,
-                        'periode' => $this->devidenBulananData['start_date'] . ' s/d ' . $this->devidenBulananData['end_date'],
-                    ]);
+                    // Jika user berhak mendapat deviden
+                    if ($totalDevidenForUser > 0) {
+                        // Update saldo penghasilan user dan reset jml_ro_bulanan
+                        $oldSaldo = $user->saldo_penghasilan;
+                        $oldJmlROBulanan = $user->jml_ro_bulanan;
+                        $user->saldo_penghasilan += $totalDevidenForUser;
+                        $user->jml_ro_bulanan = 0; // Reset jml_ro_bulanan menjadi 0
+                        $user->save();
+
+                        // Catat history ke tabel Penghasilan
+                        $keterangan = "Deviden Bulanan - Poin Reward: {$user->poin_reward} - Periode {$this->devidenBulananData['start_date']} s/d {$this->devidenBulananData['end_date']}";
+                        if (!empty($devidenDetails)) {
+                            $keterangan .= " - Level: " . implode(', ', array_column($devidenDetails, 'level'));
+                        }
+                        $keterangan .= " - RO Bulanan: {$oldJmlROBulanan} → 0 (Reset)";
+
+                        \App\Models\Penghasilan::create([
+                            'user_id' => $user->id,
+                            'tgl_dapat_bonus' => $this->devidenBulananData['tanggal_input'],
+                            'keterangan' => $keterangan,
+                            'nominal_bonus' => $totalDevidenForUser,
+                            'kategori_bonus' => 'deviden bulanan',
+                            'status_qr' => 'selesai',
+                        ]);
+
+                        $totalUsersUpdated++;
+                        $totalIncomeDistributed += $totalDevidenForUser;
+
+                        // Log untuk tracking
+                        Log::info("User {$user->name} (ID: {$user->id}) mendapat deviden bulanan:", [
+                            'user_poin_reward' => $user->poin_reward,
+                            'old_saldo' => $oldSaldo,
+                            'new_saldo' => $user->saldo_penghasilan,
+                            'old_jml_ro_bulanan' => $oldJmlROBulanan,
+                            'new_jml_ro_bulanan' => 0,
+                            'total_deviden' => $totalDevidenForUser,
+                            'deviden_details' => $devidenDetails,
+                            'periode' => $this->devidenBulananData['start_date'] . ' s/d ' . $this->devidenBulananData['end_date'],
+                        ]);
+                    }
                 }
             }
 

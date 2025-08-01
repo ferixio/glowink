@@ -144,11 +144,24 @@ class DevidenHarian extends Page implements HasForms
     public function makeIncomeForUser()
     {
         $devidenHarian = \App\Models\DevidenHarian::where('tanggal_deviden', $this->data['selectedDate'])->first();
-        $user = \App\Models\User::where('poin_reward', '>=', 20)->get();
-        foreach ($user as $u) {
-            $u->saldo_penghasilan += $devidenHarian->deviden_diterima;
-            $u->save();
+        $users = \App\Models\User::where('poin_reward', '>=', 20)->get();
+
+        foreach ($users as $user) {
+            // Update user's saldo_penghasilan
+            $user->saldo_penghasilan += $devidenHarian->deviden_diterima;
+            $user->save();
+
+            // Create record in Penghasilan table
+            \App\Models\Penghasilan::create([
+                'user_id' => $user->id,
+                'tgl_dapat_bonus' => $this->data['selectedDate'],
+                'keterangan' => 'Deviden Harian - ' . $this->data['selectedDate'],
+                'nominal_bonus' => $devidenHarian->deviden_diterima,
+                'kategori_bonus' => 'deviden harian',
+                'status_qr' => 'selesai',
+            ]);
         }
+
         Notification::make()
             ->title('Data berhasil disimpan')
             ->body('Data deviden harian dan detail telah berhasil disimpan ke database.')

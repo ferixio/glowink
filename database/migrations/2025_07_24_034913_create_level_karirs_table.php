@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('level_karirs', function (Blueprint $table) {
             $table->id();
             $table->string('nama_level')->nullable();
+            $table->integer('poin_reward')->default(0)->nullable();
             $table->integer('minimal_RO_QR')->default(0);
             $table->integer('angka_deviden')->default(0);
             $table->integer('jumlah_mitra_level_ini')->default(0)->nullable();
