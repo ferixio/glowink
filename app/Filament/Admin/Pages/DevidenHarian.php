@@ -18,12 +18,14 @@ use Filament\Pages\Page;
 class DevidenHarian extends Page implements HasForms
 {
     use InteractsWithForms;
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected static ?string $navigationIcon = 'heroicon-o-calendar-days';
 
     protected static string $view = 'filament.admin.pages.deviden-harian';
 
     public ?ModelDevidenHarian $devidenHarian = null;
     public array $data = [];
+
+    protected static ?int $navigationSort = 1;
 
     public function mount()
     {

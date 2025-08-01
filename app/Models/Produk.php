@@ -38,4 +38,5 @@ class Produk extends Model
             ->withPivot('stok')
             ->withTimestamps();
     }
+
 }

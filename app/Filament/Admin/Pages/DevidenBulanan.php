@@ -18,11 +18,11 @@ use Illuminate\Support\Facades\Log;
 class DevidenBulanan extends Page implements HasForms
 {
     use InteractsWithForms;
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected static ?string $navigationIcon = 'heroicon-o-calendar-date-range';
 
     protected static string $view = 'filament.admin.pages.deviden-bulanan';
     public array $data = [];
-
+protected static ?int $navigationSort = 2;
     // Properties to store search results
     public $devidenBulananData = null;
     public $detailDevidenBulananData = [];

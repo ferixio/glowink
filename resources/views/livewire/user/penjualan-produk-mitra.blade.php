@@ -183,8 +183,9 @@
             </div>
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
                 @forelse ($produks as $produk)
-                    <button wire:click="addToCart({{ $produk->id }})" class="flex flex-col items-start"
-                        @if (isset($produk->stok_tersedia) && $produk->stok_tersedia == 0) disabled @endif>
+                    <button wire:click="addToCart({{ $produk->id }})"
+                        class="flex flex-col items-start {{ ($stokData[$produk->id] ?? 0) == 0 ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 transition-transform' }}"
+                        @if (($stokData[$produk->id] ?? 0) == 0) disabled @endif>
                         {{-- Card Gambar --}}
                         <div class="rounded-xl shadow-md overflow-hidden relative w-full">
                             {{-- Gambar --}}
@@ -192,12 +193,12 @@
                                 alt="Product Image" class="w-full h-32 md:h-40 lg:h-48 object-cover rounded-t-xl">
 
                             {{-- Info Stok di atas gambar --}}
-                            @if (isset($produk->stok_tersedia) && $produk->stok_tersedia > 0)
+                            @if (($stokData[$produk->id] ?? 0) > 0)
                                 <div
                                     class="absolute bottom-2 left-2 bg-green-600 text-white text-xs px-2 py-1 rounded z-20 shadow">
-                                    Stok: {{ $produk->stok_tersedia }}
+                                    Stok: {{ $stokData[$produk->id] ?? 0 }}
                                 </div>
-                            @elseif(isset($produk->stok_tersedia) && $produk->stok_tersedia == 0)
+                            @else
                                 <div
                                     class="absolute bottom-2 left-2 bg-red-600 text-white text-xs px-2 py-1 rounded z-20 shadow">
                                     Stok Habis

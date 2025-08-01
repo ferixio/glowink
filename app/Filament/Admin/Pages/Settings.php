@@ -21,7 +21,7 @@ class Settings extends Page implements HasForms
     protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
 
     protected static string $view = 'filament.admin.pages.settings';
-
+protected static ?int $navigationSort = 4;
     public ?Setting $companyProfile = null;
 
     public ?array $data = [];

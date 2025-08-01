@@ -6,7 +6,7 @@ use Filament\Pages\Page;
 
 class PembelianProduk extends Page
 {
-    protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
+    protected static ?string $navigationIcon = 'heroicon-o-shopping-bag';
     protected static string $view = 'filament.user.pages.pembelian-produk';
 
     public static function getNavigationLabel(): string

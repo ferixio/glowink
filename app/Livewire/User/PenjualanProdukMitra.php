@@ -13,6 +13,7 @@ class PenjualanProdukMitra extends Component
     public $totalQty = 0;
     public $totalPrice = 0;
     public $produks = [];
+    public $stokData = [];
     public $search = '';
     public $activeFilter = 'all';
     public $showCartSidebar = false;
@@ -60,10 +61,11 @@ class PenjualanProdukMitra extends Component
         }
         $produks = $query->get();
         // Ambil stok untuk setiap produk berdasarkan user login
+        $this->stokData = [];
         foreach ($produks as $produk) {
             $stokDb = $produk->produkStoks()->where('user_id', $userId)->value('stok') ?? 0;
             $qtyInCart = isset($this->cart[$produk->id]) ? $this->cart[$produk->id]['qty'] : 0;
-            // $produk->stok_tersedia = max(0, $stokDb - $qtyInCart);
+            $this->stokData[$produk->id] = max(0, $stokDb - $qtyInCart);
         }
         $this->produks = $produks;
     }
@@ -164,6 +166,7 @@ class PenjualanProdukMitra extends Component
             session()->flash('error', 'Keranjang kosong!');
             return;
         }
+
         // Validasi data form
         $this->validate([
             'nama' => 'required|string|max:255',
@@ -171,12 +174,59 @@ class PenjualanProdukMitra extends Component
             'alamat' => 'required|string|max:500',
             'tanggal' => 'required|date',
         ]);
-        // Simpan data penjualan di sini (implementasi sesuai kebutuhan)
-        // ...
-        Session::forget('cart_mitra');
-        $this->cart = [];
-        $this->updateTotals();
-        session()->flash('success', 'Penjualan berhasil diproses!');
+
+        $userId = Auth::id();
+        $successCount = 0;
+        $errorMessages = [];
+
+        // Proses pengurangan stok untuk setiap produk di keranjang
+        foreach ($this->cart as $produkId => $item) {
+            $produk = Produk::find($produkId);
+            if (!$produk) {
+                $errorMessages[] = "Produk {$item['nama']} tidak ditemukan";
+                continue;
+            }
+
+            $produkStok = $produk->produkStoks()->where('user_id', $userId)->first();
+
+            if (!$produkStok) {
+                $errorMessages[] = "Stok produk {$item['nama']} tidak tersedia";
+                continue;
+            }
+
+            if ($produkStok->stok < $item['qty']) {
+                $errorMessages[] = "Stok produk {$item['nama']} tidak mencukupi (tersedia: {$produkStok->stok}, dibutuhkan: {$item['qty']})";
+                continue;
+            }
+
+            // Kurangi stok
+            $produkStok->stok -= $item['qty'];
+            $produkStok->save();
+            $successCount++;
+        }
+
+        // Berikan notifikasi berdasarkan hasil
+        if ($successCount > 0) {
+            if (count($errorMessages) > 0) {
+                // Ada yang berhasil dan ada yang gagal
+                session()->flash('success', "Berhasil memproses {$successCount} produk. " . implode(', ', $errorMessages));
+            } else {
+                // Semua berhasil
+                session()->flash('success', "Penjualan berhasil diproses! {$successCount} produk telah dikurangi dari stok.");
+            }
+        } else {
+            // Semua gagal
+            session()->flash('error', 'Gagal memproses penjualan: ' . implode(', ', $errorMessages));
+            return;
+        }
+
+        // Reset keranjang hanya jika ada yang berhasil
+        if ($successCount > 0) {
+            Session::forget('cart_mitra');
+            $this->cart = [];
+            $this->updateTotals();
+            $this->loadProduks(); // Reload produk untuk update stok
+        }
     }
 
     public function render()
