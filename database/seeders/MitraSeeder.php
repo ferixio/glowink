@@ -47,7 +47,8 @@ class MitraSeeder extends Seeder
 
             $idSponsor = $i > 0 ? $createdUsers[$i - 1]['id'] : null;
 
-            $statusQR = $i < 2 ? false : true;
+            $poinReward = in_array($i, [2, 6]) ? 25 : 0;
+            $statusQR = $poinReward != 0;
 
             $user = User::create([
                 'id_mitra' => $idMitra,
@@ -69,8 +70,8 @@ class MitraSeeder extends Seeder
                 'tgl_daftar' => now(),
                 'group_sponsor' => $groupSponsor,
                 'saldo_penghasilan' => 0,
-                'poin_reward' => in_array($i, [2, 6]) ? 25 : 0,
-                'plan_karir_sekarang' => (in_array($i, [2, 6]) ? 25 : 0) == 0 ? null : 'bronze',
+                'poin_reward' => $poinReward,
+                'plan_karir_sekarang' => $poinReward == 0 ? null : 'bronze',
                 'next_plan_karir' => null,
                 'next_poin_karir' => 0,
             ]);

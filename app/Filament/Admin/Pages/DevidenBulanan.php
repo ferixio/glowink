@@ -22,7 +22,7 @@ class DevidenBulanan extends Page implements HasForms
 
     protected static string $view = 'filament.admin.pages.deviden-bulanan';
     public array $data = [];
-protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 2;
     // Properties to store search results
     public $devidenBulananData = null;
     public $detailDevidenBulananData = [];
@@ -83,9 +83,28 @@ protected static ?int $navigationSort = 2;
 
     public function pencarianData()
     {
+        // Validasi startDate dan endDate tidak boleh kosong
+        if (empty($this->data['startDate']) || empty($this->data['endDate'])) {
+            Notification::make()
+                ->title('Tanggal tidak boleh kosong')
+                ->body('Silakan pilih tanggal awal dan tanggal akhir terlebih dahulu.')
+                ->warning()
+                ->send();
+            return;
+        }
+
         $startDate = $this->data['startDate'];
         $endDate = $this->data['endDate'];
-        $getPembelians = Pembelian::where('kategori_pembelian', 'repeat order bulanan')->whereBetween('created_at', [$startDate, $endDate])->whereIn('status_pembelian', ['proses', 'selesai'])->get();
+
+        // Konversi endDate ke akhir hari (23:59:59) agar data hari ini terambil
+        $endDateWithTime = \Carbon\Carbon::parse($endDate)->endOfDay();
+
+        $getPembelians = Pembelian::where('kategori_pembelian', 'repeat order bulanan')
+            ->whereBetween('created_at', [$startDate, $endDateWithTime])
+            ->whereIn('status_pembelian', ['proses', 'selesai'])
+            ->get();
+        Log::info('getPembeliansCount:', ['count' => $getPembelians->count()]);
+        Log::info('getPembelians:', $getPembelians->toArray());
 
         // --- Tambahan logic pencarian jumlah mitra dan transaksi per level karir ---
         $levels = \App\Models\LevelKarir::all();
@@ -106,7 +125,6 @@ protected static ?int $navigationSort = 2;
 
         Log::info('LevelKarirStats:', $result);
 
-        Log::info('getPembelians:', $getPembelians->toArray());
         $omsetRObulanan = $getPembelians
             ->flatMap(function ($pembelian) {
                 return $pembelian->details->where('paket', 2);

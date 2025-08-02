@@ -116,15 +116,15 @@ class debug extends Page
         $pembelianDetail = \App\Models\PembelianDetail::create([
             'pembelian_id' => $pembelian->id,
             'produk_id' => 2,
-            'nama_produk' => 'RO Bulanan',
-            'paket' => 'RO Bulanan',
+            'nama_produk' => 'QR. BARILKHA COFFEE (Pouch) 300g',
+            'paket' => 2,
             'jml_beli' => 1,
             'harga_beli' => 100000,
-            'nominal_bonus_sponsor' => 100000,
-            'nominal_bonus_generasi' => 100000,
+            'nominal_bonus_sponsor' => 0,
+            'nominal_bonus_generasi' => 0,
             'user_id_get_bonus_sponsor' => $user->id,
             'group_user_id_get_bonus_generasi' => $user->id,
-            'cashback' => 100000,
+            'cashback' => 0,
         ]);
 
         // Trigger event untuk memproses pembelian
