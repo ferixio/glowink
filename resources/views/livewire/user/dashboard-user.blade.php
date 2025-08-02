@@ -12,7 +12,7 @@
             <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm">
                 <div class="text-sm text-gray-500">Karir Level</div>
                 <div class="mt-1 text-lg font-semibold text-gray-700">
-                    {{ $user->plan_karir_sekarang }}
+                    {{ $user->plan_karir_sekarang ?? 'Belum ada plan' }}
                 </div>
             </div>
             <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm">
