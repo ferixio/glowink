@@ -136,7 +136,7 @@
                     <div class="border-l-4 border-blue-500 pl-4">
                         <h4 class="text-lg font-semibold text-blue-600 mb-3">RO Basic (Stock Pribadi)</h4>
                         <div class="space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                            <p><strong>Kategori:</strong> stock pribadi</p>
+                            <p><strong>Kategori:</strong> repeat order</p>
                             <p><strong>Status:</strong> diterima</p>
                             <p><strong>Stockist:</strong> User ID 2</p>
                             <p><strong>Produk:</strong> ID 1 (RO Basic)</p>
@@ -152,7 +152,7 @@
                                     <li>Mengurangi stok dari stockist (ID 2)</li>
                                     <li>Menambah saldo penghasilan stockist</li>
                                     <li>Membuat record penghasilan untuk stockist</li>
-                                    <li>Trigger event BonusReward (karena kategori 'stock pribadi')</li>
+                                    <li>Trigger event BonusReward (karena kategori 'repeat order')</li>
                                 </ul>
                             </div>
                         </div>

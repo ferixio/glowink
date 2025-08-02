@@ -24,6 +24,7 @@ class DevidenHarian extends Page implements HasForms
 
     public ?ModelDevidenHarian $devidenHarian = null;
     public array $data = [];
+    public $searchResults = null;
 
     protected static ?int $navigationSort = 1;
 
@@ -31,7 +32,6 @@ class DevidenHarian extends Page implements HasForms
     {
         $this->data['selectedDate'] = now()->format('Y-m-d');
         $this->form->fill($this->data);
-        $this->loadDevidenHarian();
     }
 
     public function form(Form $form): Form
@@ -47,18 +47,94 @@ class DevidenHarian extends Page implements HasForms
                             ->reactive()
                             ->afterStateUpdated(fn($state) => $this->updatedSelectedDate($state)),
                         Actions::make([
-                            // Action::make('star')
-                            //     ->icon('heroicon-m-star')->extraAttributes(['style' => 'margin-top:2rem']),
+                            Action::make('search')
+                                ->action('pencarianData')
+                                ->label('Cari Data')
+                                ->icon('heroicon-m-magnifying-glass')
+                                ->extraAttributes(['style' => 'margin-top:2rem']),
 
                             Action::make('process')
+                                ->requiresConfirmation()
                                 ->action('prosesDeviden')
                                 ->label('Proses Deviden Tanggal : ' . $this->data['selectedDate'])
-                                ->icon('heroicon-m-arrow-path')->extraAttributes(['style' => 'margin-top:2rem']),
+                                ->icon('heroicon-m-arrow-path')
+                                ->extraAttributes(['style' => 'margin-top:2rem']),
 
                         ]),
                     ]),
             ])
             ->statePath('data');
+    }
+
+    public function pencarianData()
+    {
+        $selectedDate = $this->data['selectedDate'] ?? now()->format('Y-m-d');
+
+        // Check if data already exists in database
+        $existingData = ModelDevidenHarian::whereDate('tanggal_deviden', $selectedDate)->first();
+
+        if ($existingData) {
+            $this->devidenHarian = $existingData;
+            $this->searchResults = null;
+            Notification::make()
+                ->title('Data Ditemukan')
+                ->body('Data deviden harian untuk tanggal ini sudah ada di database.')
+                ->success()
+                ->send();
+            return;
+        }
+
+        // Calculate data without saving to database
+        $angkaDeviden = Setting::first()->angka_deviden ?? 1500;
+
+        $pembelianIds = \App\Models\Pembelian::where('kategori_pembelian', 'aktivasi member')
+            ->whereDate('tgl_beli', $selectedDate)
+            ->whereIn('status_pembelian', ['proses', 'selesai'])
+            ->pluck('id');
+        $detailQuery = PembelianDetail::where('paket', 1)
+            ->whereIn('pembelian_id', $pembelianIds);
+        $detailIds = $detailQuery->pluck('id');
+        $omsetNasionalTotal = PembelianDetail::whereIn('id', $detailIds)->sum('harga_beli');
+        // Query RO Basic yang sudah diperbaiki dan dioptimalkan
+        $RObasicTotal = PembelianDetail::where('paket', 1)
+            ->whereHas('pembelian', function ($q) use ($selectedDate) {
+                $q->whereDate('tgl_beli', $selectedDate)
+                    ->where('kategori_pembelian', 'repeat order')
+                    ->whereIn('status_pembelian', ['proses', 'selesai']);
+            })
+            ->sum('harga_beli');
+
+        $totalMemberUpTo20Point = \App\Models\User::where('poin_reward', '>=', 20)->count();
+
+        if ($totalMemberUpTo20Point > 0) {
+            $rumusDeviden = $angkaDeviden * ($omsetNasionalTotal + $RObasicTotal) / $totalMemberUpTo20Point;
+
+            // Create temporary object for display
+            $this->searchResults = (object) [
+                'omzet_aktivasi' => $omsetNasionalTotal,
+                'omzet_ro_basic' => $RObasicTotal,
+                'total_member' => $totalMemberUpTo20Point,
+                'deviden_diterima' => $rumusDeviden,
+                'created_at' => now(),
+            ];
+
+            $this->devidenHarian = null;
+
+            Notification::make()
+                ->title('Data Ditemukan')
+                ->body('Data deviden harian untuk tanggal ini berhasil dihitung.')
+                ->success()
+                ->send();
+        } else {
+            $this->searchResults = null;
+            $this->devidenHarian = null;
+
+            Notification::make()
+                ->title('Data Tidak Ditemukan')
+                ->body('Tidak ada data yang dapat dihitung untuk tanggal ini.')
+                ->warning()
+                ->send();
+        }
     }
 
     public function prosesDeviden()
@@ -84,18 +160,13 @@ class DevidenHarian extends Page implements HasForms
             ->whereIn('pembelian_id', $pembelianIds);
         $detailIds = $detailQuery->pluck('id');
         $omsetNasionalTotal = PembelianDetail::whereIn('id', $detailIds)->sum('harga_beli');
-        $RObasicTotal = \App\Models\Pembelian::whereDate('tgl_beli', $selectedDate)
-            ->where('kategori_pembelian', 'repeat order')
-            ->whereIn('status_pembelian', ['proses', 'selesai'])
-            ->whereHas('details', function ($q) {
-                $q->where('paket', 1);
+        // Query RO Basic yang sudah diperbaiki dan dioptimalkan
+        $RObasicTotal = PembelianDetail::where('paket', 1)
+            ->whereHas('pembelian', function ($q) use ($selectedDate) {
+                $q->whereDate('tgl_beli', $selectedDate)
+                    ->where('kategori_pembelian', 'repeat order')
+                    ->whereIn('status_pembelian', ['proses', 'selesai']);
             })
-            ->with(['details' => function ($q) {
-                $q->where('paket', 1);
-            }])
-            ->get()
-            ->pluck('details')
-            ->flatten()
             ->sum('harga_beli');
 
         $totalMemberUpTo20Point = \App\Models\User::where('poin_reward', '>=', 20)->count();
@@ -111,11 +182,9 @@ class DevidenHarian extends Page implements HasForms
                 'tanggal_deviden' => $selectedDate,
             ]);
 
-            \App\Models\User::where('poin_reward', '>=', 20)->get()->each(function ($user) use ($rumusDeviden) {
-                $user->saldo_penghasilan += $rumusDeviden;
-                $user->save();
-            });
+            $this->makeIncomeForUser();
             $this->loadDevidenHarian();
+            $this->searchResults = null;
             Notification::make()
                 ->title('Sukses')
                 ->body('Data deviden harian berhasil disimpan.')
@@ -126,10 +195,9 @@ class DevidenHarian extends Page implements HasForms
 
     public function updatedSelectedDate($value)
     {
-
         $this->data['selectedDate'] = $value;
         $this->devidenHarian = null;
-        $this->loadDevidenHarian();
+        $this->searchResults = null;
     }
 
     public function searchByDate()

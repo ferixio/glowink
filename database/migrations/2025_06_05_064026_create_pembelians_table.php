@@ -20,8 +20,8 @@ return new class extends Migration
             $table->string('nama_penerima');
             $table->string('no_telp');
             $table->text('alamat_tujuan');
-            $table->decimal('total_beli', 10, 2);
-            $table->decimal('total_bonus', 10, 2);
+            $table->decimal('total_beli', 16, 2);
+            $table->decimal('total_bonus', 16, 2);
             $table->string('status_pembelian');
             $table->string('images')->nullable();
             $table->enum('kategori_pembelian', [
@@ -30,7 +30,7 @@ return new class extends Migration
                 'repeat order',
                 'repeat order bulanan',
             ])->default('stock pribadi');
-            $table->decimal('total_cashback', 10, 2)->nullable();
+            $table->decimal('total_cashback', 16, 2)->nullable();
             $table->integer('jumlah_poin_qr');
             $table->timestamps();
         });

@@ -30,7 +30,9 @@ class debug extends Page
             ->schema([
                 Select::make('user_id')
                     ->label('Pilih User')
-                    ->options(User::whereNotNull('nama')->pluck('nama', 'id'))
+                    ->options(User::whereNotNull('nama')->get()->mapWithKeys(function ($user) {
+                        return [$user->id => $user->nama . ' (' . ($user->plan_karir_sekarang ?? 'Belum ada plan') . ')'];
+                    }))
                     ->searchable()
                     ->required()
                     ->placeholder('Pilih user untuk seeding...'),
@@ -64,7 +66,7 @@ class debug extends Page
             'total_beli' => 100000,
             'total_bonus' => 100000,
             'status_pembelian' => 'proses', // Ubah ke 'diterima' agar diproses
-            'kategori_pembelian' => 'stock pribadi',
+            'kategori_pembelian' => 'repeat order',
             'total_cashback' => 100000,
             'jumlah_poin_qr' => 1,
         ]);
@@ -73,14 +75,14 @@ class debug extends Page
             'pembelian_id' => $pembelian->id,
             'produk_id' => 1,
             'nama_produk' => 'RO Basic',
-            'paket' => 'RO Basic',
+            'paket' => 1,
             'jml_beli' => 1,
-            'harga_beli' => 100000,
-            'nominal_bonus_sponsor' => 100000,
-            'nominal_bonus_generasi' => 100000,
+            'harga_beli' => 10000,
+            'nominal_bonus_sponsor' => 10000,
+            'nominal_bonus_generasi' => 10000,
             'user_id_get_bonus_sponsor' => $user->id,
             'group_user_id_get_bonus_generasi' => $user->id,
-            'cashback' => 100000,
+            'cashback' => 10000,
         ]);
 
         // Trigger event untuk memproses pembelian

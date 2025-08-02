@@ -26,7 +26,7 @@ return new class extends Migration
             $table->string('status_qr');
             $table->date('tgl_dapat_bonus');
             $table->string('keterangan');
-            $table->decimal('nominal_bonus', 10, 2);
+            $table->decimal('nominal_bonus', 16, 2);
             $table->timestamps();
         });
     }
