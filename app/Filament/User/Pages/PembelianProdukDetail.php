@@ -11,7 +11,7 @@ class PembelianProdukDetail extends Page
 {
     use WithFileUploads;
 
-    protected static ?string $navigationIcon = 'heroicon-o-shopping-bag';
+    protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
     protected static bool $shouldRegisterNavigation = false;
 
   
