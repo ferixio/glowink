@@ -29,6 +29,8 @@ class UserPanelProvider extends PanelProvider
             ->path('user')
             ->login(CustomLogin::class)
             ->brandName("Glowink")
+            ->brandLogo(asset('images/logo.svg'))
+            ->brandLogoHeight('8rem')
             ->colors([
                 'primary' => Color::Amber,
             ])

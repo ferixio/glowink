@@ -29,6 +29,8 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->brandLogo(asset('images/logo.svg'))
+                      ->brandLogoHeight('8rem')
             ->brandName("Glowink")
             ->colors([
                 'primary' => Color::Red,
