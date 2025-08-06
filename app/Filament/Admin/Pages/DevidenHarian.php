@@ -89,7 +89,7 @@ class DevidenHarian extends Page implements HasForms
 
         $pembelianIds = \App\Models\Pembelian::where('kategori_pembelian', 'aktivasi member')
             ->whereDate('tgl_beli', $selectedDate)
-            ->whereIn('status_pembelian', ['proses', 'selesai'])
+            ->whereIn('status_pembelian', ['selesai'])
             ->pluck('id');
         $detailQuery = PembelianDetail::where('paket', 1)
             ->whereIn('pembelian_id', $pembelianIds);
@@ -100,7 +100,7 @@ class DevidenHarian extends Page implements HasForms
             ->whereHas('pembelian', function ($q) use ($selectedDate) {
                 $q->whereDate('tgl_beli', $selectedDate)
                     ->where('kategori_pembelian', 'repeat order')
-                    ->whereIn('status_pembelian', ['proses', 'selesai']);
+                    ->whereIn('status_pembelian', ['selesai']);
             })
             ->sum('harga_beli');
 
@@ -154,7 +154,7 @@ class DevidenHarian extends Page implements HasForms
 
         $pembelianIds = \App\Models\Pembelian::where('kategori_pembelian', 'aktivasi member')
             ->whereDate('tgl_beli', $selectedDate)
-            ->whereIn('status_pembelian', ['proses', 'selesai'])
+            ->whereIn('status_pembelian', ['selesai'])
             ->pluck('id');
         $detailQuery = PembelianDetail::where('paket', 1)
             ->whereIn('pembelian_id', $pembelianIds);
@@ -165,7 +165,7 @@ class DevidenHarian extends Page implements HasForms
             ->whereHas('pembelian', function ($q) use ($selectedDate) {
                 $q->whereDate('tgl_beli', $selectedDate)
                     ->where('kategori_pembelian', 'repeat order')
-                    ->whereIn('status_pembelian', ['proses', 'selesai']);
+                    ->whereIn('status_pembelian', ['selesai']);
             })
             ->sum('harga_beli');
 

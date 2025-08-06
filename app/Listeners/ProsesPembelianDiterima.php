@@ -12,6 +12,25 @@ class ProsesPembelianDiterima
     public function handle(PembelianDiterima $event)
     {
         $pembelian = $event->pembelian;
+
+        // Check if user's status_qr should be updated
+        $user = \App\Models\User::find($pembelian->user_id);
+        if ($user && $user->status_qr == 0) {
+            $targetCategories = ['stock pribadi', 'repeat order', 'repeat order bulanan'];
+
+            if (in_array($pembelian->kategori_pembelian, $targetCategories)) {
+                // Check if any detail has paket value of 2
+                foreach ($pembelian->details as $detail) {
+                    if ($detail->paket == 2) {
+                        // Update user's status_qr to 1
+                        $user->status_qr = 1;
+                        $user->save();
+                        break; // Exit loop once we find a matching detail
+                    }
+                }
+            }
+        }
+
         // HAPUS LOGIKA CASHBACK DI SINI
         if (!in_array($pembelian->status_pembelian, ['proses', 'selesai'])) {
             foreach ($pembelian->details as $detail) {
@@ -24,27 +43,30 @@ class ProsesPembelianDiterima
                 $produkStok->save();
 
                 // Kurangi stok dari stockist (jika beli dari stockist)
-                if ($pembelian->beli_dari && $pembelian->beli_dari != 1) {
-                    $stockistStok = \App\Models\ProdukStok::where('user_id', $pembelian->beli_dari)
-                        ->where('produk_id', $detail->produk_id)
-                        ->first();
-                    if ($stockistStok && $stockistStok->stok >= $detail->jml_beli) {
-                        $stockistStok->update([
-                            'stok' => $stockistStok->stok - $detail->jml_beli,
-                        ]);
+                if ($pembelian->beli_dari) {
+                    $seller = \App\Models\User::find($pembelian->beli_dari);
+                    if ($seller && !$seller->isAdmin) {
+                        $stockistStok = \App\Models\ProdukStok::where('user_id', $pembelian->beli_dari)
+                            ->where('produk_id', $detail->produk_id)
+                            ->first();
+                        if ($stockistStok && $stockistStok->stok >= $detail->jml_beli) {
+                            $stockistStok->update([
+                                'stok' => $stockistStok->stok - $detail->jml_beli,
+                            ]);
+                        }
                     }
                 }
             }
         }
-        if ($pembelian->beli_dari && $pembelian->beli_dari != 1) {
-            $stockist = \App\Models\User::find($pembelian->beli_dari);
-            if ($stockist) {
-                $stockist->saldo_penghasilan += $pembelian->total_beli;
-                $stockist->save();
+        if ($pembelian->beli_dari) {
+            $seller = \App\Models\User::find($pembelian->beli_dari);
+            if ($seller && !$seller->isAdmin) {
+                $seller->saldo_penghasilan += $pembelian->total_beli;
+                $seller->save();
                 \App\Models\Penghasilan::create([
-                    'user_id' => $stockist->id,
+                    'user_id' => $seller->id,
                     'kategori_bonus' => 'Pemasukan',
-                    'status_qr' => $stockist->status_qr,
+                    'status_qr' => $seller->status_qr,
                     'tgl_dapat_bonus' => now(),
                     'keterangan' => 'penambahan saldo stockist',
                     'nominal_bonus' => $pembelian->total_beli,

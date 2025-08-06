@@ -16,24 +16,42 @@ class EditApprovePembelianStockis extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\Action::make('Set Proses')
-                ->label('Diterima')
-                ->color('info')
-                ->visible(fn() => $this->record->status_pembelian === 'menunggu'
+
+            Actions\Action::make('Set selesai')
+                ->label('Selesai')
+                ->color('success')
+                ->visible(fn() => $this->record->status_pembelian === 'proses'
                     || $this->record->status_pembelian === 'ditolak')
                 ->action(function () {
-                    if (!in_array($this->record->status_pembelian, ['proses', 'selesai'])) {
-                        event(new \App\Events\PembelianDiterima($this->record));
-                    }
-                    $this->record->status_pembelian = 'proses';
+                    // Always trigger the event when setting to selesai
+                    event(new \App\Events\PembelianDiterima($this->record));
+                    $this->record->status_pembelian = 'selesai';
                     $this->record->save();
                     Notification::make()
                         ->title('Berhasil')
-                        ->body('Status diubah menjadi proses, stok ditambahkan ke pembeli dan dikurangi dari stockist.')
+                        ->body('Status diubah menjadi selesai.')
                         ->success()
                         ->send();
                     return redirect()->to($this->getResource()::getUrl('index'));
                 }),
+            // Actions\Action::make('Set Proses')
+            //     ->label('Diterima')
+            //     ->color('info')
+            //     ->visible(fn() => $this->record->status_pembelian === 'menunggu'
+            //         || $this->record->status_pembelian === 'ditolak')
+            //     ->action(function () {
+            //         if (!in_array($this->record->status_pembelian, [ 'selesai'])) {
+            //             event(new \App\Events\PembelianDiterima($this->record));
+            //         }
+            //         $this->record->status_pembelian = 'proses';
+            //         $this->record->save();
+            //         Notification::make()
+            //             ->title('Berhasil')
+            //             ->body('Status diubah menjadi proses, stok ditambahkan ke pembeli dan dikurangi dari stockist.')
+            //             ->success()
+            //             ->send();
+            //         return redirect()->to($this->getResource()::getUrl('index'));
+            //     }),
             Actions\Action::make('Set Ditolak')
                 ->label('Ditolak')
                 ->color('danger')
@@ -48,20 +66,21 @@ class EditApprovePembelianStockis extends EditRecord
                         ->send();
                     return redirect()->to($this->getResource()::getUrl('index'));
                 }),
-            Actions\Action::make('Set Selesai')
-                ->label('Selesai')
-                ->color('success')
-                ->visible(fn() => $this->record->status_pembelian === 'proses')
-                ->action(function () {
-                    $this->record->status_pembelian = 'selesai';
-                    $this->record->save();
-                    Notification::make()
-                        ->title('Berhasil')
-                        ->body('Status diubah menjadi selesai.')
-                        ->success()
-                        ->send();
-                    return redirect()->to($this->getResource()::getUrl('index'));
-                }),
+            // Actions\Action::make('Set Selesai')
+            //     ->label('Selesai')
+            //     ->color('success')
+            //     ->visible(fn() => $this->record->status_pembelian === 'proses')
+            //     ->action(function () {
+            //         $this->record->status_pembelian = 'selesai';
+            //         $this->record->save();
+            //         Notification::make()
+            //             ->title('Berhasil')
+            //             ->body('Status diubah menjadi selesai.')
+            //             ->success()
+            //             ->send();
+            //         return redirect()->to($this->getResource()::getUrl('index'));
+            //     }),
+
         ];
     }
 
