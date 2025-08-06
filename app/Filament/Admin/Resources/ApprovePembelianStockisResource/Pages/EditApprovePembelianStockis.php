@@ -82,6 +82,7 @@ class EditApprovePembelianStockis extends EditRecord
             'pembelian' => $this->record,
             'stockis' => $this->record->seller ?? null,
             'isApprovePage' => true,
+            'userBaru' => $this->record->user, // User yang dibuat dari aktivasi member
         ];
     }
 }

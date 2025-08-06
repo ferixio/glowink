@@ -17,9 +17,9 @@ class DetailPembelian extends ViewRecord
     public function mount($record): void
     {
         $this->record = Pembelian::with(['details.produk', 'seller'])->findOrFail($record);
-        if(auth()->user()?->isStockis) {
+        if (auth()->user()?->isStockis) {
             $this->company = Setting::first();
-        } 
+        }
 
     }
 
@@ -30,6 +30,7 @@ class DetailPembelian extends ViewRecord
             'stockis' => $this->record->seller,
             'isApprovePage' => false,
             'company' => $this->company,
+            'userBaru' => $this->record->user, // User yang dibuat dari aktivasi member
         ];
     }
 

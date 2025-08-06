@@ -21,6 +21,41 @@
                 </div>
             @endif
 
+            {{-- Informasi User Baru (untuk aktivasi member) --}}
+            @if ($pembelian->kategori_pembelian === 'aktivasi member' && isset($userBaru))
+                <div class="bg-blue-100 border border-blue-400 text-blue-800 px-6 py-4 rounded mb-6">
+                    <h2 class="font-bold text-lg">🎉 Aktivasi Member Berhasil!</h2>
+                    <p class="text-sm mb-3">User baru telah berhasil dibuat dengan detail sebagai berikut:</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div class="text-3xl font-semibold">
+                            <div class="flex items-center gap-2 ">
+                                <p><span class="font-normal">ID Mitra : </span>
+                                    {{ $userBaru->id_mitra }}</p>
+                                <button onclick="copyToClipboard('{{ $userBaru->id_mitra }}', this)"
+                                    class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-sm transition-colors duration-200"
+                                    title="Copy ID Mitra">
+                                    📋 Copy
+                                </button>
+                            </div>
+                            <p><span class="font-normal">Password : </span> password</p>
+                        </div>
+                        <div>
+                            <p><span class="font-semibold">Nama:</span> {{ $userBaru->nama }}</p>
+                            <p><span class="font-semibold">Alamat:</span> {{ $userBaru->alamat }}</p>
+                            <p><span class="font-semibold">No. Telepon:</span> {{ $userBaru->no_telp }}</p>
+                            <p><span class="font-semibold">Bank:</span> {{ $userBaru->bank }}</p>
+                            <p><span class="font-semibold">No. Rekening:</span> {{ $userBaru->no_rek }}</p>
+                            <p><span class="font-semibold">Nama Rekening:</span> {{ $userBaru->nama_rekening }}</p>
+                        </div>
+                    </div>
+
+                    <p class="text-xs mt-3 text-blue-600">
+                        <strong>Catatan:</strong> User baru ini telah terdaftar sebagai member dengan sponsor:
+                        {{ auth()->user()->nama }}
+                    </p>
+                </div>
+            @endif
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Kolom Kiri -->
                 <div class="space-y-4">
@@ -120,4 +155,45 @@
             </div>
         @endif
     </div>
+
+    <script>
+        function copyToClipboard(text, button) {
+            // Try to use the modern Clipboard API first
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showCopyFeedback(button);
+                }).catch(() => {
+                    // Fallback to old method
+                    fallbackCopyToClipboard(text, button);
+                });
+            } else {
+                // Fallback to old method
+                fallbackCopyToClipboard(text, button);
+            }
+        }
+
+        function fallbackCopyToClipboard(text, button) {
+            const tempInput = document.createElement('input');
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            tempInput.setSelectionRange(0, 99999);
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            showCopyFeedback(button);
+        }
+
+        function showCopyFeedback(button) {
+            const originalText = button.innerHTML;
+            button.innerHTML = '✅ Copied!';
+            button.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+            button.classList.add('bg-green-500');
+
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.classList.remove('bg-green-500');
+                button.classList.add('bg-blue-500', 'hover:bg-blue-600');
+            }, 2000);
+        }
+    </script>
 </x-filament::page>
