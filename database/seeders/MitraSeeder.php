@@ -40,7 +40,12 @@ class MitraSeeder extends Seeder
             $urutan = str_pad($i + 1, 2, '0', STR_PAD_LEFT);
             $today = '20250723';
             $idMitra = 'G' . $today . $urutan;
+<<<<<<< HEAD
             $username = 'mitra' . ($i + 1);
+=======
+            $mitraNumber = $i + 1; // Index 0-14 menjadi 1-15
+            $username = 'mitra' . $mitraNumber;
+>>>>>>> 6040f3b9d4ed20cdd9c340f718bfabffdf84dea7
             $email = $username . '@gmail.com';
             [$provinsi, $kabupaten] = $this->getFirstProvinceAndRegency($provinces, $regencies);
             $groupSponsor = array_column(array_slice($createdUsers, max(0, $i - 9), 9), 'id');
@@ -59,6 +64,7 @@ class MitraSeeder extends Seeder
                 'isStockis' => false,
                 'status_qr' => $statusQR,
                 'id_sponsor' => $idSponsor,
+<<<<<<< HEAD
                 'nama' => 'Mitra Glowink ' . ($i + 1),
                 'provinsi' => $provinsi,
                 'kabupaten' => $kabupaten,
@@ -66,6 +72,15 @@ class MitraSeeder extends Seeder
                 'no_telp' => '0812345678' . str_pad($i + 1, 2, '0', STR_PAD_LEFT),
                 'no_rek' => '12345678' . str_pad($i + 1, 2, '0', STR_PAD_LEFT),
                 'nama_rekening' => 'Mitra Glowink ' . ($i + 1),
+=======
+                'nama' => 'Mitra Glowink ' . $mitraNumber,
+                'provinsi' => $provinsi,
+                'kabupaten' => $kabupaten,
+                'alamat' => 'Jl. Mitra No. ' . $mitraNumber,
+                'no_telp' => '0812345678' . str_pad($mitraNumber, 2, '0', STR_PAD_LEFT),
+                'no_rek' => '12345678' . str_pad($mitraNumber, 2, '0', STR_PAD_LEFT),
+                'nama_rekening' => 'Mitra Glowink ' . $mitraNumber,
+>>>>>>> 6040f3b9d4ed20cdd9c340f718bfabffdf84dea7
                 'bank' => 'BNI',
                 'tgl_daftar' => now(),
                 'group_sponsor' => $groupSponsor,
@@ -80,12 +95,6 @@ class MitraSeeder extends Seeder
                 'id' => $user->id,
                 'id_mitra' => $idMitra,
             ];
-
-            // --- DUMMY PEMBELIAN UNTUK MITRA ---
-            // 1. Aktivasi Member
-            $this->createDummyPembelian($user, 'aktivasi member');
-            // 2. Repeat Order
-            $this->createDummyPembelian($user, 'repeat order');
         }
     }
 
@@ -97,51 +106,5 @@ class MitraSeeder extends Seeder
         $filteredRegencies = array_filter($regencies, fn($regency) => $regency['province_id'] == $provinceId);
         $regency = $filteredRegencies ? reset($filteredRegencies) : null;
         return [$provinceName, $regency ? $regency['name'] : null];
-    }
-
-    private function createDummyPembelian($user, $kategori)
-    {
-        $status = 'selesai';
-        $adminUser = \App\Models\User::where('isAdmin', true)->first();
-        $stockist = \App\Models\User::where('isStockis', true)->inRandomOrder()->first();
-        $buyer = $user;
-        $seller = $kategori === 'aktivasi member' ? ($stockist ?? $adminUser) : ($stockist ?? $adminUser);
-        $paket = $kategori === 'aktivasi member' ? 1 : 2;
-        $produkList = \App\Models\Produk::where('paket', $paket)->get();
-        if ($produkList->isEmpty()) {
-            return;
-        }
-
-        $produk = $produkList->random();
-        $qty = rand(1, 3);
-        $harga = $produk->harga_member;
-        $total = $qty * $harga;
-        $tglBeli = ($kategori === 'aktivasi member') ? now()->format('Y-m-d') : now()->subDays(rand(1, 30))->format('Y-m-d');
-        $pembelian = \App\Models\Pembelian::create([
-            'tgl_beli' => $tglBeli,
-            'user_id' => $buyer->id,
-            'beli_dari' => $seller->id,
-            'tujuan_beli' => 'null',
-            'nama_penerima' => $buyer->nama,
-            'no_telp' => $buyer->no_telp ?? '081234567890',
-            'alamat_tujuan' => $buyer->alamat ?? 'Alamat Member',
-            'total_beli' => $total,
-            'total_bonus' => 0,
-            'status_pembelian' => $status,
-            'jumlah_poin_qr' => 0,
-            'kategori_pembelian' => $kategori,
-        ]);
-        \App\Models\PembelianDetail::create([
-            'pembelian_id' => $pembelian->id,
-            'produk_id' => $produk->id,
-            'nama_produk' => $produk->nama,
-            'paket' => $produk->paket,
-            'jml_beli' => $qty,
-            'harga_beli' => $harga,
-            'nominal_bonus_sponsor' => 0,
-            'nominal_bonus_generasi' => 0,
-            'user_id_get_bonus_sponsor' => null,
-            'group_user_id_get_bonus_generasi' => null,
-        ]);
     }
 }

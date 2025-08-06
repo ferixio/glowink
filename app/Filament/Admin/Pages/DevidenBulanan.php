@@ -101,7 +101,7 @@ class DevidenBulanan extends Page implements HasForms
 
         $getPembelians = Pembelian::where('kategori_pembelian', 'repeat order bulanan')
             ->whereBetween('created_at', [$startDate, $endDateWithTime])
-            ->whereIn('status_pembelian', ['proses', 'selesai'])
+            ->whereIn('status_pembelian', ['selesai'])
             ->get();
         Log::info('getPembeliansCount:', ['count' => $getPembelians->count()]);
         Log::info('getPembelians:', $getPembelians->toArray());

@@ -4,17 +4,21 @@
     </x-filament-panels::form>
     @if ($devidenHarian || $searchResults)
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-            <div class="bg-white rounded-xl shadow p-6 flex items-center">
+            <a href="{{ route('filament.admin.pages.list-detail-deviden-harian', ['selectedDate' => $data['selectedDate'] ?? now()->format('Y-m-d')]) }}"
+                class="bg-white rounded-xl shadow p-6 flex items-center">
                 <div class="bg-blue-100 text-blue-600 rounded-full p-3 mr-4">
                     <x-heroicon-o-currency-dollar class="w-8 h-8" />
                 </div>
                 <div>
                     <div class="text-gray-500 text-sm">Omzet Aktivasi</div>
-                    <div class="text-2xl font-bold">Rp
-                        {{ number_format($devidenHarian ? $devidenHarian->omzet_aktivasi : $searchResults->omzet_aktivasi, 0, ',', '.') }}
+                    <div class="text-2xl font-bold">
+                        <div class="text-blue-600 hover:underline">
+                            Rp
+                            {{ number_format($devidenHarian ? $devidenHarian->omzet_aktivasi : $searchResults->omzet_aktivasi, 0, ',', '.') }}
+                        </div>
                     </div>
                 </div>
-            </div>
+            </a>
             <div class="bg-white rounded-xl shadow p-6 flex items-center">
                 <div class="bg-green-100 text-green-600 rounded-full p-3 mr-4">
                     <x-heroicon-o-currency-dollar class="w-8 h-8" />
@@ -26,17 +30,20 @@
                     </div>
                 </div>
             </div>
-            <div class="bg-white rounded-xl shadow p-6 flex items-center">
+            <a href="{{ route('filament.admin.pages.list-mitra-deviden-harian', ['selectedDate' => $data['selectedDate'] ?? now()->format('Y-m-d')]) }}"
+                class="bg-white rounded-xl shadow p-6 flex items-center">
                 <div class="bg-yellow-100 text-yellow-600 rounded-full p-3 mr-4">
                     <x-heroicon-o-users class="w-8 h-8" />
                 </div>
                 <div>
                     <div class="text-gray-500 text-sm">Total Member</div>
                     <div class="text-2xl font-bold">
-                        {{ number_format($devidenHarian ? $devidenHarian->total_member : $searchResults->total_member, 0, ',', '.') }}
+                        <div class="text-yellow-600 hover:underline">
+                            {{ number_format($devidenHarian ? $devidenHarian->total_member : $searchResults->total_member, 0, ',', '.') }}
+                        </div>
                     </div>
                 </div>
-            </div>
+            </a>
             <div class="bg-white rounded-xl shadow p-6 flex items-center">
                 <div class="bg-purple-100 text-purple-600 rounded-full p-3 mr-4">
                     <x-heroicon-o-gift class="w-8 h-8" />

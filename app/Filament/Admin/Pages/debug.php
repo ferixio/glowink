@@ -65,7 +65,7 @@ class debug extends Page
             'alamat_tujuan' => $user->alamat ?? 'Alamat Default',
             'total_beli' => 100000,
             'total_bonus' => 100000,
-            'status_pembelian' => 'proses', // Ubah ke 'diterima' agar diproses
+            'status_pembelian' => 'selesai', // Ubah ke 'diterima' agar diselesai
             'kategori_pembelian' => 'repeat order',
             'total_cashback' => 100000,
             'jumlah_poin_qr' => 1,
@@ -85,7 +85,7 @@ class debug extends Page
             'cashback' => 10000,
         ]);
 
-        // Trigger event untuk memproses pembelian
+        // Trigger event untuk memselesai pembelian
         event(new \App\Events\PembelianDiterima($pembelian));
 
         Notification::make()
@@ -109,7 +109,7 @@ class debug extends Page
             'alamat_tujuan' => $user->alamat ?? 'Alamat Default',
             'total_beli' => 100000,
             'total_bonus' => 100000,
-            'status_pembelian' => 'proses', // Ubah ke 'diterima' agar diproses
+            'status_pembelian' => 'selesai', // Ubah ke 'diterima' agar diselesai
             'kategori_pembelian' => 'repeat order bulanan',
             'total_cashback' => 100000,
             'jumlah_poin_qr' => 1,
@@ -129,7 +129,7 @@ class debug extends Page
             'cashback' => 0,
         ]);
 
-        // Trigger event untuk memproses pembelian
+        // Trigger event untuk memselesai pembelian
         event(new \App\Events\PembelianDiterima($pembelian));
 
         Notification::make()
@@ -153,7 +153,7 @@ class debug extends Page
     //         'alamat_tujuan' => $user->alamat ?? 'Alamat Default',
     //         'total_beli' => 500000,
     //         'total_bonus' => 500000,
-    //         'status_pembelian' => 'proses',
+    //         'status_pembelian' => 'selesai',
     //         'kategori_pembelian' => 'aktivasi member',
     //         'total_cashback' => 50000,
     //         'jumlah_poin_qr' => 5,
@@ -173,7 +173,7 @@ class debug extends Page
     //         'cashback' => 50000,
     //     ]);
 
-    //     // Trigger event untuk memproses pembelian
+    //     // Trigger event untuk memselesai pembelian
     //     event(new \App\Events\PembelianDiterima($pembelian));
 
     //     Notification::make()
@@ -197,7 +197,7 @@ class debug extends Page
     //         'alamat_tujuan' => $user->alamat ?? 'Alamat Default',
     //         'total_beli' => 100000,
     //         'total_bonus' => 100000,
-    //         'status_pembelian' => 'proses',
+    //         'status_pembelian' => 'selesai',
     //         'kategori_pembelian' => 'repeat order',
     //         'total_cashback' => 10000,
     //         'jumlah_poin_qr' => 1,
@@ -217,7 +217,7 @@ class debug extends Page
     //         'cashback' => 10000,
     //     ]);
 
-    //     // Trigger event untuk memproses pembelian
+    //     // Trigger event untuk memselesai pembelian
     //     event(new \App\Events\PembelianDiterima($pembelian));
 
     //     Notification::make()

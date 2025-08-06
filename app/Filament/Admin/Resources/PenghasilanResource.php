@@ -15,7 +15,10 @@ class PenghasilanResource extends Resource
     protected static ?string $model = Penghasilan::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-table-cells';
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 1;
+    protected static ?string $navigationGroup = 'Laporan - Laporan';
+    protected static ?string $navigationLabel = 'Laporan Penghasilan';
+
     public static function form(Form $form): Form
     {
         return $form

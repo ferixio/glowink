@@ -15,7 +15,8 @@ class PembeliansResource extends Resource
     protected static ?string $model = Pembelian::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
-    protected static ?string $navigationLabel = 'Laporan Laporan';
+    protected static ?string $navigationGroup = 'Laporan - laporan';
+    protected static ?string $navigationLabel = 'Laporan Pembelian';
 
     protected static ?int $navigationSort = 3;
 
@@ -31,13 +32,16 @@ class PembeliansResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('id')
-                    ->searchable()->label("id")
-                    ->url(fn($record) => static::getUrl('detail', ['record' => $record])),
+                // Tables\Columns\TextColumn::make('id')
+                //     ->searchable()->label("id")
+                //     ->url(fn($record) => static::getUrl('detail', ['record' => $record])),
                 Tables\Columns\TextColumn::make('user.nama')
                     ->searchable()
                     ->label("Nama Pembeli")->url(fn($record) => static::getUrl('detail', ['record' => $record])),
-                Tables\Columns\TextColumn::make('nama_penerima')
+                Tables\Columns\TextColumn::make('kategori_pembelian')
+                    ->searchable()
+                    ->label("Kategori Pembelian")->url(fn($record) => static::getUrl('detail', ['record' => $record])),
+                    Tables\Columns\TextColumn::make('nama_penerima')
                     ->searchable()
                     ->label("Nama Penerima")->url(fn($record) => static::getUrl('detail', ['record' => $record])),
                 Tables\Columns\TextColumn::make('alamat_tujuan')
@@ -84,8 +88,8 @@ class PembeliansResource extends Resource
             $query->where('user_id', auth()->id())
                 ->orWhereHas('user', function ($q) {
                     $q->where('id', auth()->id());
-                })->orderByDesc('updated_at');
-        });
+                });
+        })->orderByDesc('updated_at');
     }
     public static function getPages(): array
     {
