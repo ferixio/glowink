@@ -40,12 +40,8 @@ class MitraSeeder extends Seeder
             $urutan = str_pad($i + 1, 2, '0', STR_PAD_LEFT);
             $today = '20250723';
             $idMitra = 'G' . $today . $urutan;
-<<<<<<< HEAD
-            $username = 'mitra' . ($i + 1);
-=======
             $mitraNumber = $i + 1; // Index 0-14 menjadi 1-15
             $username = 'mitra' . $mitraNumber;
->>>>>>> 6040f3b9d4ed20cdd9c340f718bfabffdf84dea7
             $email = $username . '@gmail.com';
             [$provinsi, $kabupaten] = $this->getFirstProvinceAndRegency($provinces, $regencies);
             $groupSponsor = array_column(array_slice($createdUsers, max(0, $i - 9), 9), 'id');
@@ -64,15 +60,6 @@ class MitraSeeder extends Seeder
                 'isStockis' => false,
                 'status_qr' => $statusQR,
                 'id_sponsor' => $idSponsor,
-<<<<<<< HEAD
-                'nama' => 'Mitra Glowink ' . ($i + 1),
-                'provinsi' => $provinsi,
-                'kabupaten' => $kabupaten,
-                'alamat' => 'Jl. Mitra No. ' . ($i + 1),
-                'no_telp' => '0812345678' . str_pad($i + 1, 2, '0', STR_PAD_LEFT),
-                'no_rek' => '12345678' . str_pad($i + 1, 2, '0', STR_PAD_LEFT),
-                'nama_rekening' => 'Mitra Glowink ' . ($i + 1),
-=======
                 'nama' => 'Mitra Glowink ' . $mitraNumber,
                 'provinsi' => $provinsi,
                 'kabupaten' => $kabupaten,
@@ -80,7 +67,6 @@ class MitraSeeder extends Seeder
                 'no_telp' => '0812345678' . str_pad($mitraNumber, 2, '0', STR_PAD_LEFT),
                 'no_rek' => '12345678' . str_pad($mitraNumber, 2, '0', STR_PAD_LEFT),
                 'nama_rekening' => 'Mitra Glowink ' . $mitraNumber,
->>>>>>> 6040f3b9d4ed20cdd9c340f718bfabffdf84dea7
                 'bank' => 'BNI',
                 'tgl_daftar' => now(),
                 'group_sponsor' => $groupSponsor,
