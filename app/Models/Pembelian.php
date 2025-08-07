@@ -24,6 +24,8 @@ class Pembelian extends Model
         'jumlah_poin_qr',
         'kategori_pembelian',
         'cashback',
+        'total_cashback',
+        'id_sponsor',
     ];
 
     protected $casts = [
@@ -38,6 +40,11 @@ class Pembelian extends Model
     public function seller()
     {
         return $this->belongsTo(User::class, 'beli_dari');
+    }
+
+    public function sponsor()
+    {
+        return $this->belongsTo(User::class, 'id_sponsor');
     }
 
     public function details()

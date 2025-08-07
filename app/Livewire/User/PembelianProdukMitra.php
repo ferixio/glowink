@@ -542,6 +542,7 @@ class PembelianProdukMitra extends Component
                 'tgl_beli' => $tanggalBeli,
                 'user_id' => $userId,
                 'beli_dari' => $this->selectedStockist,
+                'id_sponsor' => $kategoriPembelian === 'aktivasi member' ? Auth::id() : null,
                 'tujuan_beli' => 'null',
                 'nama_penerima' => $namaPenerima,
                 'no_telp' => $noTelp,

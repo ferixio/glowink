@@ -16,6 +16,7 @@ return new class extends Migration
             $table->date('tgl_beli');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('beli_dari')->constrained('users')->onDelete('cascade');
+            $table->foreignId('id_sponsor')->nullable()->constrained('users')->onDelete('cascade');
             $table->string('tujuan_beli');
             $table->string('nama_penerima');
             $table->string('no_telp');
