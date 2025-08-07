@@ -11,7 +11,7 @@ use Filament\Widgets\Widget;
 class DateRangeFilterWidget extends Widget implements HasForms
 {
     use InteractsWithForms;
-
+    protected static bool $isDiscovered = false;
     protected static string $view = 'filament.admin.widgets.date-range-filter-widget';
     protected int|string|array $columnSpan = 'full';
 
@@ -29,7 +29,7 @@ class DateRangeFilterWidget extends Widget implements HasForms
                 DatePicker::make('start')->label('Tanggal Mulai'),
                 DatePicker::make('end')->label('Tanggal Akhir'),
             ])
-          
+
             ->columns(2)
             ->statePath('data');
     }
