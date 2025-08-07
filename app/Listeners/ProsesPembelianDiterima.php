@@ -13,18 +13,37 @@ class ProsesPembelianDiterima
     {
         $pembelian = $event->pembelian;
 
-        // Check if user's status_qr should be updated
         $user = \App\Models\User::find($pembelian->user_id);
         if ($user && $user->status_qr == 0) {
             $targetCategories = ['stock pribadi', 'repeat order', 'repeat order bulanan'];
 
             if (in_array($pembelian->kategori_pembelian, $targetCategories)) {
-                // Check if any detail has paket value of 2
                 foreach ($pembelian->details as $detail) {
                     if ($detail->paket == 2) {
                         // Update user's status_qr to 1
                         $user->status_qr = 1;
                         $user->save();
+
+                      
+                        if ($user->id_sponsor) {
+                            $sponsor = \App\Models\User::find($user->id_sponsor);
+                            if ($sponsor) {
+                                // Create income data for sponsor
+                                \App\Models\Penghasilan::create([
+                                    'user_id' => $sponsor->id,
+                                    'kategori_bonus' => 'Bonus Sponsor',
+                                    'status_qr' => $user->status_qr,
+                                    'tgl_dapat_bonus' => now(),
+                                    'keterangan' => 'bonus sponsor (Member update Quick Reward)',
+                                    'nominal_bonus' => 20000,
+                                ]);
+
+                                // Add to sponsor's income balance
+                                $sponsor->saldo_penghasilan += 20000;
+                                $sponsor->save();
+                            }
+                        }
+
                         break; // Exit loop once we find a matching detail
                     }
                 }
@@ -32,7 +51,7 @@ class ProsesPembelianDiterima
         }
 
         // HAPUS LOGIKA CASHBACK DI SINI
-        if (!in_array($pembelian->status_pembelian, ['proses', 'selesai'])) {
+        if (!in_array($pembelian->status_pembelian, ['selesai'])) {
             foreach ($pembelian->details as $detail) {
                 // Tambah stok ke user pembeli
                 $produkStok = \App\Models\ProdukStok::firstOrNew([
