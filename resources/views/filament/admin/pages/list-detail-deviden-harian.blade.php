@@ -16,6 +16,10 @@
                         </th>
                         <th
                             style="padding: 0.75rem 1.5rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em;">
+                            Nama Sponsor
+                        </th>
+                        <th
+                            style="padding: 0.75rem 1.5rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em;">
                             Tanggal Beli
                         </th>
                         <th
@@ -43,6 +47,9 @@
                             </td>
                             <td style="padding: 1rem 1.5rem; white-space: nowrap; font-size: 0.875rem; color: #6b7280;">
                                 {{ $detail->pembelian->user->nama ?? '-' }}
+                            </td>
+                            <td style="padding: 1rem 1.5rem; white-space: nowrap; font-size: 0.875rem; color: #6b7280;">
+                                {{ $detail->pembelian->sponsor->nama ?? '-' }}
                             </td>
                             <td style="padding: 1rem 1.5rem; white-space: nowrap; font-size: 0.875rem; color: #6b7280;">
                                 {{ $detail->pembelian->tgl_beli ?? '-' }}

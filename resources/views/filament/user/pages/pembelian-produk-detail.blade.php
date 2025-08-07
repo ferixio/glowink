@@ -49,10 +49,10 @@
                         </div>
                     </div>
 
-                    <p class="text-xs mt-3 text-blue-600">
+                    {{-- <p class="text-xs mt-3 text-blue-600">
                         <strong>Catatan:</strong> User baru ini telah terdaftar sebagai member dengan sponsor:
                         {{ auth()->user()->nama }}
-                    </p>
+                    </p> --}}
                 </div>
             @endif
 

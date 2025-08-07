@@ -12,6 +12,7 @@ class ListDetailDevidenHarian extends Page
 
     protected static string $view = 'filament.admin.pages.list-detail-deviden-harian';
     protected static bool $shouldRegisterNavigation = false;
+        protected static ?string $title = 'List Daftar Aktivasi Member';
     public $pembelianDetails = [];
 
     public function mount(): void

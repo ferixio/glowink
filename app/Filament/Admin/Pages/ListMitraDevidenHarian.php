@@ -11,7 +11,10 @@ class ListMitraDevidenHarian extends Page
 
     protected static string $view = 'filament.admin.pages.list-mitra-deviden-harian';
     protected static bool $shouldRegisterNavigation = false;
+
     public $mitraList = [];
+
+
 
     public function mount(): void
     {
