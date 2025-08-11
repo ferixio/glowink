@@ -114,7 +114,7 @@
             </div>
 
             <button type="submit"
-                class="w-full bg-gray-500 py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                style="width: 100%; background-color: #6B7280; color: #ffffff; padding: 8px 16px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
                 Buat Permintaan Withdraw
             </button>
         </form>
@@ -137,7 +137,7 @@
                             Kategori</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Nominal</th>
-                   
+
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
@@ -164,7 +164,7 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
                                 +Rp {{ number_format($penghasilan->nominal_bonus, 0, ',', '.') }}
                             </td>
-               
+
                         </tr>
                     @empty
                         <tr>
