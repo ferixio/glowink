@@ -1,5 +1,5 @@
 <div class="grid grid-cols-1 gap-6 ">
-    <h2 class="text-3xl mt-6 font-bold text-gray-800">Dashboard</h2>
+    <h2 class="text-3xl mt-6 font-bold text-gray-800">Halo, {{ $user->nama }} </h2>
 
     {{-- Group 1: Info Akun --}}
     <div class="bg-white rounded-xl shadow p-6 space-y-4">
@@ -11,13 +11,14 @@
             </div>
             <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm">
                 <div class="text-sm text-gray-500">Karir Level</div>
-                <div class="mt-1 text-lg font-semibold text-gray-700">
+                <div
+                    class="{{ $isCompletedRObulanan ? 'text-green-500' : 'text-red-500' }} mt-1 text-lg font-semibold text-gray-700">
                     {{ $user->plan_karir_sekarang ?? 'Belum ada plan' }}
                 </div>
             </div>
             <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm">
                 <div class="text-sm text-gray-500">Status QR</div>
-                <div class="mt-1 text-lg font-semibold text-green-600">
+                <div class="mt-1 text-lg font-semibold {{ $user->status_qr ? ' text-green-500' : ' text-red-500' }}">
                     {{ $user->status_qr ? 'QR AKTIF' : 'QR NONAKTIF' }}
                 </div>
             </div>
