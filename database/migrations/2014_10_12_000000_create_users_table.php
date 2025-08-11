@@ -32,6 +32,7 @@ return new class extends Migration
             $table->foreignId('id_sponsor')->nullable()->constrained('users')->nullOnDelete();
             $table->string('group_sponsor')->nullable();
             $table->decimal('saldo_penghasilan', 16, 2)->default(0);
+            $table->decimal('saldo_withdraw', 16, 2)->default(0);
             $table->decimal('poin_reward')->default(0);
             $table->string('plan_karir_sekarang')->nullable();
             $table->string('next_plan_karir')->nullable();

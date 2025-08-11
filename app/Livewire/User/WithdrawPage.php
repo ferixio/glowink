@@ -11,6 +11,12 @@ use Livewire\Component;
 class WithdrawPage extends Component
 {
     public $nominal_withdraw;
+
+    public function updatedNominalWithdraw($value)
+    {
+        // Ambil hanya angka dari input (misal: 'Rp 100.000' jadi 100000)
+        $this->nominal_withdraw = preg_replace('/[^\d]/', '', $value);
+    }
     public $user;
 
     public function mount()
@@ -20,6 +26,9 @@ class WithdrawPage extends Component
 
     public function createWithdraw()
     {
+        // Pastikan nominal_withdraw hanya angka
+        $nominal = preg_replace('/[^\d]/', '', $this->nominal_withdraw);
+        $this->nominal_withdraw = $nominal;
         $this->validate([
             'nominal_withdraw' => 'required|numeric|min:10000|max:' . $this->user->saldo_penghasilan,
         ]);
@@ -53,9 +62,10 @@ class WithdrawPage extends Component
                 'status' => 'pending',
             ]);
 
-            // Update user's saldo
+            // Update user's saldo_penghasilan dan saldo_withdraw
             $this->user->update([
                 'saldo_penghasilan' => $this->user->saldo_penghasilan - $this->nominal_withdraw,
+                'saldo_withdraw' => $this->user->saldo_withdraw + $this->nominal_withdraw,
             ]);
 
             // Reset form
