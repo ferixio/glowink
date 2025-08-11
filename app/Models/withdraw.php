@@ -12,6 +12,6 @@ class Withdraw extends Model
     protected $fillable = [
         'tgl_withdraw',
         'nominal_withdraw',
-        'status_withdraw'
+        'status_withdraw',
     ];
 }

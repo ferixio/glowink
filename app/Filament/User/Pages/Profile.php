@@ -47,23 +47,23 @@ class Profile extends Page implements HasForms
     {
         return $form->schema([
             Grid::make(2)->schema([
-                TextInput::make('nama')->label('Nama Lengkap')->required(),
-                TextInput::make('email')->email()->required(),
-                TextInput::make('no_telp')->label('No. Telepon')->tel()->required(),
-                Select::make('provinsi')
-                    ->label('Provinsi')
-                    ->options(LocationService::getProvinces())
-                    ->required()
-                    ->reactive(),
-                Select::make('kabupaten')
-                    ->label('Kabupaten')
-                    ->options(fn($get) => collect(LocationService::getRegenciesByProvince($get('provinsi') ?? ''))->pluck('name', 'id')->toArray())
-                    ->required()
-                    ->reactive(),
-                Textarea::make('alamat')->required()->columnSpanFull(),
-                TextInput::make('no_rek')->label('No. Rekening'),
-                TextInput::make('nama_rekening')->label('Nama Rekening'),
-                TextInput::make('bank')->label('Bank'),
+                TextInput::make('nama')->label('Nama Lengkap')->disabled(),
+                TextInput::make('email')->email()->disabled(),
+                TextInput::make('no_telp')->label('No. Telepon')->tel()->disabled(),
+                // Select::make('provinsi')
+                //     ->label('Provinsi')
+                //     ->options(LocationService::getProvinces())
+                //     ->disabled()
+                //     ->reactive(),
+                // Select::make('kabupaten')
+                //     ->label('Kabupaten')
+                //     ->options(fn($get) => collect(LocationService::getRegenciesByProvince($get('provinsi') ?? ''))->pluck('name', 'id')->toArray())
+                //     ->disabled()
+                //     ->reactive(),
+                Textarea::make('alamat')->disabled(),
+                TextInput::make('no_rek')->label('No. Rekening')->disabled(),
+                TextInput::make('nama_rekening')->label('Nama Rekening')->disabled(),
+                TextInput::make('bank')->label('Bank')->disabled(),
                 TextInput::make('password')
                     ->label('Password (Kosongkan jika tidak ingin mengubah)')
                     ->password()

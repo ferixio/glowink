@@ -43,10 +43,14 @@ class AktivitasResource extends Resource
                 Tables\Columns\TextColumn::make('status')
                     ->label('')
                     ->formatStateUsing(function ($record) {
+                        $nominalText = $record->nominal !== null
+                        ? 'Rp ' . number_format($record->nominal, 0, ',', '.')
+                        : '<span style="color:#6b7280; font-size:0.85rem;">Tidak ada nominal</span>';
+
                         return '
             <div style="line-height:1.4">
                 <div style="font-size: 0.85rem; font-weight: 500; color: ' . ($record->status === 'Selesai' ? '#059669' : '#b91c1c') . ';">' . e($record->status) . '</div>
-                <div style="font-size: 1rem; font-weight: 700; color: #111827;">Rp ' . number_format($record->nominal, 0, ',', '.') . '</div>
+                <div style="font-size: 1rem; font-weight: 700; color: #111827;">' . $nominalText . '</div>
             </div>
         ';
                     })
