@@ -418,6 +418,9 @@ class PembelianProdukMitra extends Component
             $userBaru->group_sponsor = $groupSponsor;
             $userBaru->save();
 
+            // Trigger event untuk membuat jaringan mitra
+            event(new \App\Events\UserCreated($userBaru, $sponsor ? $sponsor->id : null));
+
             // Set tanggal ke hari ini
             $this->tanggal = now()->format('Y-m-d');
 

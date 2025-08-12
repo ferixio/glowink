@@ -1,6 +1,7 @@
 <?php
 
 use App\Helpers\DateHelper;
+use App\Services\JaringanMitraService;
 
 if (!function_exists('format_tanggal_indonesia')) {
     /**
@@ -52,5 +53,19 @@ if (!function_exists('format_tanggal_indonesia_dengan_hari')) {
     function format_tanggal_indonesia_dengan_hari($date)
     {
         return DateHelper::toIndonesianDateWithDay($date);
+    }
+}
+
+if (!function_exists('create_jaringan_mitra')) {
+    /**
+     * Helper function untuk membuat jaringan mitra
+     *
+     * @param \App\Models\User $user User yang baru dibuat
+     * @param int|null $sponsorId ID sponsor (bisa null jika tidak ada sponsor)
+     * @return void
+     */
+    function create_jaringan_mitra($user, $sponsorId = null)
+    {
+        JaringanMitraService::createJaringanMitra($user, $sponsorId);
     }
 }

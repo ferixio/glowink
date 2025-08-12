@@ -3,6 +3,7 @@
 namespace App\Livewire\User;
 
 use App\Models\Penghasilan;
+use App\Models\Setting;
 use App\Models\Withdraw;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
@@ -11,6 +12,12 @@ use Livewire\Component;
 class WithdrawPage extends Component
 {
     public $nominal_withdraw;
+    public $showWithdrawForm = false;
+
+    public function toggleWithdrawForm()
+    {
+        $this->showWithdrawForm = !$this->showWithdrawForm;
+    }
 
     public function updatedNominalWithdraw($value)
     {
@@ -18,10 +25,21 @@ class WithdrawPage extends Component
         $this->nominal_withdraw = preg_replace('/[^\d]/', '', $value);
     }
     public $user;
+    public $dataAdmin;
 
     public function mount()
     {
         $this->user = Auth::user();
+        $this->dataAdmin = Setting::first();
+
+        // Jika tidak ada data admin, buat default values
+        if (!$this->dataAdmin) {
+            $this->dataAdmin = (object) [
+                'bank_name' => null,
+                'no_rek' => null,
+                'bank_atas_nama' => null,
+            ];
+        }
     }
 
     public function createWithdraw()
