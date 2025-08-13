@@ -38,10 +38,13 @@ class PembeliansResource extends Resource
                 Tables\Columns\TextColumn::make('user.nama')
                     ->searchable()
                     ->label("Nama Pembeli")->url(fn($record) => static::getUrl('detail', ['record' => $record])),
+                Tables\Columns\TextColumn::make('seller.nama')
+                    ->searchable()
+                    ->label("Nama Penjual")->url(fn($record) => static::getUrl('detail', ['record' => $record])),
                 Tables\Columns\TextColumn::make('kategori_pembelian')
                     ->searchable()
                     ->label("Kategori Pembelian")->url(fn($record) => static::getUrl('detail', ['record' => $record])),
-                    Tables\Columns\TextColumn::make('nama_penerima')
+                Tables\Columns\TextColumn::make('nama_penerima')
                     ->searchable()
                     ->label("Nama Penerima")->url(fn($record) => static::getUrl('detail', ['record' => $record])),
                 Tables\Columns\TextColumn::make('alamat_tujuan')
@@ -86,9 +89,7 @@ class PembeliansResource extends Resource
     {
         return parent::getEloquentQuery()->where(function ($query) {
             $query->where('user_id', auth()->id())
-                ->orWhereHas('user', function ($q) {
-                    $q->where('id', auth()->id());
-                });
+                ->orWhere('id_sponsor', auth()->id());
         })->orderByDesc('updated_at');
     }
     public static function getPages(): array

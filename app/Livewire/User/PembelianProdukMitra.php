@@ -9,6 +9,7 @@ use App\Models\ProdukStok;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Livewire\Component;
 
@@ -417,6 +418,9 @@ class PembelianProdukMitra extends Component
             $userBaru->group_sponsor = $groupSponsor;
             $userBaru->save();
 
+            // Trigger event untuk membuat jaringan mitra
+            event(new \App\Events\UserCreated($userBaru, $sponsor ? $sponsor->id : null));
+
             // Set tanggal ke hari ini
             $this->tanggal = now()->format('Y-m-d');
 
@@ -542,6 +546,7 @@ class PembelianProdukMitra extends Component
                 'tgl_beli' => $tanggalBeli,
                 'user_id' => $userId,
                 'beli_dari' => $this->selectedStockist,
+                'id_sponsor' => $kategoriPembelian === 'aktivasi member' ? Auth::id() : null,
                 'tujuan_beli' => 'null',
                 'nama_penerima' => $namaPenerima,
                 'no_telp' => $noTelp,
@@ -581,6 +586,9 @@ class PembelianProdukMitra extends Component
                 // STOK STOCKIST AKAN DIKURANGI SAAT ADMIN APPROVE DI HALAMAN APPROVAL
                 // Tidak perlu mengurangi stok stockist di sini
             }
+
+            // Buat aktivitas berdasarkan kategori pembelian
+            $this->createAktivitas($pembelian, $kategoriPembelian);
 
             // Kosongkan cart dan form
             Session::forget('cart');
@@ -727,6 +735,59 @@ class PembelianProdukMitra extends Component
 
         return $this->processCheckout($userData, 'repeat order bulanan');
 
+    }
+
+    /**
+     * Buat aktivitas berdasarkan kategori pembelian
+     */
+    private function createAktivitas($pembelian, $kategoriPembelian)
+    {
+        try {
+            $judul = '';
+            $keterangan = '';
+            $status = 'Proses';
+            $nominal = null;
+
+            switch ($kategoriPembelian) {
+                case 'aktivasi member':
+                    $judul = 'Aktivasi Member';
+                    $keterangan = '';
+                    $nominal = null; // Kosong untuk aktivasi member
+                    break;
+
+                case 'stock pribadi':
+                case 'repeat order':
+                    // case 'repeat order bulanan':
+                    $judul = 'BELANJA #' . $pembelian->id;
+
+                    // Ambil nama user dari beli_dari
+                    $stockist = User::find($pembelian->beli_dari);
+                    $namaStockist = $stockist ? $stockist->nama : 'Unknown';
+                    $keterangan = 'STOK dari ' . $namaStockist;
+
+                    $nominal = $pembelian->total_beli;
+                    break;
+
+                default:
+                    $judul = 'Pembelian Produk';
+                    $keterangan = 'Pembelian produk dari stockist';
+                    $nominal = $pembelian->total_beli;
+                    break;
+            }
+
+            // Buat record aktivitas
+            \App\Models\Aktivitas::create([
+                'user_id' => $pembelian->user_id,
+                'judul' => $judul,
+                'keterangan' => $keterangan,
+                'status' => $status,
+                'nominal' => $nominal,
+            ]);
+
+        } catch (\Exception $e) {
+            // Log error jika gagal membuat aktivitas
+            Log::error('Gagal membuat aktivitas: ' . $e->getMessage());
+        }
     }
 
     public function render()

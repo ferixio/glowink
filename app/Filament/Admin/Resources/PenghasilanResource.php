@@ -26,9 +26,8 @@ class PenghasilanResource extends Resource
                 Forms\Components\TextInput::make('user_id')
                     ->required()
                     ->numeric(),
-                Forms\Components\TextInput::make('tgl_dapat_bonus')
-                    ->required()
-                    ->date(),
+                Forms\Components\DatePicker::make('tgl_dapat_bonus')
+                    ->required(),
                 Forms\Components\TextInput::make('keterangan')
                     ->required()
                     ->maxLength(255),

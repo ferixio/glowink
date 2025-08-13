@@ -33,11 +33,12 @@ class BonusSponsorListener
                             'kategori_bonus' => 'Bonus Sponsor',
                             'status_qr' => $statusQr,
                             'tgl_dapat_bonus' => now(),
-                            'keterangan' => 'bonus sponsor (paket 2)',
+                            'keterangan' => 'bonus sponsor (paket Quick Reward)',
                             'nominal_bonus' => 20000,
                         ]);
                         $sponsor->saldo_penghasilan += 20000;
                         $sponsor->save();
+                        break; 
                     }
                 }
             }

@@ -88,4 +88,15 @@ class User extends Authenticatable implements FilamentUser, HasName
             ->withPivot('stok')
             ->withTimestamps();
     }
+
+    public function jaringanDownline()
+    {
+        return $this->hasMany(JaringanMitra::class, 'sponsor_id');
+    }
+
+    public function jaringanUpline()
+    {
+        return $this->hasMany(JaringanMitra::class, 'user_id');
+    }
+
 }

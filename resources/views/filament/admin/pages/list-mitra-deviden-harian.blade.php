@@ -1,8 +1,7 @@
 <x-filament-panels::page>
     <div
         style="background: white; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); padding: 1.5rem;">
-        <h3 style="font-size: 1.125rem; font-weight: 600; color: #111827; margin-bottom: 1rem;">Daftar Mitra (Total
-            Member dengan Poin &ge; 20)</h3>
+        <h3 style="font-size: 1.125rem; font-weight: 600; color: #111827; margin-bottom: 1rem;">Daftar Mitra </h3>
         <div style="overflow-x: auto;">
             <table style="width: 100%; border-collapse: collapse;">
                 <thead style="background: #f9fafb;">
