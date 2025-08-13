@@ -14,11 +14,8 @@ class JaringanMitraSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->command->info('🌐 Seeding Jaringan Mitra...');
-
         // Hapus data jaringan mitra yang ada
         JaringanMitra::truncate();
-        $this->command->info('🗑️  Data jaringan mitra lama dihapus');
 
         // Ambil semua user mitra yang sudah ada
         $mitras = User::where('isStockis', false)
@@ -27,11 +24,8 @@ class JaringanMitraSeeder extends Seeder
             ->get();
 
         if ($mitras->isEmpty()) {
-            $this->command->warn('⚠️  Tidak ada mitra dengan sponsor yang ditemukan. Jalankan MitraSeeder terlebih dahulu.');
             return;
         }
-
-        $this->command->info("📊 Ditemukan {$mitras->count()} mitra dengan sponsor");
 
         $createdRelationships = 0;
 
@@ -39,10 +33,8 @@ class JaringanMitraSeeder extends Seeder
             $this->createJaringanMitraRelationships($mitra, $createdRelationships);
         }
 
-        $this->command->info("✅ Berhasil membuat {$createdRelationships} relasi jaringan mitra");
-
-        // Tampilkan statistik
-        $this->displayStatistics();
+        // Buat downline tambahan untuk mitra1 agar memiliki multiple members di beberapa level
+        $this->createAdditionalDownlineForMitra1();
     }
 
     /**
@@ -69,62 +61,116 @@ class JaringanMitraSeeder extends Seeder
                 // 2. Ambil semua upline dari sponsor langsung
                 $uplines = JaringanMitra::where('user_id', $sponsorId)->get();
 
-                // 3. Buat record untuk setiap upline dengan level bertambah +1
+                // 3. Buat record untuk setiap upline dengan level bertambah +1 (maksimal 9)
                 foreach ($uplines as $upline) {
-                    JaringanMitra::create([
-                        'user_id' => $mitra->id,
-                        'sponsor_id' => $upline->sponsor_id,
-                        'level' => $upline->level + 1,
-                    ]);
-                    $createdRelationships++;
+                    $newLevel = $upline->level + 1;
+                    if ($newLevel <= 9) { // Maksimal 9 level
+                        JaringanMitra::create([
+                            'user_id' => $mitra->id,
+                            'sponsor_id' => $upline->sponsor_id,
+                            'level' => $newLevel,
+                        ]);
+                        $createdRelationships++;
+                    }
                 }
             });
 
-            $this->command->line("   ✅ Mitra {$mitra->nama} (ID: {$mitra->id}) - Relasi dibuat");
-
         } catch (\Exception $e) {
-            $this->command->error("   ❌ Error membuat relasi untuk mitra {$mitra->nama}: " . $e->getMessage());
+            // Silent error handling
         }
     }
 
     /**
-     * Menampilkan statistik jaringan mitra
+     * Membuat downline tambahan untuk mitra1 agar memiliki multiple members di beberapa level
      */
-    private function displayStatistics(): void
+    private function createAdditionalDownlineForMitra1(): void
     {
-        $this->command->info("\n📊 Statistik Jaringan Mitra:");
-
-        // Total relasi
-        $totalRelationships = JaringanMitra::count();
-        $this->command->line("   Total relasi: {$totalRelationships}");
-
-        // Level maksimal
-        $maxLevel = JaringanMitra::max('level');
-        $this->command->line("   Level maksimal: {$maxLevel}");
-
-        // Distribusi per level
-        $levelDistribution = JaringanMitra::selectRaw('level, COUNT(*) as count')
-            ->groupBy('level')
-            ->orderBy('level')
-            ->get();
-
-        $this->command->line("   Distribusi per level:");
-        foreach ($levelDistribution as $level) {
-            $this->command->line("      Level {$level->level}: {$level->count} relasi");
+        $mitra1 = User::where('id', 1)->first();
+        if (!$mitra1) {
+            return;
         }
 
-        // Mitra dengan downline terbanyak
-        $topSponsors = JaringanMitra::selectRaw('sponsor_id, COUNT(*) as downline_count')
-            ->groupBy('sponsor_id')
-            ->orderByDesc('downline_count')
-            ->limit(5)
+        // Buat beberapa downline tambahan untuk mitra1 di level 2
+        $this->createDownlineAtLevel($mitra1->id, 2, 5);
+
+        // Buat beberapa downline tambahan untuk mitra1 di level 3
+        $this->createDownlineAtLevel($mitra1->id, 3, 4);
+
+        // Buat beberapa downline tambahan untuk mitra1 di level 4
+        $this->createDownlineAtLevel($mitra1->id, 4, 3);
+
+        // Buat beberapa downline tambahan untuk mitra1 di level 5
+        $this->createDownlineAtLevel($mitra1->id, 5, 3);
+
+        // Buat beberapa downline tambahan untuk mitra1 di level 6
+        $this->createDownlineAtLevel($mitra1->id, 6, 2);
+
+        // Buat beberapa downline tambahan untuk mitra1 di level 7
+        $this->createDownlineAtLevel($mitra1->id, 7, 2);
+
+        // Buat beberapa downline tambahan untuk mitra1 di level 8
+        $this->createDownlineAtLevel($mitra1->id, 8, 2);
+
+        // Buat beberapa downline tambahan untuk mitra1 di level 9
+        $this->createDownlineAtLevel($mitra1->id, 9, 1);
+    }
+
+    /**
+     * Membuat downline di level tertentu untuk sponsor tertentu
+     */
+    private function createDownlineAtLevel(int $sponsorId, int $level, int $count): void
+    {
+        // Ambil user yang sudah ada untuk dijadikan downline
+        $availableUsers = User::where('isStockis', false)
+            ->where('id', '!=', $sponsorId)
+            ->whereNotExists(function ($query) {
+                $query->select(DB::raw(1))
+                    ->from('jaringan_mitras')
+                    ->whereRaw('jaringan_mitras.user_id = users.id');
+            })
+            ->limit($count)
             ->get();
 
-        $this->command->line("   Top 5 Sponsor (berdasarkan jumlah downline):");
-        foreach ($topSponsors as $sponsor) {
-            $sponsorUser = User::find($sponsor->sponsor_id);
-            $sponsorName = $sponsorUser ? $sponsorUser->nama : "User ID {$sponsor->sponsor_id}";
-            $this->command->line("      {$sponsorName}: {$sponsor->downline_count} downline");
+        foreach ($availableUsers as $user) {
+            // Buat relasi langsung dengan sponsor
+            JaringanMitra::create([
+                'user_id' => $user->id,
+                'sponsor_id' => $sponsorId,
+                'level' => $level,
+            ]);
+
+            // Buat relasi untuk level-level di atasnya (jika ada)
+            if ($level < 9) {
+                $this->createUplineRelationships($user->id, $sponsorId, $level);
+            }
+        }
+    }
+
+    /**
+     * Membuat relasi upline untuk user yang baru ditambahkan
+     */
+    private function createUplineRelationships(int $userId, int $sponsorId, int $currentLevel): void
+    {
+        // Ambil semua upline dari sponsor
+        $uplines = JaringanMitra::where('user_id', $sponsorId)->get();
+
+        foreach ($uplines as $upline) {
+            $newLevel = $upline->level + $currentLevel;
+            if ($newLevel <= 9) { // Maksimal 9 level
+                // Cek apakah relasi sudah ada
+                $existingRelation = JaringanMitra::where('user_id', $userId)
+                    ->where('sponsor_id', $upline->sponsor_id)
+                    ->where('level', $newLevel)
+                    ->first();
+
+                if (!$existingRelation) {
+                    JaringanMitra::create([
+                        'user_id' => $userId,
+                        'sponsor_id' => $upline->sponsor_id,
+                        'level' => $newLevel,
+                    ]);
+                }
+            }
         }
     }
 }
