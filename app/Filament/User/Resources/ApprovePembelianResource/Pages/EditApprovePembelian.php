@@ -6,6 +6,7 @@ use App\Filament\User\Resources\ApprovePembelianResource;
 use Filament\Actions;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Str;
 
 class EditApprovePembelian extends EditRecord
 {
@@ -51,12 +52,21 @@ class EditApprovePembelian extends EditRecord
                 ->visible(fn() => $this->record->status_pembelian === 'proses')
                 ->action(function () {
                     // Always trigger the event when setting to selesai
-                    event(new \App\Events\PembelianDiterima($this->record));
+                    $pembelianDetails = \App\Models\PembelianDetail::where('pembelian_id', $this->record->id)->get();
+                    
+                    $pembelianDetails->each(function ($item) {
+                        $generatedRandomPin = Str::random(6);
+                        
+                        $item->pin = $generatedRandomPin;
+                        
+                        $item->save();
+                    });
+                    // event(new \App\Events\PembelianDiterima($this->record));
                     $this->record->status_pembelian = 'selesai';
                     $this->record->save();
                     Notification::make()
                         ->title('Berhasil')
-                        ->body('Status diubah menjadi selesai, stok ditambahkan ke pembeli dan dikurangi dari stockist.')
+                        ->body('Status diubah menjadi selesai, PIN telah dibuat untuk setiap detail pembelian.')
                         ->success()
                         ->send();
                     return redirect()->to($this->getResource()::getUrl('index'));

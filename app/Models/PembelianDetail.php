@@ -21,6 +21,8 @@ class PembelianDetail extends Model
         'user_id_get_bonus_sponsor',
         'group_user_id_get_bonus_generasi',
         'cashback',
+        'pin',
+        'is_accepted',
     ];
 
     public function pembelian()
@@ -34,6 +36,11 @@ class PembelianDetail extends Model
     }
 
     public function bonusSponsorUser()
+    {
+        return $this->belongsTo(User::class, 'user_id_get_bonus_sponsor');
+    }
+
+    public function user()
     {
         return $this->belongsTo(User::class, 'user_id_get_bonus_sponsor');
     }
