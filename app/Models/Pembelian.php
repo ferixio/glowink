@@ -51,4 +51,9 @@ class Pembelian extends Model
     {
         return $this->hasMany(PembelianDetail::class);
     }
+
+    public function pembelianBonuses()
+    {
+        return $this->hasMany(PembelianBonus::class);
+    }
 }

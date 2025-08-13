@@ -108,12 +108,12 @@
                             wire:click="changePage(3)" @if ($totalQty == 0) disabled @endif>
                             Repeat Order / Dropship
                         </button>
-
+                        {{-- 
                         <button
                             class="w-full mb-2 bg-orange-200 hover:bg-orange-300 text-gray-800 font-semibold py-2 px-4 rounded-md transition"
                             wire:click="changePage(4)" @if ($totalQty == 0) disabled @endif>
                             Repeat Order Bulanan
-                        </button>
+                        </button> --}}
                     @endif
                 </div>
             </div>
@@ -541,11 +541,11 @@
                         wire:click="changePage(3)" @if ($totalQty == 0) disabled @endif>
                         Repeat Order / Dropship
                     </button>
-                    <button
+                    {{-- <button
                         class="w-full  bg-orange-200 hover:bg-orange-300 text-gray-800 font-semibold py-1.5 px-4 rounded-md transition"
                         wire:click="changePage(4)" @if ($totalQty == 0) disabled @endif>
                         Repeat Order Bulanan
-                    </button>
+                    </button> --}}
                 @endif
             </div>
         </div>

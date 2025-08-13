@@ -4,25 +4,58 @@
         @if ($pembelian)
 
             @if (!$isApprovePage)
-                <div class="bg-green-100 border border-green-400 text-green-800 px-6 py-4 rounded mb-6">
-                    <h2 class="font-bold text-lg">Proses Pembelian telah masuk ke system</h2>
-                    <p class="text-sm">Silahkan melakukan proses pembayaran ke rekening di bawah ini dan upload bukti
-                        transfer anda agar segera diproses oleh {{ $company ? 'Admin' : 'Stockis' }}</p>
-                    <div class="mt-2 font-semibold">
-                        @if ($company)
-                            {{ $company->bank_name }} <br>
-                            a.n. {{ $company->bank_atas_nama }} <br>
-                        @else
-                            {{ $stockis->nama }} <br>
-                            a.n. {{ $stockis->nama_rekening }} <br>
-                        @endif
-
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6 ">
+                    {{-- Section Kiri - Proses Pembelian --}}
+                    <div class="bg-green-100 border border-green-400 text-green-800 px-6 py-4 rounded">
+                        <h2 class="font-bold text-lg">Proses Pembelian telah masuk ke system</h2>
+                        <p class="text-sm">Silahkan melakukan proses pembayaran ke rekening di bawah ini dan upload bukti
+                            transfer anda agar segera diproses oleh {{ $company ? 'Admin' : 'Stockis' }}</p>
+                        <div class="mt-2 font-semibold">
+                            @if ($company)
+                                {{ $company->bank_name }} <br>
+                                a.n. {{ $company->bank_atas_nama }} <br>
+                            @else
+                                {{ $stockis->nama }} <br>
+                                a.n. {{ $stockis->nama_rekening }} <br>
+                            @endif
+                        </div>
                     </div>
+
+                    {{-- Section Kanan - Informasi User Baru (untuk aktivasi member) --}}
+                    @if ($pembelian->kategori_pembelian === 'aktivasi member' && isset($userBaru))
+                        <div class="bg-blue-100 border border-blue-400 text-blue-800 px-6 py-4 rounded">
+                            <h2 class="font-bold text-lg">🎉 Aktivasi Member Berhasil!</h2>
+                            <p class="text-sm mb-3">User baru telah berhasil dibuat dengan detail sebagai berikut:</p>
+                            <div class="grid grid-cols-1 gap-4 text-sm">
+                                <div class="text-3xl font-semibold">
+                                    <div class="flex items-center gap-2 ">
+                                        <p><span class="font-normal">ID Mitra : </span>
+                                            {{ $userBaru->id_mitra }}</p>
+                                        <button onclick="copyToClipboard('{{ $userBaru->id_mitra }}', this)"
+                                            class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-sm transition-colors duration-200"
+                                            title="Copy ID Mitra">
+                                            📋 Copy
+                                        </button>
+                                    </div>
+                                    <p><span class="font-normal">Password : </span> password</p>
+                                </div>
+                                {{-- <div>
+                                    <p><span class="font-semibold">Nama:</span> {{ $userBaru->nama }}</p>
+                                    <p><span class="font-semibold">Alamat:</span> {{ $userBaru->alamat }}</p>
+                                    <p><span class="font-semibold">No. Telepon:</span> {{ $userBaru->no_telp }}</p>
+                                    <p><span class="font-semibold">Bank:</span> {{ $userBaru->bank }}</p>
+                                    <p><span class="font-semibold">No. Rekening:</span> {{ $userBaru->no_rek }}</p>
+                                    <p><span class="font-semibold">Nama Rekening:</span> {{ $userBaru->nama_rekening }}
+                                    </p>
+                                </div> --}}
+                            </div>
+                        </div>
+                    @endif
                 </div>
             @endif
 
-            {{-- Informasi User Baru (untuk aktivasi member) --}}
-            @if ($pembelian->kategori_pembelian === 'aktivasi member' && isset($userBaru))
+            {{-- Informasi User Baru (untuk aktivasi member) - Fallback jika tidak ada section kiri --}}
+            @if ($pembelian->kategori_pembelian === 'aktivasi member' && isset($userBaru) && $isApprovePage)
                 <div class="bg-blue-100 border border-blue-400 text-blue-800 px-6 py-4 rounded mb-6">
                     <h2 class="font-bold text-lg">🎉 Aktivasi Member Berhasil!</h2>
                     <p class="text-sm mb-3">User baru telah berhasil dibuat dengan detail sebagai berikut:</p>
@@ -39,20 +72,15 @@
                             </div>
                             <p><span class="font-normal">Password : </span> password</p>
                         </div>
-                        <div>
+                        {{-- <div>
                             <p><span class="font-semibold">Nama:</span> {{ $userBaru->nama }}</p>
                             <p><span class="font-semibold">Alamat:</span> {{ $userBaru->alamat }}</p>
                             <p><span class="font-semibold">No. Telepon:</span> {{ $userBaru->no_telp }}</p>
                             <p><span class="font-semibold">Bank:</span> {{ $userBaru->bank }}</p>
                             <p><span class="font-semibold">No. Rekening:</span> {{ $userBaru->no_rek }}</p>
                             <p><span class="font-semibold">Nama Rekening:</span> {{ $userBaru->nama_rekening }}</p>
-                        </div>
+                        </div> --}}
                     </div>
-
-                    {{-- <p class="text-xs mt-3 text-blue-600">
-                        <strong>Catatan:</strong> User baru ini telah terdaftar sebagai member dengan sponsor:
-                        {{ auth()->user()->nama }}
-                    </p> --}}
                 </div>
             @endif
 
@@ -152,6 +180,61 @@
         @else
             <div class="text-center py-8">
                 <p class="text-gray-500">Pembelian tidak ditemukan</p>
+            </div>
+        @endif
+
+        {{-- Section Pembelian Bonuses --}}
+        @if ($pembelian && isset($pembelianBonuses) && $pembelianBonuses->count() > 0)
+            <div class="mt-8">
+                <h3 class="text-lg font-semibold mb-4 text-gray-800">BONUS PEMBELIAN</h3>
+                <div class="space-y-3">
+                    @foreach ($pembelianBonuses as $bonus)
+                        <div
+                            class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                        <span class="text-blue-600 font-semibold text-sm">#{{ $bonus->id }}</span>
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-sm font-medium text-gray-900">User ID:</span>
+                                            <span class="text-sm text-gray-600">{{ $bonus->user_id }}</span>
+                                        </div>
+                                        @if ($bonus->keterangan)
+                                            <div class="flex items-center space-x-2 mt-1">
+                                                <span class="text-sm font-medium text-gray-900">Keterangan:</span>
+                                                <span class="text-sm text-gray-600">{{ $bonus->keterangan }}</span>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-xs text-gray-500">
+                                        {{ $bonus->created_at ? \Carbon\Carbon::parse($bonus->created_at)->format('d/m/Y') : '-' }}
+                                    </div>
+                                    <div class="text-xs text-gray-400">
+                                        {{ $bonus->created_at ? \Carbon\Carbon::parse($bonus->created_at)->format('H:i') : '-' }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @elseif ($pembelian)
+            <div class="mt-8">
+                <h3 class="text-lg font-semibold mb-4 text-gray-800">BONUS PEMBELIAN</h3>
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
+                    <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <p class="text-gray-500">Belum ada data bonus untuk pembelian ini</p>
+                    <p class="text-sm text-gray-400 mt-1">Bonus akan muncul setelah transaksi selesai</p>
+                </div>
             </div>
         @endif
     </div>

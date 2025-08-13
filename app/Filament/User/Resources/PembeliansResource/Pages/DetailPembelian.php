@@ -25,12 +25,18 @@ class DetailPembelian extends ViewRecord
 
     protected function getViewData(): array
     {
+        // Fetch pembelian bonuses based on pembelian_id
+        $pembelianBonuses = \App\Models\PembelianBonus::where('pembelian_id', $this->record->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         return [
             'pembelian' => $this->record,
             'stockis' => $this->record->seller,
             'isApprovePage' => false,
             'company' => $this->company,
             'userBaru' => $this->record->user, // User yang dibuat dari aktivasi member
+            'pembelianBonuses' => $pembelianBonuses, // Add pembelian bonuses data
         ];
     }
 
