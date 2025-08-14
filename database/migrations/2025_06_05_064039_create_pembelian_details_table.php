@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('nama_produk');
             $table->string('paket');
             $table->string('pin')->nullable();
+            $table->boolean('is_accepted')->default(false);
             $table->integer('jml_beli');
             $table->decimal('harga_beli', 16, 2);
             $table->decimal('cashback', 16, 2)->default(10000);
