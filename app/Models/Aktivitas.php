@@ -15,6 +15,7 @@ class Aktivitas extends Model
         'keterangan',
         'status',
         'nominal',
+        'tipe',
     ];
   
 

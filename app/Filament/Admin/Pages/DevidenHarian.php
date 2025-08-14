@@ -230,6 +230,16 @@ class DevidenHarian extends Page implements HasForms
                 'kategori_bonus' => 'deviden harian',
                 'status_qr' => 'selesai',
             ]);
+
+            \App\Models\Aktivitas::create([
+                'user_id' => $user->id,
+                'judul' => 'Deviden Bulanan',
+                'keterangan' => 'Menerima deviden harian ',
+                'status' => 'success',
+                'tipe' => 'plus',
+                'nominal' => $devidenHarian->deviden_diterima,
+            ]);
+
         }
 
         Notification::make()

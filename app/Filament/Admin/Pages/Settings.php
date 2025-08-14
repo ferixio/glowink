@@ -105,6 +105,8 @@ protected static ?int $navigationSort = 4;
         \App\Models\PembelianDetail::truncate();
         \App\Models\Pembelian::truncate();
         \App\Models\Penghasilan::truncate();
+        \App\Models\Aktivitas::truncate();
+        \App\Models\JaringanMitra::truncate();
         \App\Models\Withdraw::truncate();
         \App\Models\UserHistoryStatusMember::truncate();
         \App\Models\Setting::truncate();

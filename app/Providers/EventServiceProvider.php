@@ -6,12 +6,14 @@ use App\Events\BonusCashback;
 use App\Events\BonusGenerasi;
 use App\Events\BonusReward;
 use App\Events\PembelianDetailAktivasi;
+use App\Events\SpillOverBonusBulanan;
 use App\Events\UserCreated;
 use App\Listeners\BonusCashbackListener;
 use App\Listeners\BonusGenerasiListener;
 use App\Listeners\BonusRewardListener;
 use App\Listeners\CreateJaringanMitra;
 use App\Listeners\PembelianDetailAktivasiListener;
+use App\Listeners\SpillOverBonusBulananListener;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -51,6 +53,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         PembelianDetailAktivasi::class => [
             PembelianDetailAktivasiListener::class,
+        ],
+        SpillOverBonusBulanan::class => [
+            SpillOverBonusBulananListener::class,
         ],
     ];
 

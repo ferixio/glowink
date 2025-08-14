@@ -2,6 +2,7 @@
 
 namespace App\Filament\User\Resources\ApprovePembelianResource\Pages;
 
+use App\Events\SpillOverBonusBulanan;
 use App\Filament\User\Resources\ApprovePembelianResource;
 use Filament\Actions;
 use Filament\Notifications\Notification;
@@ -51,17 +52,22 @@ class EditApprovePembelian extends EditRecord
                 ->color('success')
                 ->visible(fn() => $this->record->status_pembelian === 'proses')
                 ->action(function () {
-                    // Always trigger the event when setting to selesai
                     $pembelianDetails = \App\Models\PembelianDetail::where('pembelian_id', $this->record->id)->get();
-                    
+
                     $pembelianDetails->each(function ($item) {
                         $generatedRandomPin = Str::random(6);
-                        
+
                         $item->pin = $generatedRandomPin;
-                        
+
                         $item->save();
                     });
-                    // event(new \App\Events\PembelianDiterima($this->record));
+                    event(new \App\Events\PembelianDiterima($this->record));
+
+                    // Dispatch event SpillOverBonusBulanan untuk kategori tertentu
+                    if ($this->record->kategori_pembelian == 'repeat order bulanan') {
+                        event(new SpillOverBonusBulanan($this->record->user_id, $this->record->id, $this->record->kategori_pembelian, $this->record));
+                    }
+
                     $this->record->status_pembelian = 'selesai';
                     $this->record->save();
                     Notification::make()
