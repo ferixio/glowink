@@ -24,12 +24,12 @@
             </div>
             <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm">
                 <div class="text-sm text-gray-500">Total Penghasilan</div>
-                <div class="mt-1 text-lg font-semibold text-blue-600">Rp
-                    {{ number_format($user->saldo_penghasilan, 0, ',', '.') }}</div>
+                <div class="mt-1 text-lg font-semibold text-green-600">Rp.
+                    {{ number_format($user->saldo_withdraw, 0, ',', '.') }}</div>
             </div>
             <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm">
                 <div class="text-sm text-gray-500">Pending Income</div>
-                <div class="mt-1 text-lg font-semibold text-gray-700">-</div>
+                <div class="mt-1 text-lg font-semibold text-blue-600">Rp. {{ number_format($user->saldo_penghasilan, 0, ',', '.') }}</div>
             </div>
             <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm">
                 <div class="text-sm text-gray-500">Point</div>

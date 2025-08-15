@@ -20,24 +20,34 @@ class WithdrawPage extends Component
 
     public function updatedNominalWithdraw($value)
     {
-        // Ambil hanya angka dari input (misal: 'Rp 100.000' jadi 100000)
-        $this->nominal_withdraw = preg_replace('/[^\d]/', '', $value);
+        // Remove all non-numeric characters
+        $cleanValue = preg_replace('/[^\d]/', '', $value);
+
+        // Convert to integer
+        $numericValue = (int) $cleanValue;
+
+        // Update the property with clean numeric value
+        $this->nominal_withdraw = $numericValue;
     }
+
     public $user;
 
     public function mount()
     {
         $this->user = Auth::user();
-
     }
 
     public function createWithdraw()
     {
-        // Pastikan nominal_withdraw hanya angka
-        $nominal = preg_replace('/[^\d]/', '', $this->nominal_withdraw);
+        // Clean the nominal_withdraw value
+        $nominal = (int) preg_replace('/[^\d.]/', '', $this->nominal_withdraw);
         $this->nominal_withdraw = $nominal;
+
         $this->validate([
-            'nominal_withdraw' => 'required|numeric|min:10000|max:' . $this->user->saldo_penghasilan,
+            'nominal_withdraw' => 'required|numeric|min:60000|max:' . $this->user->saldo_penghasilan,
+        ], [
+            'nominal_withdraw.min' => 'Minimal withdraw adalah Rp 60.000',
+            'nominal_withdraw.max' => 'Nominal withdraw tidak boleh melebihi saldo penghasilan Anda',
         ]);
 
         // Check if user has sufficient balance
@@ -61,22 +71,23 @@ class WithdrawPage extends Component
         }
 
         try {
-            // Create withdraw record using original table structure
+            // Create withdraw record with proper decimal handling
             Withdraw::create([
                 'user_id' => $this->user->id,
                 'tgl_withdraw' => now()->toDateString(),
-                'nominal' => $this->nominal_withdraw,
+                'nominal' => $this->nominal_withdraw, // This will be stored as decimal(16,2)
                 'status' => 'pending',
             ]);
 
             // Update user's saldo_penghasilan dan saldo_withdraw
-            $this->user->update([
-                'saldo_penghasilan' => $this->user->saldo_penghasilan - $this->nominal_withdraw,
-                'saldo_withdraw' => $this->user->saldo_withdraw + $this->nominal_withdraw,
-            ]);
+            // $this->user->update([
+            //     'saldo_penghasilan' => $this->user->saldo_penghasilan - $this->nominal_withdraw,
+            //     'saldo_withdraw' => $this->user->saldo_withdraw + $this->nominal_withdraw,
+            // ]);
 
             // Reset form
             $this->nominal_withdraw = '';
+            $this->showWithdrawForm = false;
 
             Notification::make()
                 ->title('Withdraw berhasil dibuat')

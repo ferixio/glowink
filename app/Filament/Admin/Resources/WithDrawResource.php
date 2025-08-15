@@ -3,15 +3,11 @@
 namespace App\Filament\Admin\Resources;
 
 use App\Filament\Admin\Resources\WithDrawResource\Pages;
-use App\Filament\Admin\Resources\WithDrawResource\RelationManagers;
 use App\Models\WithDraw;
-use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class WithDrawResource extends Resource
 {
@@ -47,7 +43,7 @@ class WithDrawResource extends Resource
                 Tables\Columns\TextColumn::make('tgl_withdraw')
                     ->sortable()
                     ->searchable(),
-             
+
             ])
             ->filters([
                 //
@@ -67,6 +63,11 @@ class WithDrawResource extends Resource
         return [
             //
         ];
+    }
+
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        return parent::getEloquentQuery()->orderByDesc('created_at');
     }
 
     public static function getPages(): array

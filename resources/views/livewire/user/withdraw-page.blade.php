@@ -20,32 +20,76 @@
                     </label>
                     <input type="text" id="nominal_withdraw" wire:model.lazy="nominal_withdraw"
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Minimal Rp 60.000" min="60000" max="{{ $user->saldo_penghasilan }}"
-                        oninput="formatRupiah(this); updateWithdrawInfo();">
+                        placeholder="Minimal Rp 60.000" oninput="formatRupiah(this); updateWithdrawInfo();"
+                        onblur="handleBlur(this);" onfocus="handleFocus(this);">
                     <script>
                         function formatRupiah(input) {
+                            // Remove all non-numeric characters
                             let value = input.value.replace(/[^\d]/g, '');
+
                             if (!value) {
                                 input.value = '';
                                 return;
                             }
-                            let formatted = new Intl.NumberFormat('id-ID').format(value);
+
+                            // Convert to number and format
+                            let numericValue = parseInt(value);
+                            let formatted = new Intl.NumberFormat('id-ID').format(numericValue);
                             input.value = 'Rp ' + formatted;
+                        }
+
+                        function handleFocus(input) {
+                            // When input gets focus, show raw numeric value for editing
+                            let value = input.value.replace(/[^\d]/g, '');
+                            if (value) {
+                                input.value = value;
+                            }
+                        }
+
+                        function handleBlur(input) {
+                            // When input loses focus, format as Rupiah and update Livewire
+                            let value = input.value.replace(/[^\d]/g, '');
+                            if (value) {
+                                let numericValue = parseInt(value);
+                                // Format as Rupiah for display
+                                let formatted = new Intl.NumberFormat('id-ID').format(numericValue);
+                                input.value = 'Rp ' + formatted;
+                                // Update Livewire with clean numeric value
+                                @this.set('nominal_withdraw', numericValue);
+                            }
                         }
 
                         function updateWithdrawInfo() {
                             let input = document.getElementById('nominal_withdraw');
                             let value = input.value.replace(/[^\d]/g, '');
                             let nominal = parseInt(value) || 0;
-                            let admFee = nominal * 0.1;
-                            let total = nominal * 0.9;
+
+                            // Calculate admin fee (10%)
+                            let admFee = Math.floor(nominal * 0.1);
+                            let total = nominal - admFee;
+
+                            // Update display
                             document.getElementById('adm_fee').textContent = nominal >= 60000 ? 'Rp ' + new Intl.NumberFormat('id-ID')
                                 .format(admFee) : '-';
                             document.getElementById('total_withdraw').textContent = nominal >= 60000 ? 'Rp ' + new Intl.NumberFormat(
                                 'id-ID').format(total) : '-';
                         }
+
+                        // Initialize on page load
                         document.addEventListener('DOMContentLoaded', function() {
                             updateWithdrawInfo();
+                        });
+
+                        // Listen for Livewire updates
+                        document.addEventListener('livewire:load', function() {
+                            updateWithdrawInfo();
+                        });
+
+                        // Listen for Livewire model updates
+                        document.addEventListener('livewire:update', function() {
+                            setTimeout(function() {
+                                updateWithdrawInfo();
+                            }, 100);
                         });
                     </script>
                     <div class="mt-2 text-sm text-gray-600">
