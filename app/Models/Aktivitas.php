@@ -17,6 +17,7 @@ class Aktivitas extends Model
         'nominal',
         'tipe',
     ];
-  
 
+    // Pastikan timestamps aktif
+    public $timestamps = true;
 }

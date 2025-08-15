@@ -25,7 +25,7 @@ class BonusSponsorListener
            \App\Models\Aktivitas::create([
                 'user_id' => $sponsor->id,
                 'judul' => 'Bonus Sponsor Diterima',
-                'keterangan' => "Menerima bonus sponsor dari member {$user->nama}",
+                'keterangan' => "Menerima bonus sponsor dari member #{$user->id_mitra}",
                 'tipe' => 'plus',
                 'status' => 'Berhasil',
                 'nominal' => $nominalBonus,
@@ -47,7 +47,7 @@ class BonusSponsorListener
                         \App\Models\Aktivitas::create([
                             'user_id' => $sponsor->id,
                             'judul' => 'Bonus Sponsor Quick Reward',
-                            'keterangan' => "Menerima bonus sponsor QR dari {$user->nama}",
+                            'keterangan' => "Menerima bonus sponsor QR dari {$user->id_mitra}",
                             'tipe' => 'plus',
                             'status' => 'Berhasil',
                             'nominal' => 20000,

@@ -6,7 +6,7 @@ use Filament\Pages\Page;
 
 class Jaringan extends Page
 {
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected static ?string $navigationIcon = 'heroicon-o-globe-alt';
 
     protected static string $view = 'filament.user.pages.jaringan';
 }

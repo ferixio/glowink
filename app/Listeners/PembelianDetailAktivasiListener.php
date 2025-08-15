@@ -31,7 +31,7 @@ class PembelianDetailAktivasiListener implements ShouldQueue
         if ($pembelianDetail->is_accepted) {
             // Notifikasi bahwa pembelian detail sudah accepted
             \Filament\Notifications\Notification::make()
-                ->title('PIN sudah diterima sebelumnya')
+                ->title('PIN yang sudah diterima sebelumnya')
                 ->body('PIN dengan ID ' . $pembelianDetail->id . ' sudah diterima dan tidak dapat diproses lagi.')
                 ->warning()
                 ->send();

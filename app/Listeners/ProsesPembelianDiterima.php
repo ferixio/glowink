@@ -42,7 +42,7 @@ class ProsesPembelianDiterima
                                 \App\Models\Aktivitas::create([
                                     'user_id' => $sponsor->id,
                                     'judul' => 'Bonus Sponsor Quick Reward',
-                                    'keterangan' => "Menerima bonus sponsor QR dari {$user->nama}",
+                                    'keterangan' => "Menerima bonus sponsor QR dari #{$user->id_mitra}",
                                     'tipe' => null,
                                     'status' => 'Berhasil',
                                     'nominal' => 20000,
@@ -103,7 +103,7 @@ class ProsesPembelianDiterima
                 \App\Models\Aktivitas::create([
                     'user_id' => $seller->id,
                     'judul' => 'Penjualan Produk',
-                    'keterangan' => "Menerima pemasukan dari penjualan produk {$pembelian->kategori_pembelian} oleh {$user->nama}",
+                    'keterangan' => "Menerima pemasukan dari penjualan produk {$pembelian->kategori_pembelian} oleh #{$user->id_mitra}",
                     'tipe' => 'plus',
                     'status' => 'Berhasil',
                     'nominal' => $pembelian->total_beli,

@@ -124,12 +124,14 @@
                         <td style="padding: 10px;">
                             {{ $item->user->tgl_daftar ? $item->user->tgl_daftar->format('d/m/Y') : 'N/A' }}</td>
                         <td style="padding: 10px;">
-                            @if ($item->user->isStockis ?? false)
+                            @if ($item->user->status_qr ?? false)
                                 <span
-                                    style="padding: 4px 8px; border-radius: 12px; font-size: 12px; background-color: #fee2e2; color: #b91c1c;">Stockis</span>
+                                    style="padding: 4px 8px; border-radius: 12px; font-size: 12px; background-color: #dcfce7; color: #166534;">QR
+                                    Aktif</span>
                             @else
                                 <span
-                                    style="padding: 4px 8px; border-radius: 12px; font-size: 12px; background-color: #dcfce7; color: #166534;">Mitra</span>
+                                    style="padding: 4px 8px; border-radius: 12px; font-size: 12px; background-color: #fee2e2 ; color: #b91c1c;">QR
+                                    non Aktif</span>
                             @endif
                         </td>
                     </tr>

@@ -5,6 +5,7 @@ namespace App\Listeners;
 use App\Events\SpillOverBonusBulanan;
 use App\Models\Aktivitas;
 use App\Models\JaringanMitra;
+use App\Models\PembelianBonus;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
@@ -48,7 +49,7 @@ class SpillOverBonusBulananListener
 
             // Cari semua user di level target
             $usersAtTargetLevel = JaringanMitra::where('level', $targetLevel)
-                ->with('user:id,nama,email,no_telp')
+                ->with('user:id')
                 ->get();
 
             if ($usersAtTargetLevel->isEmpty()) {
@@ -75,46 +76,123 @@ class SpillOverBonusBulananListener
         try {
             DB::beginTransaction();
 
+            $user = User::find($selectedUserId);
+
             // Ambil semua upline dari jaringan mitra (maksimal 9 level)
             $uplines = JaringanMitra::where('user_id', $selectedUserId)
                 ->orderBy('level')
                 ->limit(9)
                 ->get();
 
+            $activitiesToCreate = [];
+            $pembelianBonusesToCreate = [];
+            $sponsorsToUpdate = [];
+
             foreach ($uplines as $upline) {
                 $sponsor = User::find($upline->sponsor_id);
-                if (!$sponsor || !$sponsor->status_qr) {
+                if (!$sponsor) {
                     continue;
                 }
 
+                $totalPoints = 0;
+                $totalBonus = 0;
+                $hasPaket2 = false;
+
                 foreach ($pembelian->details as $detail) {
                     if ($detail->paket == 2) {
-                        $sponsor->saldo_penghasilan += 1500;
-                        $sponsor->poin_reward += 1;
-                        $sponsor->save();
+                        $hasPaket2 = true;
+                        $statusQr = $sponsor->status_qr;
 
-                        event(new \App\Events\ChangeLevelUser($sponsor, $sponsor->poin_reward));
-
-                        Aktivitas::create([
-                            'user_id' => $sponsor->id,
-                            'judul' => 'Poin',
-                            'keterangan' => "",
-                            'tipe' => 'plus',
-                            'status' => '',
-                            'nominal' => 1,
-                        ]);
-                        Aktivitas::create([
-                            'user_id' => $sponsor->id,
-                            'judul' => 'Bonus Generasi',
-                            'keterangan' => "",
-                            'tipe' => 'plus',
-                            'status' => '',
-                            'nominal' => 1500,
-                        ]);
-
-                        break;
+                        if ($statusQr) {
+                            $totalPoints += 1;
+                            $totalBonus += 1500;
+                        } else {
+                            $totalBonus += 300;
+                        }
                     }
                 }
+
+                // Jika ada paket 2, update sponsor dan siapkan data untuk aktivitas
+                if ($hasPaket2) {
+                    $statusQr = $sponsor->status_qr;
+
+                    // Update sponsor data
+                    if ($statusQr) {
+                        $sponsor->poin_reward += $totalPoints;
+                    }
+
+                    $nominalBonus = $statusQr ? 1500 : 300;
+                    $sponsor->saldo_penghasilan += $totalBonus;
+
+                    // Simpan sponsor untuk update batch
+                    $sponsorsToUpdate[] = $sponsor;
+
+                    // Kumpulkan aktivitas untuk dibuat nanti
+                    if ($statusQr && $totalPoints > 0) {
+                        $activitiesToCreate[] = [
+                            'user_id' => $sponsor->id,
+                            'judul' => 'Poin (spillover)',
+                            'keterangan' => "Spillover dari mitra #{$user->id_mitra}",
+                            'tipe' => 'plus',
+                            'status' => '',
+                            'nominal' => $totalPoints,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ];
+                    }
+
+                    $activitiesToCreate[] = [
+                        'user_id' => $sponsor->id,
+                        'judul' => 'Bonus Generasi (spillover)',
+                        'keterangan' => "Spillover dari mitra #{$user->id_mitra}",
+                        'tipe' => 'plus',
+                        'status' => '',
+                        'nominal' => $totalBonus,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+
+                    // Kumpulkan PembelianBonus untuk dibuat nanti
+                    $idMitra = $user->id_mitra ?? 'Unknown';
+                    $point = $statusQr ? $totalPoints : 0;
+                    $nominalPembelianBonus = $statusQr ? 1500 : 300;
+
+                    if ($statusQr) {
+                        $pembelianBonusesToCreate[] = [
+                            'pembelian_id' => $pembelian->id,
+                            'user_id' => $sponsor->id,
+                            'keterangan' => "ID {$idMitra} mendapatkan {$point} point dan BONUS GENERASI {$nominalPembelianBonus}",
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ];
+                    } else {
+                        $pembelianBonusesToCreate[] = [
+                            'pembelian_id' => $pembelian->id,
+                            'user_id' => $sponsor->id,
+                            'keterangan' => "ID {$idMitra} kehilangan peluang {$point} point dan BONUS GENERASI {$nominalPembelianBonus}",
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ];
+                    }
+                }
+            }
+
+// Update semua sponsor sekaligus
+            foreach ($sponsorsToUpdate as $sponsor) {
+                $sponsor->save();
+                if ($sponsor->poin_reward > 0) {
+                    event(new \App\Events\ChangeLevelUser($sponsor, $sponsor->poin_reward));
+                }
+            }
+
+// Buat semua aktivitas sekaligus
+            if (!empty($activitiesToCreate)) {
+                Aktivitas::insert($activitiesToCreate);
+            }
+
+// Buat semua PembelianBonus sekaligus
+            if (!empty($pembelianBonusesToCreate)) {
+                PembelianBonus::insert($pembelianBonusesToCreate);
             }
 
             DB::commit();
