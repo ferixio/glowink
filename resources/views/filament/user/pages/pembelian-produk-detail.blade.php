@@ -193,18 +193,12 @@
                             class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center space-x-4">
-                                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                                        <span class="text-blue-600 font-semibold text-sm">#{{ $bonus->id }}</span>
-                                    </div>
+
                                     <div>
-                                        <div class="flex items-center space-x-2">
-                                            <span class="text-sm font-medium text-gray-900">User ID:</span>
-                                            <span class="text-sm text-gray-600">{{ $bonus->user_id }}</span>
-                                        </div>
+
                                         @if ($bonus->keterangan)
                                             <div class="flex items-center space-x-2 mt-1">
-                                                <span class="text-sm font-medium text-gray-900">Keterangan:</span>
-                                                <span class="text-sm text-gray-600">{{ $bonus->keterangan }}</span>
+                                                <span class=" text-gray-600">{{ $bonus->keterangan }}</span>
                                             </div>
                                         @endif
                                     </div>
