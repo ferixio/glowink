@@ -30,7 +30,7 @@ class BonusRewardListener
             }
 
             if ($dataJumlahPoinYangDidapat > 0) {
-                $aktivitas = Aktivitas::create([
+                Aktivitas::create([
                     'user_id' => $user->id,
                     'judul' => 'Poin',
                     'keterangan' => "",

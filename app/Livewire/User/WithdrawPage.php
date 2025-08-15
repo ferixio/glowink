@@ -3,7 +3,6 @@
 namespace App\Livewire\User;
 
 use App\Models\Penghasilan;
-use App\Models\Setting;
 use App\Models\Withdraw;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
@@ -25,21 +24,11 @@ class WithdrawPage extends Component
         $this->nominal_withdraw = preg_replace('/[^\d]/', '', $value);
     }
     public $user;
-    public $dataAdmin;
 
     public function mount()
     {
         $this->user = Auth::user();
-        $this->dataAdmin = Setting::first();
 
-        // Jika tidak ada data admin, buat default values
-        if (!$this->dataAdmin) {
-            $this->dataAdmin = (object) [
-                'bank_name' => null,
-                'no_rek' => null,
-                'bank_atas_nama' => null,
-            ];
-        }
     }
 
     public function createWithdraw()
@@ -106,17 +95,42 @@ class WithdrawPage extends Component
 
     public function render()
     {
-        $penghasilanList = Penghasilan::where('user_id', Auth::id())
+        $userId = Auth::id();
+
+        // Limit list data and select only needed columns
+        $penghasilanList = Penghasilan::where('user_id', $userId)
             ->orderBy('tgl_dapat_bonus', 'desc')
+            ->select(['tgl_dapat_bonus', 'keterangan', 'kategori_bonus', 'nominal_bonus'])
+            ->limit(50)
             ->get();
 
-        $withdrawHistory = Withdraw::where('user_id', Auth::id())
+        $withdrawHistory = Withdraw::where('user_id', $userId)
             ->orderBy('created_at', 'desc')
+            ->select(['tgl_withdraw', 'nominal', 'status'])
+            ->limit(50)
             ->get();
+
+        // Aggregated totals without loading all rows into memory
+        $totalsByCategory = Penghasilan::where('user_id', $userId)
+            ->whereIn('kategori_bonus', ['Bonus Sponsor', 'Bonus Generasi', 'deviden harian', 'deviden bulanan'])
+            ->selectRaw('kategori_bonus, SUM(nominal_bonus) as total')
+            ->groupBy('kategori_bonus')
+            ->pluck('total', 'kategori_bonus');
+
+        $totalSponsor = (float) ($totalsByCategory['Bonus Sponsor'] ?? 0);
+        $totalGenerasi = (float) ($totalsByCategory['Bonus Generasi'] ?? 0);
+        $totalDividen = (float) (($totalsByCategory['deviden harian'] ?? 0) + ($totalsByCategory['deviden bulanan'] ?? 0));
+        $totalPenghasilan = (float) Penghasilan::where('user_id', $userId)->sum('nominal_bonus');
+        $totalWithdraw = (float) Withdraw::where('user_id', $userId)->sum('nominal');
 
         return view('livewire.user.withdraw-page', [
             'penghasilanList' => $penghasilanList,
             'withdrawHistory' => $withdrawHistory,
+            'totalSponsor' => $totalSponsor,
+            'totalDividen' => $totalDividen,
+            'totalGenerasi' => $totalGenerasi,
+            'totalPenghasilan' => $totalPenghasilan,
+            'totalWithdraw' => $totalWithdraw,
         ]);
     }
 }

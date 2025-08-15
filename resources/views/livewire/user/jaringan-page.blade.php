@@ -105,10 +105,7 @@
                         onmouseout="this.style.backgroundColor='#fff'">
                         <td style="padding: 10px;">{{ $jaringanMitra->firstItem() + $index }}</td>
                         <td style="padding: 10px; display: flex; align-items: center; gap: 8px;">
-                            <div
-                                style="width: 40px; height: 40px; border-radius: 50%; background-color: #dbeafe; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #1d4ed8;">
-                                {{ strtoupper(substr($item->user->nama ?? 'N/A', 0, 2)) }}
-                            </div>
+                      
                             <div>
                                 <div style="font-weight: 500;">{{ $item->user->nama ?? 'N/A' }}</div>
                                 <div style="font-size: 12px; color: #6b7280;">ID: {{ $item->user->id ?? 'N/A' }}</div>

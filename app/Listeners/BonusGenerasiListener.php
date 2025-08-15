@@ -35,7 +35,6 @@ class BonusGenerasiListener
         // Temporary variables untuk mengumpulkan data
         $activitiesToCreate = [];
         $pembelianBonusesToCreate = [];
-        $penghasilansToCreate = [];
         $sponsorsToUpdate = [];
 
         foreach ($uplines as $upline) {
@@ -46,8 +45,8 @@ class BonusGenerasiListener
 
             $statusQr = $sponsor->status_qr;
             $nominalBonus = $statusQr ? 1500 : 300;
-            $point = 3; 
-            
+            $point = 3;
+
             Aktivitas::create([
                 'user_id' => $sponsor->id,
                 'judul' => 'Poin',
@@ -63,20 +62,18 @@ class BonusGenerasiListener
             $sponsor->saldo_penghasilan += $nominalBonus;
             $sponsor->poin_reward += $point;
 
-            // Simpan sponsor untuk update batch
-            $sponsorsToUpdate[] = $sponsor;
-
-            // Kumpulkan Penghasilan untuk dibuat nanti
-            $penghasilansToCreate[] = [
+            // Buat Penghasilan record satu persatu
+            \App\Models\Penghasilan::create([
                 'user_id' => $sponsor->id,
                 'kategori_bonus' => 'Bonus Generasi',
                 'status_qr' => $statusQr,
                 'tgl_dapat_bonus' => now(),
                 'keterangan' => "bonus generasi level {$upline->level}",
                 'nominal_bonus' => $nominalBonus,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ];
+            ]);
+
+            // Simpan sponsor untuk update batch
+            $sponsorsToUpdate[] = $sponsor;
 
             // Kumpulkan aktivitas untuk dibuat nanti
             $activitiesToCreate[] = [
@@ -119,11 +116,6 @@ class BonusGenerasiListener
             if ($sponsor->poin_reward > 0) {
                 event(new \App\Events\ChangeLevelUser($sponsor, $sponsor->poin_reward));
             }
-        }
-
-        // Buat semua Penghasilan sekaligus
-        if (!empty($penghasilansToCreate)) {
-            \App\Models\Penghasilan::insert($penghasilansToCreate);
         }
 
         // Buat semua aktivitas sekaligus
@@ -187,6 +179,16 @@ class BonusGenerasiListener
                 $nominalBonus = $statusQr ? 1500 : 300;
                 $sponsor->saldo_penghasilan += $totalBonus;
 
+                // Buat Penghasilan record satu persatu
+                \App\Models\Penghasilan::create([
+                    'user_id' => $sponsor->id,
+                    'kategori_bonus' => 'Bonus Generasi',
+                    'status_qr' => $statusQr,
+                    'tgl_dapat_bonus' => now(),
+                    'keterangan' => "bonus generasi dari mitra #{$user->id_mitra}",
+                    'nominal_bonus' => $totalBonus,
+                ]);
+
                 // Simpan sponsor untuk update batch
                 $sponsorsToUpdate[] = $sponsor;
 
@@ -245,6 +247,11 @@ class BonusGenerasiListener
             if ($sponsor->poin_reward > 0) {
                 event(new \App\Events\ChangeLevelUser($sponsor, $sponsor->poin_reward));
             }
+        }
+
+        // Buat semua Penghasilan sekaligus
+        if (!empty($penghasilansToCreate)) {
+            \App\Models\Penghasilan::insert($penghasilansToCreate);
         }
 
         // Buat semua aktivitas sekaligus
