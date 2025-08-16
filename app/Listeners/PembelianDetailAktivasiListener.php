@@ -27,6 +27,18 @@ class PembelianDetailAktivasiListener implements ShouldQueue
         $pembelianDetail = $event->pembelianDetail;
         $user = $event->user;
 
+        // Cek apakah pembelianDetail sudah is_accepted, jika sudah maka jangan lanjutkan proses
+        if ($pembelianDetail->is_accepted) {
+            // Notifikasi bahwa pembelian detail sudah accepted
+            \Filament\Notifications\Notification::make()
+                ->title('PIN yang sudah diterima sebelumnya')
+                ->body('PIN dengan ID ' . $pembelianDetail->id . ' sudah diterima dan tidak dapat diproses lagi.')
+                ->warning()
+                ->send();
+
+            return; // Skip jika sudah accepted
+        }
+
         // Tentukan user penerima bonus dengan fallback berurutan
         $bonusUser = $user
         ?: ($pembelianDetail->user
@@ -82,9 +94,24 @@ class PembelianDetailAktivasiListener implements ShouldQueue
                 'keterangan' => $keterangan,
                 'nominal_bonus' => $totalBonus,
             ]);
+            // Buat aktivitas untuk user
+            \App\Models\Aktivitas::create([
+                'user_id' => $bonusUser->id,
+                'judul' => 'Aktivasi PIN',
+                'keterangan' => "Menerima bonus aktivasi PIN ",
+                'tipe' => 'plus',
+                'status' => 'success',
+                'nominal' => $totalBonus,
+            ]);
 
             // Update saldo_penghasilan user
             $bonusUser->increment('saldo_penghasilan', $totalBonus);
         }
+
+        \Filament\Notifications\Notification::make()
+            ->title('Berhasil menerima PIN ' . $pembelianDetail->id)
+            ->success()
+            ->send();
+
     }
 }

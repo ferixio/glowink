@@ -32,7 +32,8 @@ class UserPanelProvider extends PanelProvider
             ->brandLogo(asset('images/logo.svg'))
             ->brandLogoHeight('3rem')
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::hex('#3b82f6
+'),
             ])
             ->discoverResources(in: app_path('Filament/User/Resources'), for :'App\\Filament\\User\\Resources')
             ->discoverPages(in: app_path('Filament/User/Pages'), for: 'App\\Filament\\User\\Pages')

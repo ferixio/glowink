@@ -16,6 +16,11 @@ class Withdraw extends Model
         'status',
     ];
 
+    protected $casts = [
+        'nominal' => 'decimal:2',
+        'tgl_withdraw' => 'date',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);

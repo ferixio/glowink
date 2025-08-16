@@ -105,10 +105,7 @@
                         onmouseout="this.style.backgroundColor='#fff'">
                         <td style="padding: 10px;">{{ $jaringanMitra->firstItem() + $index }}</td>
                         <td style="padding: 10px; display: flex; align-items: center; gap: 8px;">
-                            <div
-                                style="width: 40px; height: 40px; border-radius: 50%; background-color: #dbeafe; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #1d4ed8;">
-                                {{ strtoupper(substr($item->user->nama ?? 'N/A', 0, 2)) }}
-                            </div>
+                      
                             <div>
                                 <div style="font-weight: 500;">{{ $item->user->nama ?? 'N/A' }}</div>
                                 <div style="font-size: 12px; color: #6b7280;">ID: {{ $item->user->id ?? 'N/A' }}</div>
@@ -124,12 +121,14 @@
                         <td style="padding: 10px;">
                             {{ $item->user->tgl_daftar ? $item->user->tgl_daftar->format('d/m/Y') : 'N/A' }}</td>
                         <td style="padding: 10px;">
-                            @if ($item->user->isStockis ?? false)
+                            @if ($item->user->status_qr ?? false)
                                 <span
-                                    style="padding: 4px 8px; border-radius: 12px; font-size: 12px; background-color: #fee2e2; color: #b91c1c;">Stockis</span>
+                                    style="padding: 4px 8px; border-radius: 12px; font-size: 12px; background-color: #dcfce7; color: #166534;">QR
+                                    Aktif</span>
                             @else
                                 <span
-                                    style="padding: 4px 8px; border-radius: 12px; font-size: 12px; background-color: #dcfce7; color: #166534;">Mitra</span>
+                                    style="padding: 4px 8px; border-radius: 12px; font-size: 12px; background-color: #fee2e2 ; color: #b91c1c;">QR
+                                    non Aktif</span>
                             @endif
                         </td>
                     </tr>

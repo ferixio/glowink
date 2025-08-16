@@ -1,3 +1,20 @@
 @import "../../../../vendor/filament/filament/resources/css/theme.css";
 
 @config 'tailwind.config.js';
+
+section.flex.flex-col {
+    gap: 8px;
+    padding-top: 14px;
+}
+/* thead tr.bg-gray-100,
+thead tr.dark\:bg-white\/5 {
+    background-color: #3b82f6 !important; 
+    color: white !important;
+}
+
+.fi-ta-header-cell-label {
+    color: white !important; 
+} */
+
+
+

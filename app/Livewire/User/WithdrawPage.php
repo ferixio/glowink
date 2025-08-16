@@ -3,7 +3,6 @@
 namespace App\Livewire\User;
 
 use App\Models\Penghasilan;
-use App\Models\Setting;
 use App\Models\Withdraw;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
@@ -21,34 +20,34 @@ class WithdrawPage extends Component
 
     public function updatedNominalWithdraw($value)
     {
-        // Ambil hanya angka dari input (misal: 'Rp 100.000' jadi 100000)
-        $this->nominal_withdraw = preg_replace('/[^\d]/', '', $value);
+        // Remove all non-numeric characters
+        $cleanValue = preg_replace('/[^\d]/', '', $value);
+
+        // Convert to integer
+        $numericValue = (int) $cleanValue;
+
+        // Update the property with clean numeric value
+        $this->nominal_withdraw = $numericValue;
     }
+
     public $user;
-    public $dataAdmin;
 
     public function mount()
     {
         $this->user = Auth::user();
-        $this->dataAdmin = Setting::first();
-
-        // Jika tidak ada data admin, buat default values
-        if (!$this->dataAdmin) {
-            $this->dataAdmin = (object) [
-                'bank_name' => null,
-                'no_rek' => null,
-                'bank_atas_nama' => null,
-            ];
-        }
     }
 
     public function createWithdraw()
     {
-        // Pastikan nominal_withdraw hanya angka
-        $nominal = preg_replace('/[^\d]/', '', $this->nominal_withdraw);
+        // Clean the nominal_withdraw value
+        $nominal = (int) preg_replace('/[^\d.]/', '', $this->nominal_withdraw);
         $this->nominal_withdraw = $nominal;
+
         $this->validate([
-            'nominal_withdraw' => 'required|numeric|min:10000|max:' . $this->user->saldo_penghasilan,
+            'nominal_withdraw' => 'required|numeric|min:60000|max:' . $this->user->saldo_penghasilan,
+        ], [
+            'nominal_withdraw.min' => 'Minimal withdraw adalah Rp 60.000',
+            'nominal_withdraw.max' => 'Nominal withdraw tidak boleh melebihi saldo penghasilan Anda',
         ]);
 
         // Check if user has sufficient balance
@@ -72,22 +71,23 @@ class WithdrawPage extends Component
         }
 
         try {
-            // Create withdraw record using original table structure
+            // Create withdraw record with proper decimal handling
             Withdraw::create([
                 'user_id' => $this->user->id,
                 'tgl_withdraw' => now()->toDateString(),
-                'nominal' => $this->nominal_withdraw,
+                'nominal' => $this->nominal_withdraw, // This will be stored as decimal(16,2)
                 'status' => 'pending',
             ]);
 
             // Update user's saldo_penghasilan dan saldo_withdraw
-            $this->user->update([
-                'saldo_penghasilan' => $this->user->saldo_penghasilan - $this->nominal_withdraw,
-                'saldo_withdraw' => $this->user->saldo_withdraw + $this->nominal_withdraw,
-            ]);
+            // $this->user->update([
+            //     'saldo_penghasilan' => $this->user->saldo_penghasilan - $this->nominal_withdraw,
+            //     'saldo_withdraw' => $this->user->saldo_withdraw + $this->nominal_withdraw,
+            // ]);
 
             // Reset form
             $this->nominal_withdraw = '';
+            $this->showWithdrawForm = false;
 
             Notification::make()
                 ->title('Withdraw berhasil dibuat')
@@ -106,17 +106,42 @@ class WithdrawPage extends Component
 
     public function render()
     {
-        $penghasilanList = Penghasilan::where('user_id', Auth::id())
+        $userId = Auth::id();
+
+        // Limit list data and select only needed columns
+        $penghasilanList = Penghasilan::where('user_id', $userId)
             ->orderBy('tgl_dapat_bonus', 'desc')
+            ->select(['tgl_dapat_bonus', 'keterangan', 'kategori_bonus', 'nominal_bonus'])
+            ->limit(50)
             ->get();
 
-        $withdrawHistory = Withdraw::where('user_id', Auth::id())
+        $withdrawHistory = Withdraw::where('user_id', $userId)
             ->orderBy('created_at', 'desc')
+            ->select(['tgl_withdraw', 'nominal', 'status'])
+            ->limit(50)
             ->get();
+
+        // Aggregated totals without loading all rows into memory
+        $totalsByCategory = Penghasilan::where('user_id', $userId)
+            ->whereIn('kategori_bonus', ['Bonus Sponsor', 'Bonus Generasi', 'deviden harian', 'deviden bulanan'])
+            ->selectRaw('kategori_bonus, SUM(nominal_bonus) as total')
+            ->groupBy('kategori_bonus')
+            ->pluck('total', 'kategori_bonus');
+
+        $totalSponsor = (float) ($totalsByCategory['Bonus Sponsor'] ?? 0);
+        $totalGenerasi = (float) ($totalsByCategory['Bonus Generasi'] ?? 0);
+        $totalDividen = (float) (($totalsByCategory['deviden harian'] ?? 0) + ($totalsByCategory['deviden bulanan'] ?? 0));
+        $totalPenghasilan = (float) Penghasilan::where('user_id', $userId)->sum('nominal_bonus');
+        $totalWithdraw = (float) Withdraw::where('user_id', $userId)->sum('nominal');
 
         return view('livewire.user.withdraw-page', [
             'penghasilanList' => $penghasilanList,
             'withdrawHistory' => $withdrawHistory,
+            'totalSponsor' => $totalSponsor,
+            'totalDividen' => $totalDividen,
+            'totalGenerasi' => $totalGenerasi,
+            'totalPenghasilan' => $totalPenghasilan,
+            'totalWithdraw' => $totalWithdraw,
         ]);
     }
 }

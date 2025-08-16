@@ -335,6 +335,14 @@ class DevidenBulanan extends Page implements HasForms
                             'kategori_bonus' => 'deviden bulanan',
                             'status_qr' => 'selesai',
                         ]);
+                        \App\Models\Aktivitas::create([
+                            'user_id' => $user->id,
+                            'judul' => 'Deviden Bulanan',
+                            'keterangan' => "Menerima deviden bulanan ",
+                            'status' => 'success',
+                            'tipe' => 'plus',
+                            'nominal' => $totalDevidenForUser,
+                        ]);
 
                         $totalUsersUpdated++;
                         $totalIncomeDistributed += $totalDevidenForUser;

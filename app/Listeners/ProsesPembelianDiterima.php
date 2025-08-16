@@ -14,6 +14,8 @@ class ProsesPembelianDiterima
         $pembelian = $event->pembelian;
 
         $user = \App\Models\User::find($pembelian->user_id);
+
+        // ini fungsi untuk cek user jika masih belum qr dan membuatnya menjadi plan karir
         if ($user && $user->status_qr == 0) {
             $targetCategories = ['stock pribadi', 'repeat order', 'repeat order bulanan'];
 
@@ -24,7 +26,6 @@ class ProsesPembelianDiterima
                         $user->status_qr = 1;
                         $user->save();
 
-                      
                         if ($user->id_sponsor) {
                             $sponsor = \App\Models\User::find($user->id_sponsor);
                             if ($sponsor) {
@@ -36,6 +37,15 @@ class ProsesPembelianDiterima
                                     'tgl_dapat_bonus' => now(),
                                     'keterangan' => 'bonus sponsor (Member update Quick Reward)',
                                     'nominal_bonus' => 20000,
+                                ]);
+                                // Create activity for sponsor
+                                \App\Models\Aktivitas::create([
+                                    'user_id' => $sponsor->id,
+                                    'judul' => 'Bonus Sponsor Quick Reward',
+                                    'keterangan' => "Menerima bonus sponsor QR dari #{$user->id_mitra}",
+                                    'tipe' => null,
+                                    'status' => 'Berhasil',
+                                    'nominal' => 20000,
                                 ]);
 
                                 // Add to sponsor's income balance
@@ -90,16 +100,30 @@ class ProsesPembelianDiterima
                     'keterangan' => 'penambahan saldo stockist',
                     'nominal_bonus' => $pembelian->total_beli,
                 ]);
+                \App\Models\Aktivitas::create([
+                    'user_id' => $seller->id,
+                    'judul' => 'Penjualan Produk',
+                    'keterangan' => "Menerima pemasukan dari penjualan produk {$pembelian->kategori_pembelian} oleh #{$user->id_mitra}",
+                    'tipe' => 'plus',
+                    'status' => 'Berhasil',
+                    'nominal' => $pembelian->total_beli,
+                ]);
             }
         }
         if ($pembelian->kategori_pembelian == 'aktivasi member') {
             event(new BonusSponsor($pembelian));
-            event(new BonusGenerasi($pembelian));
+            event(new BonusGenerasi($pembelian, true));
 
         }
         if ($pembelian->kategori_pembelian == 'repeat order' || $pembelian->kategori_pembelian == 'stock pribadi') {
             event(new BonusReward($pembelian));
+            
         }
+
+        // if($pembelian->kategori_pembelian == 'repeat order' && $pembelian->status_pembelian == 'selesai') {
+        //    event(new BonusGenerasi($pembelian));
+
+        // }
 
         if ($pembelian->kategori_pembelian == 'repeat order bulanan') {
             $user = \App\Models\User::find($pembelian->user_id);

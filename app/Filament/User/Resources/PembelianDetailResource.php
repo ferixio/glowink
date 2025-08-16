@@ -69,7 +69,6 @@ class PembelianDetailResource extends Resource
                     ->action(function (PembelianDetail $record) {
                         $record->update(['is_accepted' => true]);
 
-                        // Trigger event untuk menambah saldo_penghasilan
                         event(new PembelianDetailAktivasi($record, auth()->user()));
 
                         \Filament\Notifications\Notification::make()
@@ -95,11 +94,9 @@ class PembelianDetailResource extends Resource
                                 event(new PembelianDetailAktivasi($record, auth()->user()));
                             });
 
-                            \Filament\Notifications\Notification::make()
-                                ->title('Berhasil menerima ' . $records->count() . ' PIN')
-                                ->success()
-                                ->send();
+                        
                         }),
+
                 ]),
             ]);
     }

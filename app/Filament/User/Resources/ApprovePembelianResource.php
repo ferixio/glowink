@@ -34,22 +34,23 @@ class ApprovePembelianResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('id')
-                    ->searchable()
-                    ->label("ID Pembelian"),
+                // Tables\Columns\TextColumn::make('id')
+                //     ->searchable()
+                //     ->label("ID Pembelian"),
 
                 Tables\Columns\TextColumn::make('user.nama')
                     ->searchable()
                     ->label("Nama Pembeli"),
-                Tables\Columns\TextColumn::make('nama_penerima')
+                Tables\Columns\TextColumn::make('kategori_pembelian')
                     ->searchable()
-                    ->label("Nama Penerima"),
+
+                ,
                 Tables\Columns\TextColumn::make('alamat_tujuan')
                     ->searchable()
                     ->label("Alamat Tujuan"),
-                Tables\Columns\TextColumn::make('no_telp')
-                    ->searchable()
-                    ->label("No HP Penerima"),
+                // Tables\Columns\TextColumn::make('no_telp')
+                //     ->searchable()
+                //     ->label("No HP Penerima"),
 
                 Tables\Columns\BadgeColumn::make('status_pembelian')
                     ->color(fn(string $state): string => match ($state) {

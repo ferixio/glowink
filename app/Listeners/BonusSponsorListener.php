@@ -22,6 +22,14 @@ class BonusSponsorListener
                 'keterangan' => 'bonus sponsor',
                 'nominal_bonus' => $nominalBonus,
             ]);
+           \App\Models\Aktivitas::create([
+                'user_id' => $sponsor->id,
+                'judul' => 'Bonus Sponsor Diterima',
+                'keterangan' => "Menerima bonus sponsor dari member #{$user->id_mitra}",
+                'tipe' => 'plus',
+                'status' => 'Berhasil',
+                'nominal' => $nominalBonus,
+            ]);
             $sponsor->saldo_penghasilan += $nominalBonus;
             $sponsor->save();
             // Tambahan: jika statusQr true, cek detail pembelian untuk paket == 2
@@ -35,6 +43,14 @@ class BonusSponsorListener
                             'tgl_dapat_bonus' => now(),
                             'keterangan' => 'bonus sponsor (paket Quick Reward)',
                             'nominal_bonus' => 20000,
+                        ]);
+                        \App\Models\Aktivitas::create([
+                            'user_id' => $sponsor->id,
+                            'judul' => 'Bonus Sponsor Quick Reward',
+                            'keterangan' => "Menerima bonus sponsor QR dari {$user->id_mitra}",
+                            'tipe' => 'plus',
+                            'status' => 'Berhasil',
+                            'nominal' => 20000,
                         ]);
                         $sponsor->saldo_penghasilan += 20000;
                         $sponsor->save();

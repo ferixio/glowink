@@ -15,6 +15,7 @@ class DashboardUser extends Component
         $totalDevidenBulanLalu = DevidenHarian::where('tanggal_deviden', now()->subMonth()->format('Y-m-d'))->sum('deviden_diterima');
         $totalPenerimaDevidenHarian = DevidenHarian::where('tanggal_deviden', now()->format('Y-m-d'))->sum('total_member');
         $isCompletedRObulanan = $user->jml_ro_bulanan >= $user->minimal_ro_bulanan;
+
         return view('livewire.user.dashboard-user', compact('user', 'devidenHarian', 'totalDevidenBulanLalu', 'isCompletedRObulanan'));
     }
 }
