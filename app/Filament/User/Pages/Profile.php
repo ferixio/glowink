@@ -24,7 +24,7 @@ class Profile extends Page implements HasForms
     protected static string $view = 'filament.user.pages.profile';
     // protected static bool $isDiscovered = false;
 
-    protected static ?int $navigationSort = 6;
+    protected static ?int $navigationSort = 9;
 
     protected int|string|array $columnSpan = 'full';
 

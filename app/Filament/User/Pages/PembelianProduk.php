@@ -14,6 +14,6 @@ class PembelianProduk extends Page
         return 'Belanja';
     }
     protected static ?string $navigationLabel = null;
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 1;
 
 }

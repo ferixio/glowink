@@ -20,8 +20,8 @@ class EditApprovePembelianStockis extends EditRecord
             Actions\Action::make('Set selesai')
                 ->label('Selesai')
                 ->color('success')
-                ->visible(fn() => $this->record->status_pembelian === 'proses'
-                    || $this->record->status_pembelian === 'ditolak')
+                ->visible(fn() => $this->record->status_pembelian === 'proses' || $this->record->status_pembelian === 'menunggu'
+                    || $this->record->status_pembelian === 'ditolak' )
                 ->action(function () {
                     // Always trigger the event when setting to selesai
                     event(new \App\Events\PembelianDiterima($this->record));
