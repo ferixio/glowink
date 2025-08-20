@@ -15,7 +15,7 @@ class AktivitasResource extends Resource
     protected static ?string $model = Aktivitas::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-
+protected static ?int $navigationSort = 6;
     public static function form(Form $form): Form
     {
         return $form
@@ -47,7 +47,7 @@ class AktivitasResource extends Resource
                         $nominalText = $record->nominal !== null
                         ? $record->nominal > 100 ? 'Rp ' . number_format($record->nominal, 0, ',', '.') : '+'. number_format($record->nominal, 0, ',', '.')
 
-                        : '<span style="">Tidak ada nominal</span>';
+                        : '<span style=""> </span>';
 
                         return '
             <div style="line-height:1.4">

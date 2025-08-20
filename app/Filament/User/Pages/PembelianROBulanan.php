@@ -13,5 +13,5 @@ class PembelianROBulanan extends Page
     {
         return 'Belanja RO Bulanan';
     }
-    protected static ?int $navigationSort = 5;
+    protected static ?int $navigationSort = 2;
 }

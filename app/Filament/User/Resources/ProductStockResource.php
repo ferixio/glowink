@@ -17,7 +17,7 @@ class ProductStockResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-cube';
 
      protected static ?string $navigationLabel = 'Stok';
-    protected static ?int $navigationSort = 5;
+    protected static ?int $navigationSort = 8;
     public static function form(Form $form): Form
     {
         return $form

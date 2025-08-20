@@ -15,12 +15,12 @@ class BonusGenerasiListener
         $pembelian = $event->pembelian;
         $isMemberAktivasi = $event->isMemberAktivasi;
         $user = $pembelian->user; // assuming relation exists
-        if ($isMemberAktivasi) {
-            $this->handleMemberAktivasi($pembelian, $user);
-        } else {
+        // if ($isMemberAktivasi) {
+        //     $this->handleMemberAktivasi($pembelian, $user);
+        // } else {
 
-            $this->handleRewardBonusGenerasi($pembelian, $user);
-        }
+        $this->handleRewardBonusGenerasi($pembelian, $user, $isMemberAktivasi);
+        // }
 
     }
 
@@ -45,22 +45,37 @@ class BonusGenerasiListener
 
             $statusQr = $sponsor->status_qr;
             $nominalBonus = $statusQr ? 1500 : 300;
-            $point = 3;
+            $point = 1;
 
-            Aktivitas::create([
-                'user_id' => $sponsor->id,
-                'judul' => 'Poin',
-                'keterangan' => "",
-                'tipe' => 'plus',
-                'status' => '',
-                'nominal' => 3,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+            if ($statusQr) {
+                Aktivitas::create([
+                    'user_id' => $sponsor->id,
+                    'judul' => 'Poin',
+                    'keterangan' => "",
+                    'tipe' => 'plus',
+                    'status' => '',
+                    'nominal' => 1,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            } else {
+                Aktivitas::create([
+                    'user_id' => $sponsor->id,
+                    'judul' => 'Kehilangan Peluang',
+                    'keterangan' => "Kehilangan peluang poin dari member #{$user->id_mitra}",
+                    'tipe' => 'minus',
+                    'status' => '',
+                    'nominal' => null,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
 
             // Update sponsor data
             $sponsor->saldo_penghasilan += $nominalBonus;
-            $sponsor->poin_reward += $point;
+            if ($statusQr) {
+                $sponsor->poin_reward += $point;
+            }
 
             // Buat Penghasilan record satu persatu
             \App\Models\Penghasilan::create([
@@ -88,7 +103,7 @@ class BonusGenerasiListener
             ];
 
             // Kumpulkan PembelianBonus untuk dibuat nanti
-            $idMitra = $user->id_mitra ?? 'Unknown';
+            $idMitra = $sponsor->id_mitra ?? 'Unknown';
             $nominalPembelianBonus = $statusQr ? 1500 : 300;
 
             if ($statusQr) {
@@ -129,13 +144,31 @@ class BonusGenerasiListener
         }
     }
 
-    private function handleRewardBonusGenerasi($pembelian, $user)
+    private function handleRewardBonusGenerasi($pembelian, $user, $isMemberAktivasi)
     {
-        // Ambil semua upline dari jaringan mitra (maksimal 10 level)
-        $uplines = JaringanMitra::where('user_id', $user->id)
-            ->orderBy('level')
-            ->limit(10)
-            ->get();
+
+        if ($isMemberAktivasi) {
+            // Ambil upline dari jaringan mitra dan tambahkan user sebagai level 0
+            $uplines = JaringanMitra::where('user_id', $user->id)
+                ->orderBy('level')
+                ->limit(10)
+                ->get();
+
+        } else {
+            // Ambil upline dari jaringan mitra dan tambahkan user sebagai level 0
+            $uplines = JaringanMitra::where('user_id', $user->id)
+                ->orderBy('level')
+                ->limit(10)
+                ->get();
+
+            // Tambahkan user sebagai level 0 (level terendah)
+            $userUpline = (object) [
+                'sponsor_id' => $user->id,
+                'level' => 0,
+            ];
+            $uplines->prepend($userUpline);
+
+        }
 
         // Temporary variables untuk mengumpulkan data
         $activitiesToCreate = [];
@@ -150,25 +183,21 @@ class BonusGenerasiListener
 
             $totalPoints = 0;
             $totalBonus = 0;
-            $hasPaket2 = false;
 
+            // Hitung total poin dan bonus dari semua pembelian detail
             foreach ($pembelian->details as $detail) {
-                if ($detail->paket == 2) {
-                    $isMemberQR = true;
-                    $hasPaket2 = true;
-                    $statusQr = $sponsor->status_qr;
+                // Setiap pembelian detail menambahkan 1 poin dan bonus
+                $totalPoints += 1;
 
-                    if ($statusQr) {
-                        $totalPoints += 1;
-                        $totalBonus += 1500;
-                    } else {
-                        $totalBonus += 300;
-                    }
+                if ($sponsor->status_qr) {
+                    $totalBonus += 1500;
+                } else {
+                    $totalBonus += 300;
                 }
             }
 
-            // Jika ada paket 2, update sponsor dan siapkan data untuk aktivitas
-            if ($hasPaket2) {
+            // Update sponsor dan siapkan data untuk aktivitas
+            if ($totalPoints > 0) {
                 $statusQr = $sponsor->status_qr;
 
                 // Update sponsor data
@@ -176,7 +205,6 @@ class BonusGenerasiListener
                     $sponsor->poin_reward += $totalPoints;
                 }
 
-                $nominalBonus = $statusQr ? 1500 : 300;
                 $sponsor->saldo_penghasilan += $totalBonus;
 
                 // Buat Penghasilan record satu persatu
@@ -192,32 +220,59 @@ class BonusGenerasiListener
                 // Simpan sponsor untuk update batch
                 $sponsorsToUpdate[] = $sponsor;
 
-                if ($statusQr && $totalPoints > 0) {
+                // Buat 2 aktivitas terpisah: Poin dan Bonus Generasi
+                if ($statusQr) {
+                    // Aktivitas untuk Poin
                     $activitiesToCreate[] = [
                         'user_id' => $sponsor->id,
                         'judul' => 'Poin',
-                        'keterangan' => "dari mitra #{$user->id_mitra}",
+                        'keterangan' => "Mendapatkan {$totalPoints} poin dari mitra #{$user->id_mitra}",
                         'tipe' => 'plus',
-                        'status' => '',
+                        'status' => 'Berhasil',
                         'nominal' => $totalPoints,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+
+                    // Aktivitas untuk Bonus Generasi
+                    $activitiesToCreate[] = [
+                        'user_id' => $sponsor->id,
+                        'judul' => 'Bonus Generasi',
+                        'keterangan' => "Mendapatkan bonus generasi {$totalBonus} dari mitra #{$user->id_mitra}",
+                        'tipe' => 'plus',
+                        'status' => 'Berhasil',
+                        'nominal' => $totalBonus,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                } else {
+                    // Aktivitas untuk Kehilangan Peluang Poin
+                    $activitiesToCreate[] = [
+                        'user_id' => $sponsor->id,
+                        'judul' => 'Kehilangan Peluang Poin',
+                        'keterangan' => "Kehilangan peluang {$totalPoints} poin dari member #{$user->id_mitra}",
+                        'tipe' => 'minus',
+                        'status' => '',
+                        'nominal' => null,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+
+                    // Aktivitas untuk Kehilangan Peluang Bonus Generasi
+                    $activitiesToCreate[] = [
+                        'user_id' => $sponsor->id,
+                        'judul' => 'Kehilangan Peluang Bonus Generasi',
+                        'keterangan' => "Kehilangan peluang bonus generasi {$totalBonus} dari member #{$user->id_mitra}",
+                        'tipe' => 'minus',
+                        'status' => '',
+                        'nominal' => null,
                         'created_at' => now(),
                         'updated_at' => now(),
                     ];
                 }
 
-                $activitiesToCreate[] = [
-                    'user_id' => $sponsor->id,
-                    'judul' => 'Bonus Generasi',
-                    'keterangan' => "dari mitra #{$user->id_mitra}",
-                    'tipe' => 'plus',
-                    'status' => '',
-                    'nominal' => $totalBonus,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
-
                 // Kumpulkan PembelianBonus untuk dibuat nanti
-                $idMitra = $user->id_mitra ?? 'Unknown';
+                $idMitra = $sponsor->id_mitra ?? 'Unknown';
                 $point = $statusQr ? $totalPoints : 0;
                 $nominalPembelianBonus = $statusQr ? 1500 : 300;
 
@@ -247,11 +302,6 @@ class BonusGenerasiListener
             if ($sponsor->poin_reward > 0) {
                 event(new \App\Events\ChangeLevelUser($sponsor, $sponsor->poin_reward));
             }
-        }
-
-        // Buat semua Penghasilan sekaligus
-        if (!empty($penghasilansToCreate)) {
-            \App\Models\Penghasilan::insert($penghasilansToCreate);
         }
 
         // Buat semua aktivitas sekaligus

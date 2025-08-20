@@ -21,6 +21,8 @@ class PembelianDetailResource extends Resource
     protected static ?string $navigationLabel = 'Aktivasi PIN';
     protected static ?string $breadcrumb = "Aktivasi PIN";
     protected static ?string $label = 'Aktivasi PIN';
+
+     protected static ?int $navigationSort = 3;
     public static function form(Form $form): Form
     {
         return $form

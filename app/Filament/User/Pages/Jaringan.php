@@ -9,4 +9,6 @@ class Jaringan extends Page
     protected static ?string $navigationIcon = 'heroicon-o-globe-alt';
 
     protected static string $view = 'filament.user.pages.jaringan';
+
+     protected static ?int $navigationSort = 5;
 }

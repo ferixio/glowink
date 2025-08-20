@@ -15,4 +15,6 @@ class Withdraw extends Page
     protected static ?string $navigationLabel = 'Withdraw';
 
     protected static ?string $slug = 'withdraw';
+
+     protected static ?int $navigationSort = 4;
 }
