@@ -33,7 +33,7 @@ class BonusRewardListener
                 Aktivitas::create([
                     'user_id' => $user->id,
                     'judul' => 'Poin',
-                    'keterangan' => "",
+                    'keterangan' => "Mendapatkan poin dari quick reward ",
                     'tipe' => 'plus',
                     'status' => '',
                     'nominal' => $dataJumlahPoinYangDidapat,
