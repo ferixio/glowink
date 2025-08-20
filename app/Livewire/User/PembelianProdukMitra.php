@@ -491,7 +491,62 @@ class PembelianProdukMitra extends Component
 
         $this->processCheckout($userData, 'stock pribadi');
     }
+    public function repeatOrder()
+    {
+        // Validasi kabupaten dipilih
+        if (empty($this->selectedKabupaten)) {
+            session()->flash('error', 'Silakan pilih Kabupaten terlebih dahulu');
+            return;
+        }
 
+        // Validasi stockist dipilih
+        if (empty($this->selectedStockist)) {
+            session()->flash('error', 'Silakan pilih Stockist terlebih dahulu');
+            return;
+        }
+
+        // Validasi cart tidak kosong
+        if (empty($this->cart)) {
+            session()->flash('error', 'Keranjang kosong! Silakan pilih produk terlebih dahulu.');
+            return;
+        }
+
+        // Validate form data
+        $this->validate([
+            'namaPenerima' => 'required|string|max:255',
+            'telepon' => 'required|string|max:20',
+            'alamat' => 'required|string|max:500',
+        ], [
+            'namaPenerima.required' => 'Nama penerima harus diisi',
+            'telepon.required' => 'Nomor telepon harus diisi',
+            'alamat.required' => 'Alamat pengiriman harus diisi',
+        ]);
+
+        $user = Auth::user();
+
+        // Set tanggal to current date
+        $tanggal = now()->format('Y-m-d');
+
+        // Siapkan data untuk dikirim ke processCheckout
+        $userData = [
+            'nama' => $this->namaPenerima, // Gunakan namaPenerima dari form
+            'telepon' => $this->telepon,
+            'alamat' => $this->alamat,
+            'tanggal' => $tanggal,
+            'nama_bank' => $user->bank ?? '',
+            'no_rekening' => $user->no_rek ?? '',
+            'nama_rekening' => $user->nama_rekening ?? $user->nama ?? '',
+            'user_id' => $user->id,
+            'username' => $user->username,
+            'email' => $user->email,
+            'provinsi' => $user->provinsi ?? '',
+            'kabupaten' => $user->kabupaten ?? '',
+            'no_telp' => $user->no_telp ?? '',
+            'alamat_user' => $user->alamat ?? '',
+        ];
+
+        return $this->processCheckout($userData, 'repeat order');
+    }
     private function processCheckout($userData = null, $kategoriPembelian = 'stock pribadi')
     {
         DB::beginTransaction();
@@ -620,63 +675,6 @@ class PembelianProdukMitra extends Component
     public function toggleCartSidebar()
     {
         $this->showCartSidebar = !$this->showCartSidebar;
-    }
-
-    public function repeatOrder()
-    {
-        // Validasi kabupaten dipilih
-        if (empty($this->selectedKabupaten)) {
-            session()->flash('error', 'Silakan pilih Kabupaten terlebih dahulu');
-            return;
-        }
-
-        // Validasi stockist dipilih
-        if (empty($this->selectedStockist)) {
-            session()->flash('error', 'Silakan pilih Stockist terlebih dahulu');
-            return;
-        }
-
-        // Validasi cart tidak kosong
-        if (empty($this->cart)) {
-            session()->flash('error', 'Keranjang kosong! Silakan pilih produk terlebih dahulu.');
-            return;
-        }
-
-        // Validate form data
-        $this->validate([
-            'namaPenerima' => 'required|string|max:255',
-            'telepon' => 'required|string|max:20',
-            'alamat' => 'required|string|max:500',
-        ], [
-            'namaPenerima.required' => 'Nama penerima harus diisi',
-            'telepon.required' => 'Nomor telepon harus diisi',
-            'alamat.required' => 'Alamat pengiriman harus diisi',
-        ]);
-
-        $user = Auth::user();
-
-        // Set tanggal to current date
-        $tanggal = now()->format('Y-m-d');
-
-        // Siapkan data untuk dikirim ke processCheckout
-        $userData = [
-            'nama' => $this->namaPenerima, // Gunakan namaPenerima dari form
-            'telepon' => $this->telepon,
-            'alamat' => $this->alamat,
-            'tanggal' => $tanggal,
-            'nama_bank' => $user->bank ?? '',
-            'no_rekening' => $user->no_rek ?? '',
-            'nama_rekening' => $user->nama_rekening ?? $user->nama ?? '',
-            'user_id' => $user->id,
-            'username' => $user->username,
-            'email' => $user->email,
-            'provinsi' => $user->provinsi ?? '',
-            'kabupaten' => $user->kabupaten ?? '',
-            'no_telp' => $user->no_telp ?? '',
-            'alamat_user' => $user->alamat ?? '',
-        ];
-
-        return $this->processCheckout($userData, 'repeat order');
     }
 
     public function repeatOrderBulanan()
