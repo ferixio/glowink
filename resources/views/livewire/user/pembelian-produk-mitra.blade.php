@@ -401,12 +401,12 @@
                     <div class="flex flex-col w-full">
 
 
-                        <button
+                        <button type="button"
                             class="w-full mt-6  bg-orange-500 hover:bg-orange-600 text-white font-semibold py-1.5 px-4 rounded-md transition"
                             wire:click="repeatOrder" @if ($totalQty == 0) disabled @endif>
                             Proses Pesanan
                         </button>
-                        <button
+                        <button type="button"
                             class="w-full mt-2  bg-orange-200 hover:bg-orange-300 text-gray-800 font-semibold py-1.5 px-4 rounded-md transition"
                             wire:click="changePage(0)">
                             Kembali
@@ -456,12 +456,12 @@
                     <div class="flex flex-col w-full">
 
 
-                        <button
+                        <button type="button"
                             class="w-full mt-6  bg-orange-500 hover:bg-orange-600 text-white font-semibold py-1.5 px-4 rounded-md transition"
                             wire:click="repeatOrderBulanan" @if ($totalQty == 0) disabled @endif>
                             Proses Pesanan
                         </button>
-                        <button
+                        <button type="button"
                             class="w-full mt-2  bg-orange-200 hover:bg-orange-300 text-gray-800 font-semibold py-1.5 px-4 rounded-md transition"
                             wire:click="changePage(0)">
                             Kembali

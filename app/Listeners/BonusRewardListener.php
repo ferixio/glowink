@@ -18,9 +18,9 @@ class BonusRewardListener
         if ($user->status_qr) {
             foreach ($pembelian->details as $detail) {
                 if ($detail->paket == 2) {
-                    $oldPoin = $user->poin_reward;
-                    $user->poin_reward += 1;
-                    $dataJumlahPoinYangDidapat += 1; // hanya tambah 1 poin jika ada minimal 1 paket == 2
+                    // $oldPoin = $user->poin_reward;
+                    // $user->poin_reward += 1;
+                    // $dataJumlahPoinYangDidapat += 1; // hanya tambah 1 poin jika ada minimal 1 paket == 2
 
                     $user->save();
                     event(new \App\Events\ChangeLevelUser($user, $user->poin_reward));
@@ -29,16 +29,16 @@ class BonusRewardListener
                 }
             }
 
-            if ($dataJumlahPoinYangDidapat > 0) {
-                Aktivitas::create([
-                    'user_id' => $user->id,
-                    'judul' => 'Poin',
-                    'keterangan' => "",
-                    'tipe' => 'plus',
-                    'status' => '',
-                    'nominal' => $dataJumlahPoinYangDidapat,
-                ]);
-            }
+            // if ($dataJumlahPoinYangDidapat > 0) {
+            //     Aktivitas::create([
+            //         'user_id' => $user->id,
+            //         'judul' => 'Poin',
+            //         'keterangan' => "Mendapatkan poin dari quick reward ",
+            //         'tipe' => 'plus',
+            //         'status' => '',
+            //         'nominal' => $dataJumlahPoinYangDidapat,
+            //     ]);
+            // }
         }
 
         // Panggil event BonusGenerasi dengan isMemberAktivasi = false
