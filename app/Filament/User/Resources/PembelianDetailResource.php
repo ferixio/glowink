@@ -22,7 +22,7 @@ class PembelianDetailResource extends Resource
     protected static ?string $breadcrumb = "Aktivasi PIN";
     protected static ?string $label = 'Aktivasi PIN';
 
-     protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 3;
     public static function form(Form $form): Form
     {
         return $form
@@ -96,7 +96,6 @@ class PembelianDetailResource extends Resource
                                 event(new PembelianDetailAktivasi($record, auth()->user()));
                             });
 
-                        
                         }),
 
                 ]),
@@ -128,5 +127,10 @@ class PembelianDetailResource extends Resource
             'create' => Pages\CreatePembelianDetail::route('/create'),
             'edit' => Pages\EditPembelianDetail::route('/{record}/edit'),
         ];
+    }
+
+    public static function getRecordUrl($record): ?string
+    {
+        return null; // Disable row click navigation
     }
 }

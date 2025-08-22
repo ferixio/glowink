@@ -29,7 +29,8 @@
             </div>
             <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm">
                 <div class="text-sm text-gray-500">Pending Income</div>
-                <div class="mt-1 text-lg font-semibold text-blue-600">Rp. {{ number_format($user->saldo_penghasilan, 0, ',', '.') }}</div>
+                <div class="mt-1 text-lg font-semibold text-blue-600">Rp.
+                    {{ number_format($user->saldo_penghasilan, 0, ',', '.') }}</div>
             </div>
             <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm">
                 <div class="text-sm text-gray-500">Point</div>
@@ -118,6 +119,94 @@
                 <div class="mt-1 text-lg font-semibold text-gray-700">0</div>
             </div>
         </div>
+    </div>
+
+    {{-- Group 5: Tabel Aktivitas --}}
+    <div class="bg-white rounded-xl shadow p-6 space-y-4">
+        <h2 class="text-xl font-semibold text-gray-800">Aktivitas Terbaru</h2>
+
+        @if ($aktivitas->count() > 0)
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Tanggal
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Judul
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Keterangan
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Status
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Nominal
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Tipe
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        @foreach ($aktivitas as $activity)
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ \Carbon\Carbon::parse($activity->created_at)->format('d/m/Y H:i') }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    {{ $activity->judul }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ $activity->keterangan ?? '-' }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span
+                                        class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
+                                        {{ $activity->status === 'success'
+                                            ? 'bg-green-100 text-green-800'
+                                            : ($activity->status === 'pending'
+                                                ? 'bg-yellow-100 text-yellow-800'
+                                                : ($activity->status === 'failed'
+                                                    ? 'bg-red-100 text-red-800'
+                                                    : 'bg-gray-100 text-gray-800')) }}">
+                                        {{ $activity->status ?? 'N/A' }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    @if ($activity->nominal)
+                                        <span
+                                            class="{{ $activity->tipe === 'plus' ? 'text-green-600' : 'text-red-600' }}">
+                                            {{ $activity->tipe === 'plus' ? '+' : '-' }} Rp
+                                            {{ number_format($activity->nominal, 0, ',', '.') }}
+                                        </span>
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                                {{-- <td class="px-6 py-4 whitespace-nowrap">
+                                    @if ($activity->tipe)
+                                        <span
+                                            class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
+                                            {{ $activity->tipe === 'plus' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                            {{ ucfirst($activity->tipe) }}
+                                        </span>
+                                    @else
+                                        -
+                                    @endif
+                                </td> --}}
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @else
+            <div class="text-center py-8">
+                <div class="text-gray-500 text-sm">Belum ada aktivitas</div>
+            </div>
+        @endif
     </div>
 
 </div>

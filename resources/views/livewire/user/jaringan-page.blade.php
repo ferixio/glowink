@@ -23,20 +23,35 @@
         </div>
 
         @foreach ($levelStats as $stat)
-            <div
-                style="background-color: #ecfdf5; padding: 12px; border-radius: 8px; border: 1px solid #bbf7d0; display: flex; align-items: center;">
-                <div style="padding: 8px; background-color: #d1fae5; border-radius: 6px;">
-                    <svg style="width: 24px; height: 24px; color: #059669;" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24">
+            <button wire:click="filterByLevel({{ $stat->level }})"
+                style="background-color: {{ $selectedLevel == $stat->level ? '#059669' : '#ecfdf5' }}; 
+                       padding: 12px; 
+                       border-radius: 8px; 
+                       border: 1px solid #bbf7d0; 
+                       display: flex; 
+                       align-items: center; 
+                       cursor: pointer; 
+                       transition: all 0.2s;
+                       {{ $selectedLevel == $stat->level ? 'color: white;' : '' }}"
+                onmouseover="this.style.backgroundColor='{{ $selectedLevel == $stat->level ? '#047857' : '#d1fae5' }}'"
+                onmouseout="this.style.backgroundColor='{{ $selectedLevel == $stat->level ? '#059669' : '#ecfdf5' }}'">
+                <div
+                    style="padding: 8px; background-color: {{ $selectedLevel == $stat->level ? '#10b981' : '#d1fae5' }}; border-radius: 6px;">
+                    <svg style="width: 24px; height: 24px; color: {{ $selectedLevel == $stat->level ? 'white' : '#059669' }};"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
                     </svg>
                 </div>
                 <div style="margin-left: 10px;">
-                    <p style="font-size: 12px; color: #059669; margin: 0;">Level {{ $stat->level }}</p>
-                    <p style="font-size: 18px; font-weight: bold; color: #064e3b; margin: 0;">{{ $stat->total }}</p>
+                    <p
+                        style="font-size: 12px; color: {{ $selectedLevel == $stat->level ? 'white' : '#059669' }}; margin: 0;">
+                        Level {{ $stat->level }}</p>
+                    <p
+                        style="font-size: 18px; font-weight: bold; color: {{ $selectedLevel == $stat->level ? 'white' : '#064e3b' }}; margin: 0;">
+                        {{ $stat->total }}</p>
                 </div>
-            </div>
+            </button>
         @endforeach
     </div>
 
@@ -71,6 +86,16 @@
                 <option value="100">100</option>
             </select>
         </div>
+        @if ($showLevelFilter)
+            <div>
+                <button wire:click="clearLevelFilter"
+                    style="background-color: #ef4444; color: white; padding: 8px 16px; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; transition: background 0.2s;"
+                    onmouseover="this.style.backgroundColor='#dc2626'"
+                    onmouseout="this.style.backgroundColor='#ef4444'">
+                    Clear Filter
+                </button>
+            </div>
+        @endif
     </div>
 
     <!-- Tabel Data -->
@@ -105,7 +130,7 @@
                         onmouseout="this.style.backgroundColor='#fff'">
                         <td style="padding: 10px;">{{ $jaringanMitra->firstItem() + $index }}</td>
                         <td style="padding: 10px; display: flex; align-items: center; gap: 8px;">
-                      
+
                             <div>
                                 <div style="font-weight: 500;">{{ $item->user->nama ?? 'N/A' }}</div>
                                 <div style="font-size: 12px; color: #6b7280;">ID: {{ $item->user->id ?? 'N/A' }}</div>

@@ -7,7 +7,6 @@ use App\Filament\User\Resources\ApprovePembelianResource;
 use Filament\Actions;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
-use Illuminate\Support\Str;
 
 class EditApprovePembelian extends EditRecord
 {
@@ -17,21 +16,21 @@ class EditApprovePembelian extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\Action::make('Set Proses')
-                ->label('Proses')
-                ->color('info')
-                ->visible(fn() => $this->record->status_pembelian === 'menunggu'
-                    || $this->record->status_pembelian === 'ditolak')
-                ->action(function () {
-                    $this->record->status_pembelian = 'proses';
-                    $this->record->save();
-                    Notification::make()
-                        ->title('Berhasil')
-                        ->body('Status diubah menjadi proses')
-                        ->success()
-                        ->send();
-                    // return redirect()->to($this->getResource()::getUrl('index'));
-                }),
+            // Actions\Action::make('Set Proses')
+            //     ->label('Proses')
+            //     ->color('info')
+            //     ->visible(fn() => $this->record->status_pembelian === 'menunggu'
+            //         || $this->record->status_pembelian === 'ditolak')
+            //     ->action(function () {
+            //         $this->record->status_pembelian = 'proses';
+            //         $this->record->save();
+            //         Notification::make()
+            //             ->title('Berhasil')
+            //             ->body('Status diubah menjadi proses')
+            //             ->success()
+            //             ->send();
+            //         // return redirect()->to($this->getResource()::getUrl('index'));
+            //     }),
             Actions\Action::make('Set Ditolak')
                 ->label('Ditolak')
                 ->color('danger')
@@ -50,12 +49,12 @@ class EditApprovePembelian extends EditRecord
             Actions\Action::make('Set Selesai')
                 ->label('Selesai')
                 ->color('success')
-                ->visible(fn() => $this->record->status_pembelian === 'proses')
+                ->visible(fn() => $this->record->status_pembelian === 'menunggu')
                 ->action(function () {
                     $pembelianDetails = \App\Models\PembelianDetail::where('pembelian_id', $this->record->id)->get();
 
                     $pembelianDetails->each(function ($item) {
-                        $generatedRandomPin = Str::random(6);
+                        $generatedRandomPin = str_pad(mt_rand(0, 999999), 6, '0', STR_PAD_LEFT);
 
                         $item->pin = $generatedRandomPin;
 

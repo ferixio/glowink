@@ -18,6 +18,7 @@ return new class extends Migration
                 'Pemasukan',
                 'Bonus Sponsor',
                 'Bonus Generasi',
+                'Bonus Cashback',
                 'Bonus Reward',
                 'deviden harian',
                 'deviden bulanan',

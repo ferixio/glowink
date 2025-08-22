@@ -2,6 +2,7 @@
 
 namespace App\Livewire\User;
 
+use App\Models\Aktivitas;
 use App\Models\DevidenHarian;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -16,6 +17,12 @@ class DashboardUser extends Component
         $totalPenerimaDevidenHarian = DevidenHarian::where('tanggal_deviden', now()->format('Y-m-d'))->sum('total_member');
         $isCompletedRObulanan = $user->jml_ro_bulanan >= $user->minimal_ro_bulanan;
 
-        return view('livewire.user.dashboard-user', compact('user', 'devidenHarian', 'totalDevidenBulanLalu', 'isCompletedRObulanan'));
+        // Fetch aktivitas data for current user
+        $aktivitas = Aktivitas::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
+
+        return view('livewire.user.dashboard-user', compact('user', 'devidenHarian', 'totalDevidenBulanLalu', 'isCompletedRObulanan', 'aktivitas'));
     }
 }
