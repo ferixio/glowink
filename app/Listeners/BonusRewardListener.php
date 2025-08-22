@@ -4,6 +4,7 @@ namespace App\Listeners;
 
 use App\Events\BonusReward;
 use App\Models\Aktivitas;
+use App\Models\Penghasilan;
 use App\Models\User;
 
 class BonusRewardListener
@@ -12,37 +13,100 @@ class BonusRewardListener
     {
         $pembelian = $event->pembelian;
         $user = $pembelian->user;
+        $sponsor = User::find($user->id_sponsor);
+        $statusQr = $user->status_qr;
 
-        $dataJumlahPoinYangDidapat = 0;
-        // Cek user utama
-        if ($user->status_qr) {
+        // Cek apakah user memiliki QR aktif
+        if ($user->status_qr && $sponsor) {
+            $hasPaket2 = false;
+            $totalBonus = 0;
+
+            // Loop sekali untuk memproses semua detail pembelian
             foreach ($pembelian->details as $detail) {
                 if ($detail->paket == 2) {
-                    // $oldPoin = $user->poin_reward;
-                    // $user->poin_reward += 1;
-                    // $dataJumlahPoinYangDidapat += 1; // hanya tambah 1 poin jika ada minimal 1 paket == 2
+                    $hasPaket2 = true;
+                    $bonusAmount = 20000;
+                    $keterangan = 'Bonus Cashback QR aktif';
+                } else {
+                    $bonusAmount = 10000;
+                    $keterangan = 'Bonus Cashback';
+                }
 
-                    $user->save();
-                    event(new \App\Events\ChangeLevelUser($user, $user->poin_reward));
+                $totalBonus += $bonusAmount;
 
-                    break; // hanya tambah 1 poin jika ada minimal 1 paket == 2
+                // Buat record penghasilan untuk sponsor
+                Penghasilan::create([
+                    'user_id' => $user->id,
+                    'kategori_bonus' => 'Bonus Cashback',
+                    'status_qr' => $statusQr,
+                    'tgl_dapat_bonus' => now(),
+                    'keterangan' => $keterangan,
+                    'nominal_bonus' => $bonusAmount,
+                ]);
+
+                // Buat record aktivitas untuk user
+                Aktivitas::create([
+                    'user_id' => $user->id,
+                    'judul' => 'Bonus Cashback',
+                    'keterangan' => "Menerima {$keterangan}",
+                    'tipe' => 'plus',
+                    'status' => 'Berhasil',
+                    'nominal' => $bonusAmount,
+                ]);
+            }
+
+            // Update saldo penghasilan sponsor
+            if ($totalBonus > 0) {
+                $user->saldo_penghasilan += $totalBonus;
+                $user->save();
+            }
+
+            // Trigger event untuk perubahan level user jika ada paket 2
+            if ($hasPaket2) {
+                event(new \App\Events\ChangeLevelUser($user, $user->poin_reward));
+            }
+        } else {
+            // Jika user tidak memiliki QR aktif, berikan cashback khusus untuk paket 1
+            // karena status_qr akan menjadi true secara otomatis ketika membeli paket 2
+            $totalBonus = 0;
+
+            foreach ($pembelian->details as $detail) {
+                if ($detail->paket == 1) {
+                    $bonusAmount = 10000;
+                    $keterangan = 'Bonus Cashback Aktivasi QR';
+
+                    $totalBonus += $bonusAmount;
+
+                    // Buat record penghasilan untuk user
+                    Penghasilan::create([
+                        'user_id' => $user->id,
+                        'kategori_bonus' => 'Bonus Cashback',
+                        'status_qr' => $statusQr,
+                        'tgl_dapat_bonus' => now(),
+                        'keterangan' => $keterangan,
+                        'nominal_bonus' => $bonusAmount,
+                    ]);
+
+                    // Buat record aktivitas untuk user
+                    Aktivitas::create([
+                        'user_id' => $user->id,
+                        'judul' => 'Bonus Cashback',
+                        'keterangan' => "Menerima {$keterangan}",
+                        'tipe' => 'plus',
+                        'status' => 'Berhasil',
+                        'nominal' => $bonusAmount,
+                    ]);
                 }
             }
 
-            // if ($dataJumlahPoinYangDidapat > 0) {
-            //     Aktivitas::create([
-            //         'user_id' => $user->id,
-            //         'judul' => 'Poin',
-            //         'keterangan' => "Mendapatkan poin dari quick reward ",
-            //         'tipe' => 'plus',
-            //         'status' => '',
-            //         'nominal' => $dataJumlahPoinYangDidapat,
-            //     ]);
-            // }
+            // Update saldo penghasilan user jika ada bonus
+            if ($totalBonus > 0) {
+                $user->saldo_penghasilan += $totalBonus;
+                $user->save();
+            }
         }
 
-        // Panggil event BonusGenerasi dengan isMemberAktivasi = false
-        // untuk menangani bonus reward upline (kode yang sebelumnya ada di baris 46-78)
+        // Panggil event BonusGenerasi untuk menangani bonus reward upline
         event(new \App\Events\BonusGenerasi($pembelian, false));
     }
 }

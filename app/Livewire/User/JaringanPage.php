@@ -15,6 +15,7 @@ class JaringanPage extends Component
     public $search = '';
     public $selectedLevel = '';
     public $perPage = 10;
+    public $showLevelFilter = false;
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -29,6 +30,20 @@ class JaringanPage extends Component
 
     public function updatingSelectedLevel()
     {
+        $this->resetPage();
+    }
+
+    public function filterByLevel($level)
+    {
+        $this->selectedLevel = $level;
+        $this->showLevelFilter = true;
+        $this->resetPage();
+    }
+
+    public function clearLevelFilter()
+    {
+        $this->selectedLevel = '';
+        $this->showLevelFilter = false;
         $this->resetPage();
     }
 

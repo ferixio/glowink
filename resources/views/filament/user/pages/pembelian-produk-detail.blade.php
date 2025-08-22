@@ -152,8 +152,7 @@
                                         <p class="text-sm text-red-500">
                                             Rp {{ number_format($detail->harga_beli, 0, ',', '.') }}
                                         </p>
-                                        <p class="text-xs text-green-600">Cashback: Rp
-                                            {{ number_format($detail->jml_beli * 10000, 0, ',', '.') }}</p>
+
                                     </div>
                                 </div>
                                 <p class="text-sm">Qty: {{ $detail->jml_beli }}</p>
@@ -166,11 +165,7 @@
                             <span>Total Quantity</span>
                             <span>{{ $pembelian->details->sum('jml_beli') }}</span>
                         </div>
-                        <div class="flex justify-between">
-                            <span class="font-semibold text-green-700">Total Cashback</span>
-                            <span class="font-semibold text-green-700">Rp
-                                {{ number_format($pembelian->total_cashback, 0, ',', '.') }}</span>
-                        </div>
+
                         <div class="flex justify-between font-bold">
                             <span>Total Pembelian</span>
                             <span>Rp {{ number_format($pembelian->total_beli, 0, ',', '.') }}</span>
