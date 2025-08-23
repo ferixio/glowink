@@ -101,11 +101,11 @@
                         </button>
                     @else
                         {{-- Show all buttons for regular shopping --}}
-                        {{-- <button
+                        <button
                             class="w-full mb-2 bg-teal-700 hover:bg-teal-800 text-white font-semibold py-2 px-4 rounded-md transition"
                             wire:click="changePage(1)" @if ($totalQty == 0) disabled @endif>
                             Aktivasi Member Baru
-                        </button> --}}
+                        </button>
                         <button
                             class="w-full mb-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md transition"
                             wire:click="stockPribadi" @if ($totalQty == 0) disabled @endif>
@@ -630,11 +630,11 @@
                     </button>
                 @else
                     {{-- Show all buttons for regular shopping --}}
-                    {{-- <button
+                    <button
                         class="w-full mb-2 bg-teal-700 hover:bg-teal-800 text-white font-semibold py-1.5 px-4 rounded-md transition"
                         wire:click="changePage(1)" @if ($totalQty == 0) disabled @endif>
                         Aktivasi Member Baru
-                    </button> --}}
+                    </button>
                     <button
                         class="w-full mb-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md transition"
                         wire:click="stockPribadi" @if ($totalQty == 0) disabled @endif>
