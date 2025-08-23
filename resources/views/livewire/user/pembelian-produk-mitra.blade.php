@@ -92,12 +92,20 @@
                         <span class="font-semibold text-black">Rp. {{ number_format($totalPrice, 0, ',', '.') }}</span>
                     </div>
 
-                    @if ($currentPage === 0)
+                    @if ($activeTab === 'belanja_pribadi')
+                        {{-- Only show Aktivasi Member button for personal shopping --}}
                         <button
                             class="w-full mb-2 bg-teal-700 hover:bg-teal-800 text-white font-semibold py-2 px-4 rounded-md transition"
                             wire:click="changePage(1)" @if ($totalQty == 0) disabled @endif>
-                            Aktivasi Member Baru
+                            Aktivasi Member
                         </button>
+                    @else
+                        {{-- Show all buttons for regular shopping --}}
+                        {{-- <button
+                            class="w-full mb-2 bg-teal-700 hover:bg-teal-800 text-white font-semibold py-2 px-4 rounded-md transition"
+                            wire:click="changePage(1)" @if ($totalQty == 0) disabled @endif>
+                            Aktivasi Member Baru
+                        </button> --}}
                         <button
                             class="w-full mb-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md transition"
                             wire:click="stockPribadi" @if ($totalQty == 0) disabled @endif>
@@ -108,24 +116,19 @@
                             wire:click="changePage(3)" @if ($totalQty == 0) disabled @endif>
                             Repeat Order / Dropship
                         </button>
-                        {{-- 
-                        <button
-                            class="w-full mb-2 bg-orange-200 hover:bg-orange-300 text-gray-800 font-semibold py-2 px-4 rounded-md transition"
-                            wire:click="changePage(4)" @if ($totalQty == 0) disabled @endif>
-                            Repeat Order Bulanan
-                        </button> --}}
                     @endif
                 </div>
             </div>
         </div>
     @endif
 
-    {{-- Produk --}}
-    <section class="w-full lg:w-8/12 ">
+    {{-- Main Content --}}
+    <section class="w-full lg:w-8/12">
+        {{-- Page Title --}}
         @php
             switch ($currentPage) {
                 case 0:
-                    $title = 'Belanja';
+                    $title = $activeTab === 'belanja_pribadi' ? 'Belanja Pribadi' : 'Belanja';
                     break;
                 case 1:
                     $title = 'Aktivasi Member Baru';
@@ -140,74 +143,188 @@
                     $title = 'Repeat Order Bulanan';
                     break;
                 default:
-                    $title = 'Belanja';
+                    $title = $activeTab === 'belanja_pribadi' ? 'Belanja Pribadi' : 'Belanja';
             }
         @endphp
 
-        <h1 class="md:text-3xl text-2xl my-4 font-bold">{{ $title }}</h1>
+        <h1 class="md:text-3xl text-2xl my-4 text-blue-500 font-bold">{{ $title }}</h1>
+
         @if ($currentPage === 0)
+            {{-- Tab Navigation --}}
+            <div class="flex space-x-1 bg-gray-100 p-1 rounded-lg mb-6">
+                <button wire:click="switchTab('belanja')"
+                    class="flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors {{ $activeTab === 'belanja' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-800' }}">
+                    Belanja
+                </button>
+                <button wire:click="switchTab('belanja_pribadi')"
+                    class="flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors {{ $activeTab === 'belanja_pribadi' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-800' }}">
+                    Belanja Pribadi
+                </button>
+            </div>
 
-            <section class="w-full">
-                <section class="w-full ">
-                    <form class="" wire:submit.prevent>
+            {{-- Tab Content --}}
+            @if ($activeTab === 'belanja')
+                {{-- Regular Shopping Tab --}}
+                <section class="w-full">
+                    <section class="w-full">
+                        <form class="" wire:submit.prevent>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                <div class="relative">
+                                    <label for="kabupaten" class="block text-sm font-medium text-gray-700 mb-1">Pilih
+                                        Kabupaten</label>
+                                    <select id="kabupaten" wire:model.live="selectedKabupaten"
+                                        class="w-full border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                                        <option value="">Pilih Kabupaten</option>
+                                        @foreach ($kabupatenList as $kabupaten)
+                                            <option value="{{ $kabupaten['nama'] }}">{{ $kabupaten['nama'] }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                            <div class="relative">
-                                <label for="kabupaten" class="block text-sm font-medium text-gray-700 mb-1">Pilih
-                                    Kabupaten</label>
-                                <select id="kabupaten" wire:model.live="selectedKabupaten"
-                                    class="w-full border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400">
-                                    <option value="">Pilih Kabupaten</option>
-                                    @foreach ($kabupatenList as $kabupaten)
-                                        <option value="{{ $kabupaten['nama'] }}">{{ $kabupaten['nama'] }}</option>
-                                    @endforeach
-                                </select>
-
+                                <div>
+                                    <label for="stockist" class="block text-sm font-medium text-gray-700 mb-1">Pilih
+                                        Stockist</label>
+                                    <select id="stockist" name="stockist" wire:model.live="selectedStockist"
+                                        class="w-full border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                                        @if (empty($selectedKabupaten))
+                                            <option value="">Pilih Kabupaten terlebih dahulu</option>
+                                        @elseif ($stockistList->isEmpty())
+                                            <option value="">Tidak ada Stockist di {{ $selectedKabupaten }}
+                                            </option>
+                                        @else
+                                            <option value="">Pilih Stockist untuk melihat stok produk</option>
+                                            @foreach ($stockistList as $stockist)
+                                                <option value="{{ $stockist->id }}">{{ $stockist->nama }}</option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                </div>
                             </div>
 
                             <div>
-                                <label for="stockist" class="block text-sm font-medium text-gray-700 mb-1">Pilih
-                                    Stockist</label>
-                                <select id="stockist" name="stockist" wire:model.live="selectedStockist"
-                                    class="w-full border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400">
-                                    @if (empty($selectedKabupaten))
-                                        <option value="">Pilih Kabupaten terlebih dahulu</option>
-                                    @elseif ($stockistList->isEmpty())
-                                        <option value="">Tidak ada Stockist di {{ $selectedKabupaten }}</option>
-                                    @else
-                                        <option value="">Pilih Stockist untuk melihat stok produk</option>
-                                        @foreach ($stockistList as $stockist)
-                                            <option value="{{ $stockist->id }}">{{ $stockist->nama }}</option>
-                                        @endforeach
-                                    @endif
-                                </select>
+                                <label class="block text-sm font-medium text-gray-900 mb-1">Data Produk</label>
+                                <div class="relative">
+                                    <input type="text" wire:model.live="search"
+                                        placeholder="Cari produk berdasarkan nama, paket, atau deskripsi..."
+                                        class="block w-full pl-4 pr-10 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor"
+                                            stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M21 21l-4.35-4.35M16.65 10.35a6.3 6.3 0 11-12.6 0 6.3 6.3 0 0112.6 0z" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                @if (!empty($search))
+                                    <div class="mt-2 text-sm text-gray-600">
+                                        Menampilkan {{ $produks->count() }} hasil untuk "{{ $search }}"
+                                    </div>
+                                @endif
                             </div>
+                        </form>
+                    </section>
+
+                    {{-- Product Filters and Grid --}}
+                    <section class="w-full mx-auto py-4">
+                        {{-- Tabs --}}
+                        <div class="flex space-x-4 border-b mb-6">
+                            <button wire:click="filterByPaket('all')"
+                                class="px-4 py-2 font-semibold text-sm border-b-2 transition-colors {{ $activeFilter === 'all' ? 'border-black text-black' : 'border-transparent text-gray-500 hover:text-black' }}">
+                                All Products
+                            </button>
+                            <button wire:click="filterByPaket('aktivasi')"
+                                class="px-4 py-2 font-semibold text-sm border-b-2 transition-colors {{ $activeFilter === 'aktivasi' ? 'border-black text-black' : 'border-transparent text-gray-500 hover:text-black' }}">
+                                Produk Aktivasi
+                            </button>
+                            <button wire:click="filterByPaket('quick_reward')"
+                                class="px-4 py-2 font-semibold text-sm border-b-2 transition-colors {{ $activeFilter === 'quick_reward' ? 'border-black text-black' : 'border-transparent text-gray-500 hover:text-black' }}">
+                                Produk Quick Reward
+                            </button>
                         </div>
 
-                        <div>
-                            <label class="block text-sm font-medium text-gray-900 mb-1">Data Produk</label>
-                            <div class="relative">
-                                <input type="text" wire:model.live="search"
-                                    placeholder="Cari produk berdasarkan nama, paket, atau deskripsi..."
-                                    class="block w-full pl-4 pr-10 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
-                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor"
-                                        stroke-width="2" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M21 21l-4.35-4.35M16.65 10.35a6.3 6.3 0 11-12.6 0 6.3 6.3 0 0112.6 0z" />
-                                    </svg>
-                                </div>
+                        {{-- Grid Product --}}
+                        @if (!empty($selectedStockist))
+                            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
+                                @forelse ($produks as $produk)
+                                    <button wire:click="addToCart({{ $produk->id }})"
+                                        class="flex flex-col items-start">
+                                        {{-- Card Gambar --}}
+                                        <div class="rounded-xl shadow-md overflow-hidden relative w-full">
+                                            {{-- Gambar --}}
+                                            <img src="{{ $produk->gambar ? asset('storage/' . $produk->gambar) : asset('images/empty.webp') }}"
+                                                alt="Product Image"
+                                                class="w-full h-48 md:h-40 lg:h-48 object-cover rounded-t-xl">
+
+                                            {{-- Info Stok di atas gambar --}}
+                                            @if (isset($produk->stok_tersedia))
+                                                <div
+                                                    class="absolute bottom-2 left-2 bg-green-600 text-white text-xs px-2 py-1 rounded z-20 shadow">
+                                                    Stok: {{ $produk->stok_tersedia }}
+                                                </div>
+                                            @endif
+
+                                            {{-- Glow (jika masih ingin pakai) --}}
+                                            <div
+                                                class="absolute inset-0 rounded-t-xl ring-4 ring-white opacity-80 z-0">
+                                            </div>
+                                        </div>
+
+                                        {{-- Info Produk di bawah gambar --}}
+                                        <div class="mt-2 px-1 text-left w-full">
+                                            <h3 class="text-xs md:text-sm font-bold leading-tight text-gray-800">
+                                                {{ $produk->nama }}
+                                            </h3>
+                                            <p class="text-xs text-gray-600 mt-1">
+                                                {{ $produk->paket == 1 ? 'Paket Aktivasi' : 'Paket Quick Reward' }}
+                                            </p>
+                                            <p class="text-orange-600 font-semibold text-xs md:text-sm mt-2">
+                                                Rp. {{ number_format($produk->harga_member, 0, ',', '.') }},-
+                                            </p>
+                                        </div>
+                                    </button>
+                                @empty
+                                    <div class="col-span-2 md:col-span-3 lg:col-span-4 text-center py-8">
+                                        <div class="text-gray-500">
+                                            @if (!empty($search))
+                                                Tidak ada produk yang cocok dengan pencarian "{{ $search }}"
+                                            @else
+                                                Stockist ini tidak memiliki stok produk yang tersedia
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endforelse
                             </div>
-                            @if (!empty($search))
-                                <div class="mt-2 text-sm text-gray-600">
-                                    Menampilkan {{ $produks->count() }} hasil untuk "{{ $search }}"
-                                </div>
-                            @endif
-                        </div>
-                    </form>
+                        @else
+                            <div class="text-gray-500 text-center py-8">
+                                Silakan pilih Stockist untuk melihat stok produk yang tersedia
+                            </div>
+                        @endif
+                    </section>
                 </section>
-                <section class="w-full mx-auto py-4">
-                    {{-- Tabs --}}
+            @else
+                {{-- Personal Shopping Tab --}}
+                <section class="w-full">
+                    <div class="mb-6">
+                        <div class="relative">
+                            <input type="text" wire:model.live="search"
+                                placeholder="Cari produk pribadi berdasarkan nama, paket, atau deskripsi..."
+                                class="block w-full pl-4 pr-10 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor"
+                                    stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M21 21l-4.35-4.35M16.65 10.35a6.3 6.3 0 11-12.6 0 6.3 6.3 0 0112.6 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                        @if (!empty($search))
+                            <div class="mt-2 text-sm text-gray-600">
+                                Menampilkan {{ $produkPribadi->count() }} hasil untuk "{{ $search }}"
+                            </div>
+                        @endif
+                    </div>
+
+                    {{-- Product Filters --}}
                     <div class="flex space-x-4 border-b mb-6">
                         <button wire:click="filterByPaket('all')"
                             class="px-4 py-2 font-semibold text-sm border-b-2 transition-colors {{ $activeFilter === 'all' ? 'border-black text-black' : 'border-transparent text-gray-500 hover:text-black' }}">
@@ -222,75 +339,65 @@
                             Produk Quick Reward
                         </button>
                     </div>
-                    {{-- Grid Product --}}
-                    @if (!empty($selectedStockist))
-                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
-                            @forelse ($produks as $produk)
-                                <button wire:click="addToCart({{ $produk->id }})"
-                                    class="flex flex-col items-start">
-                                    {{-- Card Gambar --}}
-                                    <div class="rounded-xl shadow-md overflow-hidden relative w-full">
-                                        {{-- Gambar --}}
-                                        <img src="{{ $produk->gambar ? asset('storage/' . $produk->gambar) : asset('images/empty.webp') }}"
-                                            alt="Product Image"
-                                            class="w-full h-32 md:h-40 lg:h-48 object-cover rounded-t-xl">
 
-                                        {{-- Info Stok di atas gambar --}}
-                                        @if (isset($produk->stok_tersedia))
-                                            <div
-                                                class="absolute bottom-2 left-2 bg-green-600 text-white text-xs px-2 py-1 rounded z-20 shadow">
-                                                Stok: {{ $produk->stok_tersedia }}
-                                            </div>
-                                        @endif
+                    {{-- Grid Product Pribadi --}}
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
+                        @forelse ($produkPribadi as $produk)
+                            <button wire:click="addToCart({{ $produk->id }})" class="flex flex-col  items-start">
+                                {{-- Card Gambar --}}
+                                <div class="rounded-xl shadow-md overflow-hidden relative w-full">
+                                    {{-- Gambar --}}
+                                    <img src="{{ $produk->gambar ? asset('storage/' . $produk->gambar) : asset('images/empty.webp') }}"
+                                        alt="Product Image"
+                                        class="w-full h-48 md:h-40 lg:h-48 object-cover rounded-t-xl">
 
-                                        {{-- Glow (jika masih ingin pakai) --}}
-                                        <div class="absolute inset-0 rounded-t-xl ring-4 ring-white opacity-80 z-0">
+                                    {{-- Info Stok di atas gambar --}}
+                                    @if (isset($produk->stok_tersedia))
+                                        <div
+                                            class="absolute bottom-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded z-20 shadow">
+                                            Stok: {{ $produk->stok_tersedia }}
                                         </div>
-                                    </div>
+                                    @endif
 
-                                    {{-- Info Produk di bawah gambar --}}
-                                    <div class="mt-2 px-1 text-left w-full">
-                                        <h3 class="text-xs md:text-sm font-bold leading-tight text-gray-800">
-                                            {{ $produk->nama }}
-                                        </h3>
-                                        <p class="text-xs text-gray-600 mt-1">
-                                            {{ $produk->paket == 1 ? 'Paket Aktivasi' : 'Paket Quick Reward' }}
-                                        </p>
-                                        <p class="text-orange-600 font-semibold text-xs md:text-sm mt-2">
-                                            Rp. {{ number_format($produk->harga_member, 0, ',', '.') }},-
-                                        </p>
-                                    </div>
-                                </button>
-                            @empty
-                                <div class="col-span-2 md:col-span-3 lg:col-span-4 text-center py-8">
-                                    <div class="text-gray-500">
-                                        @if (!empty($search))
-                                            Tidak ada produk yang cocok dengan pencarian "{{ $search }}"
-                                        @else
-                                            Stockist ini tidak memiliki stok produk yang tersedia
-                                        @endif
+                                    {{-- Glow --}}
+                                    <div class="absolute inset-0 rounded-t-xl ring-4 ring-white opacity-80 z-0">
                                     </div>
                                 </div>
-                            @endforelse
-                        </div>
-                    @else
-                        <div class="text-gray-500 text-center py-8">
-                            Silakan pilih Stockist untuk melihat stok produk yang tersedia
-                        </div>
-                    @endif
 
-
+                                {{-- Info Produk di bawah gambar --}}
+                                <div class="mt-2 px-1 text-left w-full">
+                                    <h3 class="text-xs md:text-sm font-bold leading-tight text-gray-800">
+                                        {{ $produk->nama }}
+                                    </h3>
+                                    <p class="text-xs text-gray-600 mt-1">
+                                        {{ $produk->paket == 1 ? 'Paket Aktivasi' : 'Paket Quick Reward' }}
+                                    </p>
+                                    <p class="text-blue-600 font-semibold text-xs md:text-sm mt-2">
+                                        Rp. {{ number_format($produk->harga_member, 0, ',', '.') }},-
+                                    </p>
+                                </div>
+                            </button>
+                        @empty
+                            <div class="col-span-2 md:col-span-3 lg:col-span-4 text-center py-8">
+                                <div class="text-gray-500">
+                                    @if (!empty($search))
+                                        Tidak ada produk pribadi yang cocok dengan pencarian "{{ $search }}"
+                                    @else
+                                        Anda tidak memiliki stok produk pribadi yang tersedia
+                                    @endif
+                                </div>
+                            </div>
+                        @endforelse
+                    </div>
                 </section>
-            </section>
-
-
-            {{-- halaman aktivasi member --}}
+            @endif
         @elseif ($currentPage === 1)
+            {{-- halaman aktivasi member --}}
             <section class="w-full">
                 <form class="space-y-6">
-
                     <div>
-                        <label for="nama" class="block text-sm font-medium text-gray-700">Nama Member (Sesuai Nama
+                        <label for="nama" class="block text-sm font-medium text-gray-700">Nama Member (Sesuai
+                            Nama
                             di Rekening)</label>
                         <input type="text" id="nama" wire:model="nama"
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
@@ -300,9 +407,9 @@
                         @enderror
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
                         <div>
-                            <label for="nama_bank" class="block text-sm font-medium text-gray-700">Nama Bank</label>
+                            <label for="nama_bank" class="block text-sm font-medium text-gray-700">Nama
+                                Bank</label>
                             <input type="text" id="nama_bank" wire:model="nama_bank"
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
                                 placeholder="Masukkan nama bank Anda">
@@ -343,7 +450,6 @@
                                 <span class="text-red-500 text-sm">{{ $message }}</span>
                             @enderror
                         </div>
-
                     </div>
                 </form>
                 <button
@@ -357,9 +463,8 @@
                     Kembali
                 </button>
             </section>
-
-            {{-- halaman stock pribadi --}}
         @elseif ($currentPage === 3)
+            {{-- halaman stock pribadi --}}
             <section class="w-full">
                 <form class="space-y-6">
                     <div>
@@ -372,7 +477,6 @@
                             <span class="text-red-500 text-sm">{{ $message }}</span>
                         @enderror
                     </div>
-
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
@@ -395,12 +499,8 @@
                                 <span class="text-red-500 text-sm">{{ $message }}</span>
                             @enderror
                         </div>
-
-
                     </div>
                     <div class="flex flex-col w-full">
-
-
                         <button type="button"
                             class="w-full mt-6  bg-orange-500 hover:bg-orange-600 text-white font-semibold py-1.5 px-4 rounded-md transition"
                             wire:click="repeatOrder" @if ($totalQty == 0) disabled @endif>
@@ -415,6 +515,7 @@
                 </form>
             </section>
         @elseif ($currentPage === 4)
+            {{-- halaman repeat order bulanan --}}
             <section class="w-full">
                 <form class="space-y-6">
                     <div>
@@ -427,7 +528,6 @@
                             <span class="text-red-500 text-sm">{{ $message }}</span>
                         @enderror
                     </div>
-
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
@@ -450,12 +550,8 @@
                                 <span class="text-red-500 text-sm">{{ $message }}</span>
                             @enderror
                         </div>
-
-
                     </div>
                     <div class="flex flex-col w-full">
-
-
                         <button type="button"
                             class="w-full mt-6  bg-orange-500 hover:bg-orange-600 text-white font-semibold py-1.5 px-4 rounded-md transition"
                             wire:click="repeatOrderBulanan" @if ($totalQty == 0) disabled @endif>
@@ -475,17 +571,17 @@
                 <!-- Konten default -->
             </section>
         @endif
-
     </section>
-    {{-- keranjang --}}
+
+    {{-- Desktop Cart Sidebar --}}
     <section class="hidden lg:block w-4/12">
-        {{-- Bagian cart yang sudah ada sebelumnya --}}
         <div class="sticky top-12 w-full max-w-md  shadow p-5 space-y-4 h-[calc(100vh-3rem)] flex flex-col">
             <h2 class="text-base font-semibold text-gray-800">Detail Pembelian</h2>
+
             {{-- Daftar Produk Scrollable --}}
             <div class="overflow-y-auto flex-1 space-y-4 pr-2">
                 @forelse ($cart as $item)
-                    <div class="flex items-center justify-between border-b pb-4">
+                    <div class="flex items-center  justify-between border-b pb-4">
                         <div class="flex items-center space-x-3">
                             <img src="{{ $item['gambar'] ? asset('storage/' . $item['gambar']) : asset('images/empty.webp') }}"
                                 alt="Product" class="w-12 h-12 rounded-full object-cover">
@@ -513,7 +609,6 @@
                 @endforelse
             </div>
 
-
             {{-- Total & Tombol --}}
             <div class="pt-4 border-t">
                 <h3 class="text-sm font-semibold text-gray-800 mb-2">Total Pembelian</h3>
@@ -525,14 +620,23 @@
                     <span>Total Pembelian</span>
                     <span class="font-semibold text-black">Rp. {{ number_format($totalPrice, 0, ',', '.') }}</span>
                 </div>
-                @if ($currentPage === 0)
+
+                @if ($activeTab === 'belanja_pribadi')
+                    {{-- Only show Aktivasi Member button for personal shopping --}}
                     <button
                         class="w-full mb-2 bg-teal-700 hover:bg-teal-800 text-white font-semibold py-1.5 px-4 rounded-md transition"
                         wire:click="changePage(1)" @if ($totalQty == 0) disabled @endif>
-                        Aktivasi Member Baru
+                        Aktivasi Member
                     </button>
+                @else
+                    {{-- Show all buttons for regular shopping --}}
+                    {{-- <button
+                        class="w-full mb-2 bg-teal-700 hover:bg-teal-800 text-white font-semibold py-1.5 px-4 rounded-md transition"
+                        wire:click="changePage(1)" @if ($totalQty == 0) disabled @endif>
+                        Aktivasi Member Baru
+                    </button> --}}
                     <button
-                        class="w-full mb-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1.5 px-4 rounded-md transition"
+                        class="w-full mb-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md transition"
                         wire:click="stockPribadi" @if ($totalQty == 0) disabled @endif>
                         Stock Pribadi
                     </button>
@@ -541,11 +645,6 @@
                         wire:click="changePage(3)" @if ($totalQty == 0) disabled @endif>
                         Repeat Order / Dropship
                     </button>
-                    {{-- <button
-                        class="w-full  bg-orange-200 hover:bg-orange-300 text-gray-800 font-semibold py-1.5 px-4 rounded-md transition"
-                        wire:click="changePage(4)" @if ($totalQty == 0) disabled @endif>
-                        Repeat Order Bulanan
-                    </button> --}}
                 @endif
             </div>
         </div>

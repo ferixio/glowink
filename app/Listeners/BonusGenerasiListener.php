@@ -142,16 +142,16 @@ class BonusGenerasiListener
                     ];
 
                     // Aktivitas untuk Kehilangan Peluang Bonus Generasi
-                    $activitiesToCreate[] = [
-                        'user_id' => $sponsor->id,
-                        'judul' => 'Kehilangan Peluang Bonus Generasi',
-                        'keterangan' => "Kehilangan peluang bonus generasi {$totalBonus} dari member #{$user->id_mitra}",
-                        'tipe' => 'minus',
-                        'status' => '',
-                        'nominal' => null,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ];
+                    // $activitiesToCreate[] = [
+                    //     'user_id' => $sponsor->id,
+                    //     'judul' => 'Kehilangan Peluang Bonus Generasi',
+                    //     'keterangan' => "Kehilangan peluang bonus generasi {$totalBonus} dari member #{$user->id_mitra}",
+                    //     'tipe' => 'minus',
+                    //     'status' => '',
+                    //     'nominal' => null,
+                    //     'created_at' => now(),
+                    //     'updated_at' => now(),
+                    // ];
                 }
 
                 // Kumpulkan PembelianBonus untuk dibuat nanti
@@ -164,6 +164,7 @@ class BonusGenerasiListener
                         'pembelian_id' => $pembelian->id,
                         'user_id' => $sponsor->id,
                         'keterangan' => "ID {$idMitra} mendapatkan {$point} point dan BONUS GENERASI {$nominalPembelianBonus}",
+                        'tipe' => 'bonus',
                         'created_at' => now(),
                         'updated_at' => now(),
                     ];
@@ -171,7 +172,17 @@ class BonusGenerasiListener
                     $pembelianBonusesToCreate[] = [
                         'pembelian_id' => $pembelian->id,
                         'user_id' => $sponsor->id,
-                        'keterangan' => "ID {$idMitra} kehilangan peluang {$point} point dan BONUS GENERASI {$nominalPembelianBonus}",
+                        'keterangan' => "ID {$idMitra} mendapatkan BONUS GENERASI {$nominalPembelianBonus}",
+                        'tipe' => 'bonus',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+
+                    $pembelianBonusesToCreate[] = [
+                        'pembelian_id' => $pembelian->id,
+                        'user_id' => $sponsor->id,
+                        'keterangan' => "ID {$idMitra} kehilangan peluang {$point} point  ",
+                        'tipe' => 'loss',
                         'created_at' => now(),
                         'updated_at' => now(),
                     ];

@@ -9,7 +9,7 @@
                     <div class="bg-green-100 border border-green-400 text-green-800 px-6 py-4 rounded">
                         <h2 class="font-bold text-lg">Proses Pembelian telah masuk ke system</h2>
                         <p class="text-sm">Silahkan melakukan proses pembayaran ke rekening di bawah ini dan upload bukti
-                            transfer anda agar segera diproses oleh {{ $company ? 'Admin' : 'Stockis' }}</p>
+                            transfer anda agar segera diproses </p>
                         <div class="mt-2 font-semibold">
                             @if ($company)
                                 {{ $company->bank_name }} <br>
@@ -194,7 +194,8 @@
 
                                         @if ($bonus->keterangan)
                                             <div class="flex items-center space-x-2 mt-1">
-                                                <span class=" text-gray-600">{{ $bonus->keterangan }}</span>
+                                                <span
+                                                    class=" text-gray-600 {{ $bonus->tipe === 'bonus' ? 'text-gray-900' : 'text-red-500' }}">{{ $bonus->keterangan }}</span>
                                             </div>
                                         @endif
                                     </div>

@@ -38,6 +38,8 @@ class PembelianDetailResource extends Resource
 
                 Tables\Columns\TextColumn::make('nama_produk')
                     ->label('Nama Produk'),
+                Tables\Columns\TextColumn::make('jml_beli')
+                    ->label('Quantity'),
                 Tables\Columns\TextColumn::make('pin')
                     ->label('PIN'),
                 Tables\Columns\TextColumn::make('is_accepted')

@@ -6,6 +6,8 @@ use App\Events\BonusGenerasi;
 use App\Events\BonusReward;
 use App\Events\BonusSponsor;
 use App\Events\PembelianDiterima;
+use App\Models\Pembelian;
+use App\Models\PembelianBonus;
 
 class ProsesPembelianDiterima
 {
@@ -49,13 +51,20 @@ class ProsesPembelianDiterima
                                 ]);
 
                                 // Add to sponsor's income balance
-                                $sponsor->saldo_penghasilan += 20000;
-                                $sponsor->save();
+                                // $sponsor->saldo_penghasilan += 20000;
+                                // $sponsor->save();
+
+                                // PembelianBonus::create([
+                                //     'pembelian_id' => $pembelian->id,
+                                //     'user_id' => $sponsor->id,
+                                //     'keterangan' => 'bonus sponsor (Member update Quick Reward)',
+                                // ]);
                             }
                         }
 
                         break; // Exit loop once we find a matching detail
                     }
+                    
                 }
             }
         }
@@ -87,29 +96,29 @@ class ProsesPembelianDiterima
                 }
             }
         }
-        if ($pembelian->beli_dari) {
-            $seller = \App\Models\User::find($pembelian->beli_dari);
-            if ($seller && !$seller->isAdmin) {
-                $seller->saldo_penghasilan += $pembelian->total_beli;
-                $seller->save();
-                \App\Models\Penghasilan::create([
-                    'user_id' => $seller->id,
-                    'kategori_bonus' => 'Pemasukan',
-                    'status_qr' => $seller->status_qr,
-                    'tgl_dapat_bonus' => now(),
-                    'keterangan' => 'penambahan saldo stockist',
-                    'nominal_bonus' => $pembelian->total_beli,
-                ]);
-                \App\Models\Aktivitas::create([
-                    'user_id' => $seller->id,
-                    'judul' => 'Penjualan Produk',
-                    'keterangan' => "Menerima pemasukan dari penjualan produk {$pembelian->kategori_pembelian} oleh #{$user->id_mitra}",
-                    'tipe' => 'plus',
-                    'status' => 'Berhasil',
-                    'nominal' => $pembelian->total_beli,
-                ]);
-            }
-        }
+        // if ($pembelian->beli_dari) {
+        //     $seller = \App\Models\User::find($pembelian->beli_dari);
+        //     if ($seller && !$seller->isAdmin) {
+        //         $seller->saldo_penghasilan += $pembelian->total_beli;
+        //         $seller->save();
+        //         \App\Models\Penghasilan::create([
+        //             'user_id' => $seller->id,
+        //             'kategori_bonus' => 'Pemasukan',
+        //             'status_qr' => $seller->status_qr,
+        //             'tgl_dapat_bonus' => now(),
+        //             'keterangan' => 'penambahan saldo stockist',
+        //             'nominal_bonus' => $pembelian->total_beli,
+        //         ]);
+        //         \App\Models\Aktivitas::create([
+        //             'user_id' => $seller->id,
+        //             'judul' => 'Penjualan Produk',
+        //             'keterangan' => "Menerima pemasukan dari penjualan produk {$pembelian->kategori_pembelian} oleh #{$user->id_mitra}",
+        //             'tipe' => 'plus',
+        //             'status' => 'Berhasil',
+        //             'nominal' => $pembelian->total_beli,
+        //         ]);
+        //     }
+        // }
         if ($pembelian->kategori_pembelian == 'aktivasi member') {
             event(new BonusSponsor($pembelian));
             event(new BonusGenerasi($pembelian, true));
@@ -117,7 +126,7 @@ class ProsesPembelianDiterima
         }
         if ($pembelian->kategori_pembelian == 'repeat order' || $pembelian->kategori_pembelian == 'stock pribadi') {
             event(new BonusReward($pembelian));
-            
+
         }
 
         // if($pembelian->kategori_pembelian == 'repeat order' && $pembelian->status_pembelian == 'selesai') {

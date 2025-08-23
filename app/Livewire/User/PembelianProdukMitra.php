@@ -44,6 +44,12 @@ class PembelianProdukMitra extends Component
     // Cart sidebar properties
     public $showCartSidebar = false;
 
+    public $isStockPribadi = false;
+
+    // New properties for tabbed interface
+    public $activeTab = 'belanja'; // 'belanja' or 'belanja_pribadi'
+    public $produkPribadi = []; // Products from user's personal stock
+
     public function mount()
     {
         $this->cart = Session::get('cart', []);
@@ -52,6 +58,7 @@ class PembelianProdukMitra extends Component
         $this->updateTotals();
         $this->loadKabupatenList();
         $this->loadStockis();
+        $this->loadProdukPribadi();
     }
 
     public function loadKabupatenList()
@@ -108,18 +115,78 @@ class PembelianProdukMitra extends Component
         $this->cart = [];
         Session::forget('cart');
         $this->updateTotals();
-        $this->loadProduks();
+        if ($this->activeTab === 'belanja_pribadi') {
+            $this->loadProdukPribadi();
+        } else {
+            $this->loadProduks();
+        }
+    }
+
+    public function switchTab($tab)
+    {
+        $this->activeTab = $tab;
+        $this->search = '';
+        $this->activeFilter = 'all';
+
+        // Clear cart when switching tabs
+        $this->cart = [];
+        Session::forget('cart');
+        $this->updateTotals();
+        $this->showCartSidebar = false;
+
+        if ($tab === 'belanja_pribadi') {
+            $this->loadProdukPribadi();
+        } else {
+            $this->loadProduks();
+        }
+    }
+
+    public function loadProdukPribadi()
+    {
+        $user = Auth::user();
+
+        $query = Produk::join('produk_stoks', 'produks.id', '=', 'produk_stoks.produk_id')
+            ->where('produk_stoks.user_id', $user->id)
+            ->where('produk_stoks.stok', '>', 0)
+            ->select('produks.*', 'produk_stoks.stok as stok_tersedia');
+
+        // Filter by package type
+        if ($this->activeFilter === 'aktivasi') {
+            $query->where('produks.paket', 1);
+        } elseif ($this->activeFilter === 'quick_reward') {
+            $query->where('produks.paket', 2);
+        }
+
+        if (!empty($this->search)) {
+            $searchTerm = trim($this->search);
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('produks.nama', 'LIKE', "%{$searchTerm}%")
+                    ->orWhere('produks.paket', 'LIKE', "%{$searchTerm}%")
+                    ->orWhere('produks.deskripsi', 'LIKE', "%{$searchTerm}%")
+                    ->orWhere('produks.id', 'LIKE', "%{$searchTerm}%");
+            });
+        }
+
+        $this->produkPribadi = $query->get();
     }
 
     public function updatedSearch()
     {
-        $this->searchProduk();
+        if ($this->activeTab === 'belanja_pribadi') {
+            $this->loadProdukPribadi();
+        } else {
+            $this->searchProduk();
+        }
     }
 
     public function filterByPaket($filter)
     {
         $this->activeFilter = $filter;
-        $this->loadProduks();
+        if ($this->activeTab === 'belanja_pribadi') {
+            $this->loadProdukPribadi();
+        } else {
+            $this->loadProduks();
+        }
     }
 
     public function searchProduk()
@@ -197,26 +264,38 @@ class PembelianProdukMitra extends Component
     public function addToCart($produkId)
     {
         try {
-            // Validasi apakah kabupaten sudah dipilih
-            if (empty($this->selectedKabupaten)) {
-                session()->flash('error', 'Silakan pilih Kabupaten terlebih dahulu');
-                return;
-            }
+            if ($this->activeTab === 'belanja_pribadi') {
+                // Personal shopping - validate against user's own stock
+                $user = Auth::user();
+                $produkStok = ProdukStok::where('user_id', $user->id)
+                    ->where('produk_id', $produkId)
+                    ->first();
 
-            // Validasi apakah stockist sudah dipilih
-            if (empty($this->selectedStockist)) {
-                session()->flash('error', 'Silakan pilih Stockist terlebih dahulu');
-                return;
-            }
+                if (!$produkStok || $produkStok->stok <= 0) {
+                    session()->flash('error', 'Stok produk pribadi tidak tersedia');
+                    return;
+                }
+            } else {
+                // Regular shopping - validate kabupaten and stockist
+                if (empty($this->selectedKabupaten)) {
+                    session()->flash('error', 'Silakan pilih Kabupaten terlebih dahulu');
+                    return;
+                }
 
-            // Validasi stok tersedia
-            $produkStok = ProdukStok::where('user_id', $this->selectedStockist)
-                ->where('produk_id', $produkId)
-                ->first();
+                if (empty($this->selectedStockist)) {
+                    session()->flash('error', 'Silakan pilih Stockist terlebih dahulu');
+                    return;
+                }
 
-            if (!$produkStok || $produkStok->stok <= 0) {
-                session()->flash('error', 'Stok produk tidak tersedia');
-                return;
+                // Validasi stok tersedia
+                $produkStok = ProdukStok::where('user_id', $this->selectedStockist)
+                    ->where('produk_id', $produkId)
+                    ->first();
+
+                if (!$produkStok || $produkStok->stok <= 0) {
+                    session()->flash('error', 'Stok produk tidak tersedia');
+                    return;
+                }
             }
 
             $produk = Produk::find($produkId);
@@ -243,14 +322,19 @@ class PembelianProdukMitra extends Component
                     'harga' => $produk->harga_member,
                     'qty' => 1,
                     'gambar' => $produk->gambar,
-                    'stockist_id' => $this->selectedStockist,
+                    'stockist_id' => $this->activeTab === 'belanja_pribadi' ? Auth::id() : $this->selectedStockist,
+                    'is_personal' => $this->activeTab === 'belanja_pribadi',
                 ];
             }
 
             Session::put('cart', $cart);
             $this->cart = $cart;
             $this->updateTotals();
-            $this->loadProduks(); // Tambahkan ini
+            if ($this->activeTab === 'belanja_pribadi') {
+                $this->loadProdukPribadi();
+            } else {
+                $this->loadProduks();
+            }
 
         } catch (\Exception $e) {
             session()->flash('error', 'Terjadi kesalahan saat menambahkan produk');
@@ -261,10 +345,30 @@ class PembelianProdukMitra extends Component
     {
         $cart = Session::get('cart', []);
 
+        // Find the cart item to determine if it's personal or regular
+        $cartItem = null;
+        foreach ($cart as $item) {
+            if ($item['id'] == $produkId) {
+                $cartItem = $item;
+                break;
+            }
+        }
+
+        if (!$cartItem) {
+            session()->flash('error', 'Produk tidak ditemukan di keranjang');
+            return;
+        }
+
         // Validasi stok sebelum increment
-        $produkStok = ProdukStok::where('user_id', $this->selectedStockist)
-            ->where('produk_id', $produkId)
-            ->first();
+        if ($cartItem['is_personal'] ?? false) {
+            $produkStok = ProdukStok::where('user_id', Auth::id())
+                ->where('produk_id', $produkId)
+                ->first();
+        } else {
+            $produkStok = ProdukStok::where('user_id', $this->selectedStockist)
+                ->where('produk_id', $produkId)
+                ->first();
+        }
 
         if (!$produkStok) {
             session()->flash('error', 'Stok produk tidak tersedia');
@@ -284,7 +388,11 @@ class PembelianProdukMitra extends Component
                 Session::put('cart', $cart);
                 $this->cart = $cart;
                 $this->updateTotals();
-                $this->loadProduks(); // Tambahkan ini
+                if ($this->activeTab === 'belanja_pribadi') {
+                    $this->loadProdukPribadi();
+                } else {
+                    $this->loadProduks();
+                }
                 return;
             }
         }
@@ -301,7 +409,11 @@ class PembelianProdukMitra extends Component
                 Session::put('cart', $cart);
                 $this->cart = $cart;
                 $this->updateTotals();
-                $this->loadProduks(); // Tambahkan ini
+                if ($this->activeTab === 'belanja_pribadi') {
+                    $this->loadProdukPribadi();
+                } else {
+                    $this->loadProduks();
+                }
                 return;
             }
         }
@@ -318,7 +430,11 @@ class PembelianProdukMitra extends Component
                 Session::put('cart', $cart);
                 $this->cart = $cart;
                 $this->updateTotals();
-                $this->loadProduks(); // Tambahkan ini
+                if ($this->activeTab === 'belanja_pribadi') {
+                    $this->loadProdukPribadi();
+                } else {
+                    $this->loadProduks();
+                }
                 return;
             }
         }
@@ -340,16 +456,25 @@ class PembelianProdukMitra extends Component
 
     public function aktivasiMember()
     {
-        // Validasi kabupaten dipilih
-        if (empty($this->selectedKabupaten)) {
-            session()->flash('error', 'Silakan pilih Kabupaten terlebih dahulu');
-            return;
+        // Check if this is personal shopping
+        $cart = Session::get('cart', []);
+        $isPersonalShopping = false;
+        if (!empty($cart)) {
+            $firstItem = reset($cart);
+            $isPersonalShopping = $firstItem['is_personal'] ?? false;
         }
 
-        // Validasi stockist dipilih
-        if (empty($this->selectedStockist)) {
-            session()->flash('error', 'Silakan pilih Stockist terlebih dahulu');
-            return;
+        if (!$isPersonalShopping) {
+            // Regular shopping validation
+            if (empty($this->selectedKabupaten)) {
+                session()->flash('error', 'Silakan pilih Kabupaten terlebih dahulu');
+                return;
+            }
+
+            if (empty($this->selectedStockist)) {
+                session()->flash('error', 'Silakan pilih Stockist terlebih dahulu');
+                return;
+            }
         }
 
         // Validate form data
@@ -379,7 +504,7 @@ class PembelianProdukMitra extends Component
                 'no_telp' => $this->telepon,
                 'alamat' => $this->alamat,
                 'provinsi' => null, // bisa diisi dari form jika ada
-                'kabupaten' => $this->selectedKabupaten,
+                'kabupaten' => $isPersonalShopping ? Auth::user()->kabupaten : $this->selectedKabupaten,
                 'email' => null, // bisa diisi dari form jika ada
                 'username' => null, // bisa diisi dari form jika ada
                 'password' => bcrypt('password'),
@@ -552,12 +677,22 @@ class PembelianProdukMitra extends Component
         DB::beginTransaction();
         try {
 
-            if (empty($this->selectedKabupaten)) {
-                session()->flash('error', 'Silakan pilih Kabupaten terlebih dahulu');
-                return;
+            // Check if this is personal shopping
+            $isPersonalShopping = false;
+            $cart = Session::get('cart', []);
+            if (!empty($cart)) {
+                $firstItem = reset($cart);
+                $isPersonalShopping = $firstItem['is_personal'] ?? false;
             }
 
-            $cart = Session::get('cart', []);
+            if (!$isPersonalShopping) {
+                // Regular shopping validation
+                if (empty($this->selectedKabupaten)) {
+                    session()->flash('error', 'Silakan pilih Kabupaten terlebih dahulu');
+                    return;
+                }
+            }
+
             if (empty($cart)) {
                 session()->flash('error', 'Keranjang kosong!');
                 return;
@@ -565,9 +700,15 @@ class PembelianProdukMitra extends Component
 
             // Validasi stok untuk semua item di cart
             foreach ($cart as $item) {
-                $produkStok = ProdukStok::where('user_id', $this->selectedStockist)
-                    ->where('produk_id', $item['id'])
-                    ->first();
+                if ($isPersonalShopping) {
+                    $produkStok = ProdukStok::where('user_id', Auth::id())
+                        ->where('produk_id', $item['id'])
+                        ->first();
+                } else {
+                    $produkStok = ProdukStok::where('user_id', $this->selectedStockist)
+                        ->where('produk_id', $item['id'])
+                        ->first();
+                }
 
                 if (!$produkStok || $produkStok->stok < $item['qty']) {
                     session()->flash('error', 'Stok produk ' . $item['nama'] . ' tidak mencukupi');
@@ -600,7 +741,7 @@ class PembelianProdukMitra extends Component
             $pembelian = Pembelian::create([
                 'tgl_beli' => $tanggalBeli,
                 'user_id' => $userId,
-                'beli_dari' => $this->selectedStockist,
+                'beli_dari' => $isPersonalShopping ? Auth::id() : $this->selectedStockist,
                 'id_sponsor' => $kategoriPembelian === 'aktivasi member' ? Auth::id() : null,
                 'tujuan_beli' => 'null',
                 'nama_penerima' => $namaPenerima,
@@ -635,6 +776,22 @@ class PembelianProdukMitra extends Component
                 // Tidak perlu mengurangi stok stockist di sini
             }
 
+            // Auto approve when personal shopping, mirroring EditApprovePembelian logic
+            if ($isPersonalShopping) {
+                $pembelianDetails = \App\Models\PembelianDetail::where('pembelian_id', $pembelian->id)->get();
+
+                $pembelianDetails->each(function ($item) {
+                    $generatedRandomPin = str_pad(mt_rand(0, 999999), 6, '0', STR_PAD_LEFT);
+                    $item->pin = $generatedRandomPin;
+                    $item->save();
+                });
+
+                event(new \App\Events\PembelianDiterima($pembelian));
+
+                $pembelian->status_pembelian = 'selesai';
+                $pembelian->save();
+            }
+
             // Buat aktivitas berdasarkan kategori pembelian
             $this->createAktivitas($pembelian, $kategoriPembelian);
 
@@ -651,11 +808,17 @@ class PembelianProdukMitra extends Component
             $this->updateTotals();
             $this->showCartSidebar = false;
 
-            $this->loadProduks();
+            if ($this->activeTab === 'belanja_pribadi') {
+                $this->loadProdukPribadi();
+            } else {
+                $this->loadProduks();
+            }
 
             DB::commit();
 
-            session()->flash('success', 'Pembelian berhasil! Menunggu approval dari admin.');
+            session()->flash('success', $isPersonalShopping
+                ? 'Pembelian berhasil dan disetujui otomatis.'
+                : 'Pembelian berhasil! Menunggu approval dari admin.');
             return redirect()->route('filament.user.resources.pembelians.detail', ['record' => $pembelian->id]);
 
         } catch (\Exception $e) {
