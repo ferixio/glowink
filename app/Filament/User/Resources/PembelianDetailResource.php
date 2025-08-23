@@ -2,6 +2,7 @@
 
 namespace App\Filament\User\Resources;
 
+use App\Events\BonusAktivasiPin;
 use App\Events\PembelianDetailAktivasi;
 use App\Filament\User\Resources\PembelianDetailResource\Pages;
 use App\Models\PembelianDetail;
@@ -93,9 +94,9 @@ class PembelianDetailResource extends Resource
                         ->action(function (Collection $records) {
                             $records->each(function ($record) {
                                 $record->update(['is_accepted' => true]);
-
+                                event(new BonusAktivasiPin($record, auth()->user()));
                                 // Trigger event untuk menambah saldo_penghasilan
-                                event(new PembelianDetailAktivasi($record, auth()->user()));
+                                // event(new PembelianDetailAktivasi($record, auth()->user()));
                             });
 
                         }),

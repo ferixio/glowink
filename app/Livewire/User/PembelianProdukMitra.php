@@ -786,7 +786,7 @@ class PembelianProdukMitra extends Component
                     $item->save();
                 });
 
-                event(new \App\Events\PembelianDiterima($pembelian));
+                // event(new \App\Events\PembelianDiterima($pembelian));
 
                 $pembelian->status_pembelian = 'selesai';
                 $pembelian->save();
