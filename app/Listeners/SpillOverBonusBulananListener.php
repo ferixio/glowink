@@ -195,6 +195,7 @@ class SpillOverBonusBulananListener
                             'pembelian_id' => $pembelian->id,
                             'user_id' => $sponsor->id,
                             'keterangan' => "ID {$idMitra} mendapatkan {$point} point dan BONUS GENERASI {$nominalPembelianBonus}",
+                            'tipe' => 'bonus',
                             'created_at' => now(),
                             'updated_at' => now(),
                         ];
@@ -203,6 +204,7 @@ class SpillOverBonusBulananListener
                             'pembelian_id' => $pembelian->id,
                             'user_id' => $sponsor->id,
                             'keterangan' => "ID {$idMitra} kehilangan peluang {$point} point dan BONUS GENERASI {$nominalPembelianBonus}",
+                            'tipe' => 'loss',
                             'created_at' => now(),
                             'updated_at' => now(),
                         ];

@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('keterangan')->nullable();
             $table->string('status')->nullable();
             $table->decimal('nominal', 16, 2)->nullable();
-            $table->enum('tipe', ['plus', 'minus'])->nullable()->default(null);
+            $table->enum('tipe', ['plus', 'minus', 'bonus', 'loss'])->nullable()->default(null);
 
             $table->timestamps();
         });

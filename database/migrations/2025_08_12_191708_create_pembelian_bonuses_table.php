@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('pembelian_id')->constrained('pembelians');
             $table->foreignId('user_id')->constrained('users');
             $table->string('keterangan')->nullable();
+            $table->enum('tipe', ['plus', 'minus', 'bonus', 'loss'])->nullable()->default(null);
 
             $table->timestamps();
         });
