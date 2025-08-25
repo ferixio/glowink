@@ -31,20 +31,6 @@ class EditApprovePembelian extends EditRecord
             //             ->send();
             //         // return redirect()->to($this->getResource()::getUrl('index'));
             //     }),
-            Actions\Action::make('Set Ditolak')
-                ->label('Ditolak')
-                ->color('danger')
-                ->visible(fn() => $this->record->status_pembelian !== 'ditolak')
-                ->action(function () {
-                    $this->record->status_pembelian = 'ditolak';
-                    $this->record->save();
-                    Notification::make()
-                        ->title('Berhasil')
-                        ->body('Status diubah menjadi ditolak.')
-                        ->success()
-                        ->send();
-                    return redirect()->to($this->getResource()::getUrl('index'));
-                }),
 
             Actions\Action::make('Set Selesai')
                 ->label('Selesai')
@@ -62,10 +48,7 @@ class EditApprovePembelian extends EditRecord
                     });
                     event(new \App\Events\PembelianDiterima($this->record));
 
-                    // Dispatch event SpillOverBonusBulanan untuk kategori tertentu
-                    if ($this->record->kategori_pembelian == 'repeat order bulanan') {
-                        event(new SpillOverBonusBulanan($this->record->user_id, $this->record->id, $this->record->kategori_pembelian, $this->record));
-                    }
+
 
                     $this->record->status_pembelian = 'selesai';
                     $this->record->save();
@@ -74,10 +57,25 @@ class EditApprovePembelian extends EditRecord
                         ->body('Status diubah menjadi selesai, PIN telah dibuat untuk setiap detail pembelian.')
                         ->success()
                         ->send();
+                    // return redirect()->to($this->getResource()::getUrl('index'));
+                }),
+            Actions\Action::make('Set Ditolak')
+                ->label('Ditolak')
+                ->color('danger')
+                ->visible(fn() => $this->record->status_pembelian !== 'ditolak' && $this->record->status_pembelian !== 'selesai')
+                ->action(function () {
+                    $this->record->status_pembelian = 'ditolak';
+                    $this->record->save();
+                    Notification::make()
+                        ->title('Berhasil')
+                        ->body('Status diubah menjadi ditolak.')
+                        ->success()
+                        ->send();
                     return redirect()->to($this->getResource()::getUrl('index'));
                 }),
 
             //             Actions\Action::make('Set Proses')
+
             // ->label('Diterima')
             // ->color('info')
             // ->visible(fn() => $this->record->status_pembelian === 'menunggu'

@@ -182,27 +182,11 @@
                     </form>
                 </section>
                 <section class="w-full mx-auto py-4">
-                    {{-- Tabs --}}
-                    <div class="flex space-x-4 border-b mb-6">
-                        <button wire:click="filterByPaket('all')"
-                            class="px-4 py-2 font-semibold text-sm border-b-2 transition-colors {{ $activeFilter === 'all' ? 'border-black text-black' : 'border-transparent text-gray-500 hover:text-black' }}">
-                            All Products
-                        </button>
-                        <button wire:click="filterByPaket('aktivasi')"
-                            class="px-4 py-2 font-semibold text-sm border-b-2 transition-colors {{ $activeFilter === 'aktivasi' ? 'border-black text-black' : 'border-transparent text-gray-500 hover:text-black' }}">
-                            Produk Aktivasi
-                        </button>
-                        <button wire:click="filterByPaket('quick_reward')"
-                            class="px-4 py-2 font-semibold text-sm border-b-2 transition-colors {{ $activeFilter === 'quick_reward' ? 'border-black text-black' : 'border-transparent text-gray-500 hover:text-black' }}">
-                            Produk Quick Reward
-                        </button>
-                    </div>
                     {{-- Grid Product --}}
                     @if (!empty($selectedStockist))
                         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
                             @forelse ($produks as $produk)
-                                <button wire:click="addToCart({{ $produk->id }})"
-                                    class="flex flex-col items-start">
+                                <button wire:click="addToCart({{ $produk->id }})" class="flex flex-col items-start">
                                     {{-- Card Gambar --}}
                                     <div class="rounded-xl shadow-md overflow-hidden relative w-full">
                                         {{-- Gambar --}}

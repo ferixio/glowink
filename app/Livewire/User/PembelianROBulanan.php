@@ -24,7 +24,6 @@ class PembelianROBulanan extends Component
     public $produks = [];
     public $search = '';
     public $filteredProduks = [];
-    public $activeFilter = 'all';
 
     public $currentPage = 0;
 
@@ -116,12 +115,6 @@ class PembelianROBulanan extends Component
         $this->searchProduk();
     }
 
-    public function filterByPaket($filter)
-    {
-        $this->activeFilter = $filter;
-        $this->loadProduks();
-    }
-
     public function searchProduk()
     {
         $this->loadProduks();
@@ -129,16 +122,9 @@ class PembelianROBulanan extends Component
 
     private function loadProduks()
     {
-        // Jika tidak ada stockist yang dipilih, tampilkan semua produk tanpa stok
+        // Jika tidak ada stockist yang dipilih, tampilkan produk dengan paket = 2
         if (empty($this->selectedStockist)) {
-            $query = Produk::query();
-
-            // Filter by package type
-            if ($this->activeFilter === 'aktivasi') {
-                $query->where('paket', 1);
-            } elseif ($this->activeFilter === 'quick_reward') {
-                $query->where('paket', 2);
-            }
+            $query = Produk::query()->where('paket', 2);
 
             if (!empty($this->search)) {
                 $searchTerm = trim($this->search);
@@ -156,18 +142,12 @@ class PembelianROBulanan extends Component
             return;
         }
 
-        // Jika ada stockist yang dipilih, tampilkan produk dengan stok
+        // Jika ada stockist yang dipilih, tampilkan produk dengan stok dan paket = 2
         $query = Produk::join('produk_stoks', 'produks.id', '=', 'produk_stoks.produk_id')
             ->where('produk_stoks.user_id', $this->selectedStockist)
             ->where('produk_stoks.stok', '>', 0) // Hanya produk dengan stok > 0
+            ->where('produks.paket', 2) // Hanya produk dengan paket = 2
             ->select('produks.*', 'produk_stoks.stok as stok_tersedia');
-
-        // Filter by package type
-        if ($this->activeFilter === 'aktivasi') {
-            $query->where('produks.paket', 1);
-        } elseif ($this->activeFilter === 'quick_reward') {
-            $query->where('produks.paket', 2);
-        }
 
         if (!empty($this->search)) {
             $searchTerm = trim($this->search);

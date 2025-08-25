@@ -69,9 +69,12 @@ class BonusGenerasiListener
                 // Perulangan berdasarkan quantity pembelian
                 for ($i = 0; $i < $detail->jml_beli; $i++) {
                     // Setiap quantity menambahkan 1 poin dan bonus
-                    $totalPoints += 1;
+                    // Hanya menambahkan poin jika paket bernilai 2
+                    if ($detail->paket == 2) {
+                        $totalPoints += 1;
+                    }
 
-                    if ($sponsor->status_qr) {
+                    if ($sponsor->status_qr && $detail->paket == 2) {
                         $totalBonus += 1500;
                     } else {
                         $totalBonus += 300;
@@ -141,6 +144,17 @@ class BonusGenerasiListener
                         'updated_at' => now(),
                     ];
 
+                    $activitiesToCreate[] = [
+                        'user_id' => $sponsor->id,
+                        'judul' => 'Bonus Generasi',
+                        'keterangan' => "Mendapatkan bonus generasi {$totalBonus} dari mitra #{$user->id_mitra}",
+                        'tipe' => 'plus',
+                        'status' => 'Berhasil',
+                        'nominal' => $totalBonus,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+
                     // Aktivitas untuk Kehilangan Peluang Bonus Generasi
                     // $activitiesToCreate[] = [
                     //     'user_id' => $sponsor->id,
@@ -156,7 +170,7 @@ class BonusGenerasiListener
 
                 // Kumpulkan PembelianBonus untuk dibuat nanti
                 $idMitra = $sponsor->id_mitra ?? 'Unknown';
-                $point = $statusQr ? $totalPoints : 0;
+                $point = 1;
                 $nominalPembelianBonus = $statusQr ? 1500 : 300;
 
                 if ($statusQr) {

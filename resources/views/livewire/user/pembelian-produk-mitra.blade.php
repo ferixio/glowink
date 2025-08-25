@@ -128,7 +128,7 @@
         @php
             switch ($currentPage) {
                 case 0:
-                    $title = $activeTab === 'belanja_pribadi' ? 'Belanja Pribadi' : 'Belanja';
+                    $title = $activeTab === 'belanja_pribadi' ? 'Stock Pribadi' : 'Belanja ke Stokis';
                     break;
                 case 1:
                     $title = 'Aktivasi Member Baru';
@@ -143,7 +143,7 @@
                     $title = 'Repeat Order Bulanan';
                     break;
                 default:
-                    $title = $activeTab === 'belanja_pribadi' ? 'Belanja Pribadi' : 'Belanja';
+                    $title = $activeTab === 'belanja_pribadi' ? 'Stock Pribadi' : 'Belanja ke Stokis';
             }
         @endphp
 
@@ -467,6 +467,18 @@
             {{-- halaman stock pribadi --}}
             <section class="w-full">
                 <form class="space-y-6">
+                    {{-- Button untuk menggunakan alamat mitra --}}
+                    <div class="flex items-center">
+                        <button type="button" wire:click="toggleUseMitraAddress"
+                            class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            {{ $useMitraAddress ? 'Hapus alamat mitra' : 'Gunakan alamat mitra' }}
+                        </button>
+                    </div>
+
                     <div>
                         <label for="namaPenerima" class="block text-sm font-medium text-gray-700">Nama
                             Penerima</label>
