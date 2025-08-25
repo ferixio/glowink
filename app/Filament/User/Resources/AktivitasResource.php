@@ -15,7 +15,7 @@ class AktivitasResource extends Resource
     protected static ?string $model = Aktivitas::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-protected static ?int $navigationSort = 6;
+    protected static ?int $navigationSort = 6;
     public static function form(Form $form): Form
     {
         return $form
@@ -35,7 +35,7 @@ protected static ?int $navigationSort = 6;
             <div style="line-height:1.4">
                 <div style="font-size: 0.75rem; color: #6b7280; font-weight: 500;">' . e(format_tanggal_indonesia($record->created_at)) . '</div>
                 <div style="font-weight: 600; color: #111827;">' . e($record->judul) . '</div>
-                <div style="font-size: 0.85rem; color: #4b5563;">' . e($record->keterangan) . '</div>
+                <div style="font-size: 0.85rem; color: ' . ($record->tipe === 'plus' ? '#059669' : ($record->tipe === 'minus' ? '#dc2626' : '#4b5563')) . ';">' . e($record->keterangan) . '</div>
             </div>
         ';
                     })
@@ -45,7 +45,7 @@ protected static ?int $navigationSort = 6;
                     ->label('')
                     ->getStateUsing(function ($record) {
                         $nominalText = $record->nominal !== null
-                        ? $record->nominal > 100 ? 'Rp ' . number_format($record->nominal, 0, ',', '.') : '+'. number_format($record->nominal, 0, ',', '.')
+                        ? ($record->tipe === 'plus' ? '+' : ($record->tipe === 'minus' ? '-' : '')) . number_format($record->nominal, 0, ',', '.')
 
                         : '<span style=""> </span>';
 

@@ -6,8 +6,8 @@ use App\Events\BonusGenerasi;
 use App\Events\BonusReward;
 use App\Events\BonusSponsor;
 use App\Events\PembelianDiterima;
+use App\Events\SpillOverBonusBulanan;
 use App\Models\Pembelian;
-use App\Models\PembelianBonus;
 
 class ProsesPembelianDiterima
 {
@@ -64,7 +64,7 @@ class ProsesPembelianDiterima
 
                         break; // Exit loop once we find a matching detail
                     }
-                    
+
                 }
             }
         }
@@ -138,6 +138,9 @@ class ProsesPembelianDiterima
             $user = \App\Models\User::find($pembelian->user_id);
             $user->jml_ro_bulanan = $user->jml_ro_bulanan + 1;
             $user->save();
+
+            event(new SpillOverBonusBulanan($user->id, $pembelian->id, $pembelian->kategori_pembelian, $pembelian));
+
         }
     }
 }

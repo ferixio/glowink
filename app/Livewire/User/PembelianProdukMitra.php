@@ -40,6 +40,7 @@ class PembelianProdukMitra extends Component
     public $tanggal = '';
     public $nama_bank = '';
     public $no_rekening = '';
+    public $useMitraAddress = false;
 
     // Cart sidebar properties
     public $showCartSidebar = false;
@@ -176,6 +177,23 @@ class PembelianProdukMitra extends Component
             $this->loadProdukPribadi();
         } else {
             $this->searchProduk();
+        }
+    }
+
+    public function toggleUseMitraAddress()
+    {
+        $this->useMitraAddress = !$this->useMitraAddress;
+
+        if ($this->useMitraAddress) {
+            $user = Auth::user();
+            $this->namaPenerima = $user->nama ?? '';
+            $this->telepon = $user->no_telp ?? '';
+            $this->alamat = $user->alamat ?? '';
+        } else {
+            // Clear the fields when unchecked
+            $this->namaPenerima = '';
+            $this->telepon = '';
+            $this->alamat = '';
         }
     }
 
