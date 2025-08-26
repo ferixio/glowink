@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Events\AktivasiPin;
 use App\Events\BonusAktivasiPin;
 use App\Events\BonusCashback;
 use App\Events\BonusGenerasi;
@@ -9,6 +10,7 @@ use App\Events\BonusReward;
 use App\Events\PembelianDetailAktivasi;
 use App\Events\SpillOverBonusBulanan;
 use App\Events\UserCreated;
+use App\Listeners\AktivasiPinListener;
 use App\Listeners\BonusAktivasiPinListener;
 use App\Listeners\BonusCashbackListener;
 use App\Listeners\BonusGenerasiListener;
@@ -61,6 +63,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         SpillOverBonusBulanan::class => [
             SpillOverBonusBulananListener::class,
+        ],
+        AktivasiPin::class => [
+            AktivasiPinListener::class,
         ],
     ];
 

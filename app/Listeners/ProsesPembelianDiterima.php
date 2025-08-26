@@ -128,6 +128,9 @@ class ProsesPembelianDiterima
             event(new BonusReward($pembelian));
 
         }
+        if ($pembelian->kategori_pembelian == 'stock pribadi') {
+            event(new \App\Events\AktivasiPin($pembelian));
+        }
 
         // if($pembelian->kategori_pembelian == 'repeat order' && $pembelian->status_pembelian == 'selesai') {
         //    event(new BonusGenerasi($pembelian));
