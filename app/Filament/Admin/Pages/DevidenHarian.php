@@ -28,10 +28,17 @@ class DevidenHarian extends Page implements HasForms
 
     protected static ?int $navigationSort = 1;
 
+    // Monthly statuses for the current month
+    public array $monthlyStatuses = [];
+    public string $monthLabel = '';
+    public string $monthRangeLabel = '';
+
     public function mount()
     {
         $this->data['selectedDate'] = now()->format('Y-m-d');
         $this->form->fill($this->data);
+
+        $this->generateMonthlyStatuses();
     }
 
     public function form(Form $form): Form
@@ -190,6 +197,9 @@ class DevidenHarian extends Page implements HasForms
                 ->body('Data deviden harian berhasil disimpan.')
                 ->success()
                 ->send();
+
+            // refresh monthly statuses after processing
+            $this->generateMonthlyStatuses();
         }
     }
 
@@ -233,7 +243,7 @@ class DevidenHarian extends Page implements HasForms
 
             \App\Models\Aktivitas::create([
                 'user_id' => $user->id,
-                'judul' => 'Deviden Bulanan',
+                'judul' => 'Deviden Harian',
                 'keterangan' => 'Menerima deviden harian ',
                 'status' => 'success',
                 'tipe' => 'plus',
@@ -247,5 +257,28 @@ class DevidenHarian extends Page implements HasForms
             ->body('Data deviden harian dan detail telah berhasil disimpan ke database.')
             ->success()
             ->send();
+    }
+
+    private function generateMonthlyStatuses(): void
+    {
+        $startOfMonth = now()->startOfMonth();
+        $endOfMonth = now()->endOfMonth();
+
+        $this->monthLabel = $startOfMonth->translatedFormat('F Y');
+        $this->monthRangeLabel = $startOfMonth->translatedFormat('d M Y') . ' - ' . $endOfMonth->translatedFormat('d M Y');
+
+        $statuses = [];
+        $date = $startOfMonth->copy();
+        while ($date->lte($endOfMonth)) {
+            $dateString = $date->format('Y-m-d');
+            $exists = ModelDevidenHarian::whereDate('tanggal_deviden', $dateString)->exists();
+            $statuses[] = [
+                'date' => $dateString,
+                'processed' => $exists,
+            ];
+            $date->addDay();
+        }
+
+        $this->monthlyStatuses = $statuses;
     }
 }

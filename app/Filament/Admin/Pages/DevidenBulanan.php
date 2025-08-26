@@ -7,6 +7,7 @@ use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
@@ -28,12 +29,13 @@ class DevidenBulanan extends Page implements HasForms
     public $detailDevidenBulananData = [];
     public $searchPerformed = false;
     public $omzetROQR = 0;
+    public $processedMonthlySummary = [];
 
     protected $listeners = ['makeIncomeForUser' => 'makeIncomeForUser'];
 
     public function mount()
     {
-
+        $this->loadProcessedMonthlySummary();
     }
 
     public function form(Form $form): Form
@@ -42,6 +44,35 @@ class DevidenBulanan extends Page implements HasForms
             ->schema([
                 Grid::make(3)
                     ->schema([
+                        Select::make('selectedMonth')
+                            ->label('Pilih Bulan (Tahun Ini)')
+                            ->options([
+                                '01' => 'Januari',
+                                '02' => 'Februari',
+                                '03' => 'Maret',
+                                '04' => 'April',
+                                '05' => 'Mei',
+                                '06' => 'Juni',
+                                '07' => 'Juli',
+                                '08' => 'Agustus',
+                                '09' => 'September',
+                                '10' => 'Oktober',
+                                '11' => 'November',
+                                '12' => 'Desember',
+                            ])
+                            ->default(now()->format('m'))
+                            ->reactive()
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                if (!$state) {
+                                    return;
+                                }
+                                $year = \Carbon\Carbon::now()->year;
+                                $month = (int) $state;
+                                $start = \Carbon\Carbon::create($year, $month, 1)->startOfMonth();
+                                $end = (clone $start)->endOfMonth();
+                                $set('startDate', $start->toDateString());
+                                $set('endDate', $end->toDateString());
+                            }),
 
                         DatePicker::make('startDate')
                             ->label('Pilih Tanggal Awal')
@@ -217,6 +248,7 @@ class DevidenBulanan extends Page implements HasForms
             // Commit transaction
             DB::commit();
             $this->makeIncomeForUser();
+            $this->loadProcessedMonthlySummary();
 
             // Notifikasi sukses
             Notification::make()
@@ -395,6 +427,34 @@ class DevidenBulanan extends Page implements HasForms
                 'trace' => $e->getTraceAsString(),
             ]);
         }
+    }
+
+    private function loadProcessedMonthlySummary(): void
+    {
+        $year = \Carbon\Carbon::now()->year;
+        $summary = [];
+
+        for ($month = 1; $month <= 12; $month++) {
+            $label = \Carbon\Carbon::create($year, $month, 1)->isoFormat('MMMM');
+
+            $query = \App\Models\DevidenBulanan::query()
+                ->whereYear('start_date', $year)
+                ->whereMonth('start_date', $month);
+
+            $exists = $query->exists();
+            $total = (clone $query)->sum('total_deviden_bulanan');
+            $lastInput = (clone $query)->latest('tanggal_input')->value('tanggal_input');
+
+            $summary[] = [
+                'month' => str_pad((string) $month, 2, '0', STR_PAD_LEFT),
+                'label' => $label,
+                'processed' => $exists,
+                'total' => $total,
+                'last_input' => $lastInput,
+            ];
+        }
+
+        $this->processedMonthlySummary = $summary;
     }
 
 }

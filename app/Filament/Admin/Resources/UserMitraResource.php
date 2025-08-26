@@ -103,7 +103,8 @@ class UserMitraResource extends Resource
                 Tables\Columns\TextColumn::make('nama')
                     ->label('Nama Mitra')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('email')
+                Tables\Columns\TextColumn::make('plan_karir_sekarang')
+                    ->label('Plan Karir')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('no_telp')
                     ->label('No. Telepon'),
