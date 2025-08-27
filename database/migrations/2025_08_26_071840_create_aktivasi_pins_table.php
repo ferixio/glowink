@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('pembelian_bonuses', function (Blueprint $table) {
+        Schema::create('aktivasi_pins', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('pembelian_id')->constrained('pembelians')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->string('keterangan')->nullable();
-            $table->enum('tipe', ['plus', 'minus', 'bonus', 'loss'])->nullable()->default(null);
-
+            $table->string('pin')->nullable();
+            $table->foreignId('pembelian_detail_id')->constrained('pembelian_details')->onDelete('cascade');
+            $table->foreignId('produk_id')->constrained('produks')->onDelete('cascade');
+            $table->boolean('is_accept')->default(false);
             $table->timestamps();
         });
     }
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('pembelian_bonuses');
+        Schema::dropIfExists('aktivasi_pins');
     }
 };

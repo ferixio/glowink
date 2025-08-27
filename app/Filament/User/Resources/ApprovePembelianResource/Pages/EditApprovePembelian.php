@@ -39,13 +39,13 @@ class EditApprovePembelian extends EditRecord
                 ->action(function () {
                     $pembelianDetails = \App\Models\PembelianDetail::where('pembelian_id', $this->record->id)->get();
 
-                    $pembelianDetails->each(function ($item) {
-                        $generatedRandomPin = str_pad(mt_rand(0, 999999), 6, '0', STR_PAD_LEFT);
+                    // $pembelianDetails->each(function ($item) {
+                    //     $generatedRandomPin = str_pad(mt_rand(0, 999999), 6, '0', STR_PAD_LEFT);
 
-                        $item->pin = $generatedRandomPin;
+                    //     $item->pin = $generatedRandomPin;
 
-                        $item->save();
-                    });
+                    //     $item->save();
+                    // });
                     event(new \App\Events\PembelianDiterima($this->record));
 
 

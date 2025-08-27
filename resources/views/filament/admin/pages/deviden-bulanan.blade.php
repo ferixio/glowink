@@ -3,6 +3,8 @@
         {{ $this->form }}
     </x-filament-panels::form>
 
+
+
     @if ($this->searchPerformed && $this->devidenBulananData)
         <div style="margin-top: 2rem; display: flex; flex-direction: column; gap: 1.5rem;">
             <!-- Action Buttons -->
@@ -156,6 +158,67 @@
                     </div>
                 </div>
             @endif
+        </div>
+    @endif
+
+    <!-- Monthly Processed Summary (Current Year) -->
+    @if (!empty($this->processedMonthlySummary))
+        <div
+            style="margin-top: 1.25rem; background: white; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); padding: 1.25rem;">
+            <h3 style="font-size: 1.125rem; font-weight: 600; color: #111827; margin-bottom: 1rem;">Rekap Deviden
+                Bulanan
+                Tahun {{ now()->year }}</h3>
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead style="background: #f9fafb;">
+                        <tr>
+                            <th
+                                style="padding: 0.75rem 1.5rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em;">
+                                Bulan</th>
+                            <th
+                                style="padding: 0.75rem 1.5rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em;">
+                                Status</th>
+                            <th
+                                style="padding: 0.75rem 1.5rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em;">
+                                Total Deviden</th>
+                            <th
+                                style="padding: 0.75rem 1.5rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em;">
+                                Tanggal Input Terakhir</th>
+                        </tr>
+                    </thead>
+                    <tbody style="background: white;">
+                        @foreach ($this->processedMonthlySummary as $row)
+                            <tr style="border-bottom: 1px solid #e5e7eb; transition: background-color 0.2s;"
+                                onmouseover="this.style.backgroundColor='#f9fafb'"
+                                onmouseout="this.style.backgroundColor='white'">
+                                <td
+                                    style="padding: 1rem 1.5rem; white-space: nowrap; font-size: 0.875rem; font-weight: 500; color: #111827;">
+                                    {{ $row['label'] }}
+                                </td>
+                                <td style="padding: 1rem 1.5rem; white-space: nowrap; font-size: 0.875rem;">
+                                    @if ($row['processed'])
+                                        <span
+                                            style="background: #dcfce7; color: #166534; padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">Sudah
+                                            Diproses</span>
+                                    @else
+                                        <span
+                                            style="background: #fee2e2; color: #991b1b; padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">Belum
+                                            Diproses</span>
+                                    @endif
+                                </td>
+                                <td
+                                    style="padding: 1rem 1.5rem; white-space: nowrap; font-size: 0.875rem; color: #6b7280;">
+                                    Rp {{ number_format($row['total'], 0, ',', '.') }}
+                                </td>
+                                <td
+                                    style="padding: 1rem 1.5rem; white-space: nowrap; font-size: 0.875rem; color: #6b7280;">
+                                    {{ $row['last_input'] ?? '-' }}
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
     @endif
 </x-filament-panels::page>

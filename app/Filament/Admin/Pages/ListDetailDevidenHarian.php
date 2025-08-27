@@ -5,6 +5,7 @@ namespace App\Filament\Admin\Pages;
 use App\Models\Pembelian;
 use App\Models\PembelianDetail;
 use Filament\Pages\Page;
+use Illuminate\Support\Collection;
 
 class ListDetailDevidenHarian extends Page
 {
@@ -12,8 +13,9 @@ class ListDetailDevidenHarian extends Page
 
     protected static string $view = 'filament.admin.pages.list-detail-deviden-harian';
     protected static bool $shouldRegisterNavigation = false;
-        protected static ?string $title = 'List Daftar Aktivasi Member';
-    public $pembelianDetails = [];
+    protected static ?string $title = 'List Daftar Aktivasi Member';
+    public Collection $pembelianDetails;
+    public int $totalHargaBeli = 0;
 
     public function mount(): void
     {
@@ -26,5 +28,7 @@ class ListDetailDevidenHarian extends Page
             ->whereIn('pembelian_id', $pembelianIds)
             ->with(['pembelian.user'])
             ->get();
+
+        $this->totalHargaBeli = (int) $this->pembelianDetails->sum('harga_beli');
     }
 }
