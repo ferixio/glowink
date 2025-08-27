@@ -51,6 +51,14 @@ class PembelianROBulanan extends Component
         $this->updateTotals();
         $this->loadKabupatenList();
         $this->loadStockis();
+
+        // Prefill form fields from authenticated user
+        $user = Auth::user();
+        if ($user) {
+            $this->namaPenerima = $user->nama ?? ($user->nama_rekening ?? '');
+            $this->telepon = $user->no_telp ?? '';
+            $this->alamat = $user->alamat ?? '';
+        }
     }
 
     public function loadKabupatenList()
@@ -316,6 +324,22 @@ class PembelianROBulanan extends Component
     {
         $this->currentPage = $page;
         $this->showCartSidebar = false; // Tutup sidebar setelah pindah halaman
+
+        // When navigating to Repeat Order Bulanan page, ensure form is prefilled
+        if ($page === 4) {
+            $user = Auth::user();
+            if ($user) {
+                if (empty($this->namaPenerima)) {
+                    $this->namaPenerima = $user->nama ?? ($user->nama_rekening ?? '');
+                }
+                if (empty($this->telepon)) {
+                    $this->telepon = $user->no_telp ?? '';
+                }
+                if (empty($this->alamat)) {
+                    $this->alamat = $user->alamat ?? '';
+                }
+            }
+        }
     }
 
     private function processCheckout($userData = null, $kategoriPembelian = 'stock pribadi')

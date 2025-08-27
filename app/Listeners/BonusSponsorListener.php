@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Events\BonusSponsor;
+use App\Models\PembelianBonus;
 
 class BonusSponsorListener
 {
@@ -22,13 +23,22 @@ class BonusSponsorListener
                 'keterangan' => 'bonus sponsor',
                 'nominal_bonus' => $nominalBonus,
             ]);
-           \App\Models\Aktivitas::create([
+            \App\Models\Aktivitas::create([
                 'user_id' => $sponsor->id,
                 'judul' => 'Bonus Sponsor Diterima',
-                'keterangan' => "Menerima bonus sponsor dari member #{$user->id_mitra}",
+                'keterangan' => "Menerima bonus sponsor dari mitra #{$user->id_mitra}",
                 'tipe' => 'plus',
                 'status' => 'Berhasil',
                 'nominal' => $nominalBonus,
+            ]);
+            PembelianBonus::create([
+                'pembelian_id' => $pembelian->id,
+                'user_id' => $sponsor->id,
+                'keterangan' => "ID {$sponsor->id_mitra} Menerima bonus sponsor {$nominalBonus} dari mitra #{$user->id_mitra} ",
+                'tipe' => 'bonus',
+                'created_at' => now(),
+                'updated_at' => now(),
+
             ]);
             $sponsor->saldo_penghasilan += $nominalBonus;
             $sponsor->save();
@@ -52,9 +62,19 @@ class BonusSponsorListener
                             'status' => 'Berhasil',
                             'nominal' => 20000,
                         ]);
+                        PembelianBonus::create([
+                            'pembelian_id' => $pembelian->id,
+                            'user_id' => $sponsor->id,
+                            'keterangan' => "ID {$sponsor->id_mitra} Menerima bonus sponsor QR dari 20000 dari mitra #{$user->id_mitra} ",
+                            'tipe' => 'bonus',
+                            'created_at' => now(),
+                            'updated_at' => now(),
+
+                        ]);
+
                         $sponsor->saldo_penghasilan += 20000;
                         $sponsor->save();
-                        break; 
+                        break;
                     }
                 }
             }

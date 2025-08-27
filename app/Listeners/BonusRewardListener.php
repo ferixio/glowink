@@ -4,6 +4,7 @@ namespace App\Listeners;
 
 use App\Events\BonusReward;
 use App\Models\Aktivitas;
+use App\Models\PembelianBonus;
 use App\Models\Penghasilan;
 use App\Models\User;
 
@@ -15,6 +16,7 @@ class BonusRewardListener
         $user = $pembelian->user;
         $sponsor = User::find($user->id_sponsor);
         $statusQr = $user->status_qr;
+        $idMitra = $user->id_mitra;
 
         // Cek apakah user memiliki QR aktif
         if ($user->status_qr && $sponsor) {
@@ -52,6 +54,16 @@ class BonusRewardListener
                     'tipe' => 'plus',
                     'status' => 'Berhasil',
                     'nominal' => $bonusAmount,
+                ]);
+
+                PembelianBonus::create([
+                    'pembelian_id' => $pembelian->id,
+                    'user_id' => $user->id,
+                    'keterangan' => "ID {$idMitra} mendapatkan bonus cashback {$bonusAmount}  ",
+                    'tipe' => 'bonus',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+
                 ]);
             }
 

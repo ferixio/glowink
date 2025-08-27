@@ -42,13 +42,13 @@ class AktivasiPinResource extends Resource
                         <svg xmlns='http://www.w3.org/2000/svg' class='h-4 w-4 mr-1' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
                             <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M9 12l2 2l4-4m6 2a9 9 0 11-18 0a9 9 0 0118 0z'/>
                         </svg>
-                        Diterima
+                        Telah diaktivasi
                    </span>"
                         : "<span class='inline-flex items-center text-blue-600 text-xs font-semibold'>
                         <svg xmlns='http://www.w3.org/2000/svg' class='h-4 w-4 mr-1' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
                             <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 18L18 6M6 6l12 12'/>
                         </svg>
-                        Belum Diterima
+                        Belum diaktivasi
                    </span>";
 
                         return "
@@ -67,7 +67,7 @@ class AktivasiPinResource extends Resource
             ])
             ->actions([
                 Tables\Actions\Action::make('accept')
-                    ->label('Terima')
+                    ->label('Aktivasi')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
                     ->button()

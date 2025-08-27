@@ -917,7 +917,7 @@ class PembelianProdukMitra extends Component
         try {
             $judul = '';
             $keterangan = '';
-            $status = 'Proses';
+            $status = '';
             $nominal = null;
 
             switch ($kategoriPembelian) {
