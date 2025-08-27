@@ -3,7 +3,7 @@
         <div class="bg-white rounded-lg shadow p-4 flex items-start justify-between">
             <div>
 
-                <div class="text-sm {{ $bonus->tipe == 'bonus' ? 'text-green-600' : 'text-red-600' }} font-semibold">
+                <div class="text-sm {{ $bonus->tipe == 'bonus' ? 'text-green-600' : 'text-red-500' }} font-semibold">
                     {{ $bonus->keterangan }}
                 </div>
             </div>

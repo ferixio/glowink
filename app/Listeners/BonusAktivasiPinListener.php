@@ -55,6 +55,17 @@ class BonusAktivasiPinListener
                 'status' => 'Berhasil',
                 'nominal' => $bonusAmount,
             ]);
+            // Buat record PembelianBonus untuk user
+            PembelianBonus::create([
+                'pembelian_id' => $pembelian->id,
+                'aktivasi_pin_id' => $aktivasiPin->id,
+                'user_id' => $user->id,
+                'keterangan' => "ID {$user->id_mitra} mendapatkan BONUS CASHBACK {$bonusAmount}",
+                'tipe' => 'bonus',
+                'created_at' => now(),
+                'updated_at' => now(),
+
+            ]);
 
             // Update saldo penghasilan user
             if ($totalBonus > 0) {
@@ -72,6 +83,7 @@ class BonusAktivasiPinListener
             $totalBonus = 0;
 
             if ($pembelianDetail->paket == 1) {
+
                 $bonusAmount = 10000;
                 $keterangan = 'Bonus Cashback Aktivasi QR';
 
@@ -80,7 +92,7 @@ class BonusAktivasiPinListener
                 // Buat record penghasilan untuk user
                 \App\Models\Penghasilan::create([
                     'user_id' => $user->id,
-                    'kategori_bonus' => 'Bonus Cashback',
+                    'kategori_bonus' => 'Bonus Cashback QR',
                     'status_qr' => $statusQr,
                     'tgl_dapat_bonus' => now(),
                     'keterangan' => $keterangan,
@@ -95,6 +107,17 @@ class BonusAktivasiPinListener
                     'tipe' => 'plus',
                     'status' => 'Berhasil',
                     'nominal' => $bonusAmount,
+                ]);
+                // Buat record PembelianBonus untuk user
+                PembelianBonus::create([
+                    'pembelian_id' => $pembelian->id,
+                    'aktivasi_pin_id' => $aktivasiPin->id,
+                    'user_id' => $user->id,
+                    'keterangan' => "ID {$user->id_mitra} mendapatkan BONUS CASHBACK QR {$bonusAmount}",
+                    'tipe' => 'bonus',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+
                 ]);
             }
 
@@ -132,6 +155,13 @@ class BonusAktivasiPinListener
             $totalPoints = 0;
             $totalBonus = 0;
 
+            $totalBonusAktivasi = 0;
+
+            if ($pembelianDetail->paket == 1) {
+                $totalBonusAktivasi = 300;
+            } elseif ($pembelianDetail->paket == 2) {
+                $totalBonusAktivasi = 1500;
+            }
             // Hitung total poin dan bonus dari satu aktivasi pin
             $totalPoints = 1;
 
@@ -191,11 +221,11 @@ class BonusAktivasiPinListener
                         'updated_at' => now(),
                     ];
                 } else {
-                    // Aktivitas untuk Kehilangan Peluang Poin
+
                     $activitiesToCreate[] = [
                         'user_id' => $sponsor->id,
                         'judul' => 'Kehilangan Peluang Poin',
-                        'keterangan' => "Kehilangan peluang {$totalPoints} poin dari aktivasi pin member #{$user->id_mitra}",
+                        'keterangan' => "Kehilangan peluang {$totalPoints} poin dan bonus aktivasi pin {$totalBonusAktivasi} dari aktivasi pin member #{$user->id_mitra}",
                         'tipe' => 'minus',
                         'status' => '',
                         'nominal' => null,
@@ -204,16 +234,7 @@ class BonusAktivasiPinListener
                     ];
 
                     // Aktivitas untuk Kehilangan Peluang Bonus Aktivasi Pin
-                    $activitiesToCreate[] = [
-                        'user_id' => $sponsor->id,
-                        'judul' => 'Kehilangan Peluang Bonus Aktivasi Pin',
-                        'keterangan' => "Kehilangan peluang bonus aktivasi pin {$totalBonus} dari member #{$user->id_mitra}",
-                        'tipe' => 'minus',
-                        'status' => '',
-                        'nominal' => null,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ];
+
                 }
 
                 // Kumpulkan PembelianBonus untuk dibuat nanti
@@ -246,7 +267,7 @@ class BonusAktivasiPinListener
                         'pembelian_id' => $pembelian->id,
                         'aktivasi_pin_id' => $aktivasiPin->id,
                         'user_id' => $sponsor->id,
-                        'keterangan' => "ID {$idMitra} kehilangan peluang {$point} point",
+                        'keterangan' => "ID {$idMitra} kehilangan peluang {$point} point dan BONUS AKTIVASI PIN 1500 dari mitra #{$user->id_mitra}",
                         'tipe' => 'loss',
                         'created_at' => now(),
                         'updated_at' => now(),

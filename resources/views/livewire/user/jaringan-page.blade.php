@@ -105,19 +105,17 @@
                 <tr>
                     <th
                         style="padding: 10px; text-align: left; color: #6b7280; font-size: 12px; text-transform: uppercase;">
-                        No</th>
+                        ID Mitra</th>
                     <th
                         style="padding: 10px; text-align: left; color: #6b7280; font-size: 12px; text-transform: uppercase;">
                         Nama Mitra</th>
                     <th
                         style="padding: 10px; text-align: left; color: #6b7280; font-size: 12px; text-transform: uppercase;">
-                        Email</th>
+                        ID Sponsor</th>
                     <th
                         style="padding: 10px; text-align: left; color: #6b7280; font-size: 12px; text-transform: uppercase;">
-                        Level</th>
-                    <th
-                        style="padding: 10px; text-align: left; color: #6b7280; font-size: 12px; text-transform: uppercase;">
-                        Tanggal Bergabung</th>
+                        Poin</th>
+
                     <th
                         style="padding: 10px; text-align: left; color: #6b7280; font-size: 12px; text-transform: uppercase;">
                         Status</th>
@@ -128,23 +126,20 @@
                     <tr style="border-top: 1px solid #e5e7eb; background-color: #fff; transition: background 0.2s;"
                         onmouseover="this.style.backgroundColor='#f9fafb'"
                         onmouseout="this.style.backgroundColor='#fff'">
-                        <td style="padding: 10px;">{{ $jaringanMitra->firstItem() + $index }}</td>
+                        <td style="padding: 10px;">{{ $item->user->id_mitra }}</td>
                         <td style="padding: 10px; display: flex; align-items: center; gap: 8px;">
 
                             <div>
                                 <div style="font-weight: 500;">{{ $item->user->nama ?? 'N/A' }}</div>
-                                <div style="font-size: 12px; color: #6b7280;">ID: {{ $item->user->id ?? 'N/A' }}</div>
                             </div>
                         </td>
-                        <td style="padding: 10px;">{{ $item->user->email ?? 'N/A' }}</td>
+                        <td style="padding: 10px;">{{ $item->user->id_sponsor ?? 'N/A' }}</td>
                         <td style="padding: 10px;">
                             <span
                                 style="padding: 4px 8px; border-radius: 12px; font-size: 12px; background-color: #f3f4f6; color: #374151;">
-                                Level {{ $item->level }}
+                                {{ $item->user->poin_reward ?? 0 }}
                             </span>
                         </td>
-                        <td style="padding: 10px;">
-                            {{ $item->user->tgl_daftar ? $item->user->tgl_daftar->format('d/m/Y') : 'N/A' }}</td>
                         <td style="padding: 10px;">
                             @if ($item->user->status_qr ?? false)
                                 <span
