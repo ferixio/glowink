@@ -2,7 +2,7 @@
 
 namespace App\Events;
 
-use App\Models\PembelianDetail;
+use App\Models\AktivasiPin;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -13,14 +13,14 @@ class BonusAktivasiPin
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $pembelianDetail;
+    public $aktivasiPin;
 
     /**
      * Create a new event instance.
      */
-    public function __construct(PembelianDetail $pembelianDetail)
+    public function __construct(AktivasiPin $aktivasiPin)
     {
-        $this->pembelianDetail = $pembelianDetail;
+        $this->aktivasiPin = $aktivasiPin;
     }
 
     /**

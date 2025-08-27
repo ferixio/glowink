@@ -124,7 +124,7 @@ class ProsesPembelianDiterima
             event(new BonusGenerasi($pembelian, true));
 
         }
-        if ($pembelian->kategori_pembelian == 'repeat order' || $pembelian->kategori_pembelian == 'stock pribadi') {
+        if ($pembelian->kategori_pembelian == 'repeat order') {
             event(new BonusReward($pembelian));
 
         }

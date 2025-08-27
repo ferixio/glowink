@@ -12,9 +12,98 @@ class BonusAktivasiPinListener
 {
     public function handle(BonusAktivasiPin $event)
     {
-        $pembelianDetail = $event->pembelianDetail;
+        $aktivasiPin = $event->aktivasiPin;
+        $pembelianDetail = $aktivasiPin->pembelianDetail;
         $pembelian = $pembelianDetail->pembelian;
         $user = $pembelian->user;
+        $sponsor = User::find($user->id_sponsor);
+        $statusQr = $user->status_qr;
+
+        // Cek apakah user memiliki QR aktif
+        if ($user->status_qr && $sponsor) {
+            $hasPaket2 = false;
+            $totalBonus = 0;
+
+            // Proses pembelian detail untuk aktivasi pin
+            if ($pembelianDetail->paket == 2) {
+                $hasPaket2 = true;
+                $bonusAmount = 20000;
+                $keterangan = 'Bonus Cashback QR aktif';
+            } else {
+                $bonusAmount = 10000;
+                $keterangan = 'Bonus Cashback';
+            }
+
+            $totalBonus += $bonusAmount;
+
+            // Buat record penghasilan untuk user
+            \App\Models\Penghasilan::create([
+                'user_id' => $user->id,
+                'kategori_bonus' => 'Bonus Cashback',
+                'status_qr' => $statusQr,
+                'tgl_dapat_bonus' => now(),
+                'keterangan' => $keterangan,
+                'nominal_bonus' => $bonusAmount,
+            ]);
+
+            // Buat record aktivitas untuk user
+            Aktivitas::create([
+                'user_id' => $user->id,
+                'judul' => 'Bonus Cashback',
+                'keterangan' => "Menerima {$keterangan}",
+                'tipe' => 'plus',
+                'status' => 'Berhasil',
+                'nominal' => $bonusAmount,
+            ]);
+
+            // Update saldo penghasilan user
+            if ($totalBonus > 0) {
+                $user->saldo_penghasilan += $totalBonus;
+                $user->save();
+            }
+
+            // Trigger event untuk perubahan level user jika ada paket 2
+            if ($hasPaket2) {
+                event(new \App\Events\ChangeLevelUser($user, $user->poin_reward));
+            }
+        } else {
+            // Jika user tidak memiliki QR aktif, berikan cashback khusus untuk paket 1
+            // karena status_qr akan menjadi true secara otomatis ketika membeli paket 2
+            $totalBonus = 0;
+
+            if ($pembelianDetail->paket == 1) {
+                $bonusAmount = 10000;
+                $keterangan = 'Bonus Cashback Aktivasi QR';
+
+                $totalBonus += $bonusAmount;
+
+                // Buat record penghasilan untuk user
+                \App\Models\Penghasilan::create([
+                    'user_id' => $user->id,
+                    'kategori_bonus' => 'Bonus Cashback',
+                    'status_qr' => $statusQr,
+                    'tgl_dapat_bonus' => now(),
+                    'keterangan' => $keterangan,
+                    'nominal_bonus' => $bonusAmount,
+                ]);
+
+                // Buat record aktivitas untuk user
+                Aktivitas::create([
+                    'user_id' => $user->id,
+                    'judul' => 'Bonus Cashback',
+                    'keterangan' => "Menerima {$keterangan}",
+                    'tipe' => 'plus',
+                    'status' => 'Berhasil',
+                    'nominal' => $bonusAmount,
+                ]);
+            }
+
+            // Update saldo penghasilan user jika ada bonus
+            if ($totalBonus > 0) {
+                $user->saldo_penghasilan += $totalBonus;
+                $user->save();
+            }
+        }
 
         // Ambil upline dari jaringan mitra dan tambahkan user sebagai level 0
         $uplines = JaringanMitra::where('user_id', $user->id)
@@ -43,17 +132,13 @@ class BonusAktivasiPinListener
             $totalPoints = 0;
             $totalBonus = 0;
 
-            // Hitung total poin dan bonus dari satu pembelian detail
-            // Perulangan berdasarkan quantity pembelian
-            for ($i = 0; $i < $pembelianDetail->jml_beli; $i++) {
-                // Setiap quantity menambahkan 1 poin dan bonus
-                $totalPoints += 1;
+            // Hitung total poin dan bonus dari satu aktivasi pin
+            $totalPoints = 1;
 
-                if ($sponsor->status_qr) {
-                    $totalBonus += 1500;
-                } else {
-                    $totalBonus += 300;
-                }
+            if ($sponsor->status_qr) {
+                $totalBonus = 1500;
+            } else {
+                $totalBonus = 300;
             }
 
             // Update sponsor dan siapkan data untuk aktivitas
@@ -70,10 +155,10 @@ class BonusAktivasiPinListener
                 // Buat Penghasilan record
                 \App\Models\Penghasilan::create([
                     'user_id' => $sponsor->id,
-                    'kategori_bonus' => 'Bonus Aktivasi Pin',
+                    'kategori_bonus' => 'Bonus Generasi',
                     'status_qr' => $statusQr,
                     'tgl_dapat_bonus' => now(),
-                    'keterangan' => "bonus aktivasi pin dari mitra #{$user->id_mitra}",
+                    'keterangan' => "bonus Generasi dari aktivasi pin mitra #{$user->id_mitra}",
                     'nominal_bonus' => $totalBonus,
                 ]);
 
@@ -133,12 +218,13 @@ class BonusAktivasiPinListener
 
                 // Kumpulkan PembelianBonus untuk dibuat nanti
                 $idMitra = $sponsor->id_mitra ?? 'Unknown';
-                $point = $statusQr ? $totalPoints : 0;
+                $point = 1;
                 $nominalPembelianBonus = $statusQr ? 1500 : 300;
 
                 if ($statusQr) {
                     $pembelianBonusesToCreate[] = [
                         'pembelian_id' => $pembelian->id,
+                        'aktivasi_pin_id' => $aktivasiPin->id,
                         'user_id' => $sponsor->id,
                         'keterangan' => "ID {$idMitra} mendapatkan {$point} point dan BONUS AKTIVASI PIN {$nominalPembelianBonus}",
                         'tipe' => 'bonus',
@@ -148,6 +234,7 @@ class BonusAktivasiPinListener
                 } else {
                     $pembelianBonusesToCreate[] = [
                         'pembelian_id' => $pembelian->id,
+                        'aktivasi_pin_id' => $aktivasiPin->id,
                         'user_id' => $sponsor->id,
                         'keterangan' => "ID {$idMitra} mendapatkan BONUS AKTIVASI PIN {$nominalPembelianBonus}",
                         'tipe' => 'bonus',
@@ -157,6 +244,7 @@ class BonusAktivasiPinListener
 
                     $pembelianBonusesToCreate[] = [
                         'pembelian_id' => $pembelian->id,
+                        'aktivasi_pin_id' => $aktivasiPin->id,
                         'user_id' => $sponsor->id,
                         'keterangan' => "ID {$idMitra} kehilangan peluang {$point} point",
                         'tipe' => 'loss',
