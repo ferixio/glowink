@@ -95,7 +95,7 @@ class PembelianDetailResource extends Resource
                         ->action(function (Collection $records) {
                             $records->each(function ($record) {
                                 $record->update(['is_accepted' => true]);
-                                event(new BonusAktivasiPin($record, auth()->user()));
+                                // event(new BonusAktivasiPin($record, auth()->user()));
                                 // Trigger event untuk menambah saldo_penghasilan
                                 // event(new PembelianDetailAktivasi($record, auth()->user()));
                             });

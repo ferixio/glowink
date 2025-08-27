@@ -35,4 +35,9 @@ class AktivasiPin extends Model
     {
         return $this->belongsTo(Produk::class);
     }
+
+    public function pembelianBonuses()
+    {
+        return $this->hasMany(PembelianBonus::class);
+    }
 }

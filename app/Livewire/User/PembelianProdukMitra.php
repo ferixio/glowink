@@ -796,15 +796,15 @@ class PembelianProdukMitra extends Component
 
             // Auto approve when personal shopping, mirroring EditApprovePembelian logic
             if ($isPersonalShopping) {
-                $pembelianDetails = \App\Models\PembelianDetail::where('pembelian_id', $pembelian->id)->get();
+                // $pembelianDetails = \App\Models\PembelianDetail::where('pembelian_id', $pembelian->id)->get();
 
-                $pembelianDetails->each(function ($item) {
-                    $generatedRandomPin = str_pad(mt_rand(0, 999999), 6, '0', STR_PAD_LEFT);
-                    $item->pin = $generatedRandomPin;
-                    $item->save();
-                });
+                // $pembelianDetails->each(function ($item) {
+                //     $generatedRandomPin = str_pad(mt_rand(0, 999999), 6, '0', STR_PAD_LEFT);
+                //     $item->pin = $generatedRandomPin;
+                //     $item->save();
+                // });
 
-                // event(new \App\Events\PembelianDiterima($pembelian));
+                event(new \App\Events\PembelianDiterima($pembelian));
 
                 $pembelian->status_pembelian = 'selesai';
                 $pembelian->save();
