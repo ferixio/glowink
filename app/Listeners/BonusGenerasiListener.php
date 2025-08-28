@@ -69,8 +69,10 @@ class BonusGenerasiListener
             foreach ($pembelian->details as $detail) {
                 // Perulangan berdasarkan quantity pembelian
                 for ($i = 0; $i < $detail->jml_beli; $i++) {
+                    $totalPoints += 1;
+
                     if ($detail->paket == 2) {
-                        $totalPoints += 1;
+                        
 
                         $totalBonusJikaQR += 1500;
                         if ($sponsor->status_qr) {
