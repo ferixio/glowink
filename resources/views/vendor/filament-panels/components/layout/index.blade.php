@@ -171,12 +171,13 @@
                     <a href="/user/dashboard"
                         style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.5rem; border-radius: 0.75rem; transition: all 0.2s; min-width: 60px; color: {{ request()->is('user/dashboard') ? 'rgb(37 99 235)' : 'rgb(75 85 99)' }}; text-decoration: none;"
                         class="fi-nav-item hover:text-gray-900 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-800">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            stroke="currentColor" class="size-6">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                        <svg style="height: 1.25rem; width: 1.25rem; margin-bottom: 0.25rem;" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 5a2 2 0 012-2h4a2 2 0 012 2v6H8V5z"></path>
                         </svg>
-
                         <span style="font-size: 0.75rem; font-weight: 500;">Dashboard</span>
                     </a>
 
@@ -185,12 +186,12 @@
                         @click="openSubmenu('Transaksi', [{label: 'Belanja', url: '/user/pembelian-produk'}, {label: 'RO Bulanan', url: '/user/pembelian-r-o-bulanan'}, {label: 'Aktivasi PIN', url: '/user/aktivasi-pins'}])"
                         style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.5rem; border-radius: 0.75rem; transition: all 0.2s; min-width: 60px; color: {{ request()->is('user/pembelian-produk') || request()->is('user/pembelian-r-o-bulanan') || request()->is('user/aktivasi-pins') ? 'rgb(37 99 235)' : 'rgb(75 85 99)' }}; border: none; background: none; cursor: pointer;"
                         class="fi-nav-item hover:text-gray-900 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-800">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            stroke="currentColor" class="size-6">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                        <svg style="height: 1.25rem; width: 1.25rem; margin-bottom: 0.25rem;" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
+                            </path>
                         </svg>
-
                         <span style="font-size: 0.75rem; font-weight: 500;">Transaksi</span>
                     </button>
 
@@ -198,12 +199,11 @@
                     <a href="/user/aktivitas"
                         style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.5rem; border-radius: 0.75rem; transition: all 0.2s; min-width: 60px; color: {{ request()->is('user/aktivitas*') ? 'rgb(37 99 235)' : 'rgb(75 85 99)' }}; text-decoration: none;"
                         class="fi-nav-item hover:text-gray-900 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-800">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            stroke="currentColor" class="size-6">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" />
+                        <svg style="height: 1.25rem; width: 1.25rem; margin-bottom: 0.25rem;" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                         </svg>
-
                         <span style="font-size: 0.75rem; font-weight: 500;">Aktivitas</span>
                     </a>
 
@@ -212,12 +212,12 @@
                         @click="openSubmenu('Laporan', [{label: 'Pembelian', url: '/user/pembelians'}, {label: 'Penghasilan', url: '/user/penghasilans'}, {label: 'Jaringan', url: '/user/jaringan'}])"
                         style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.5rem; border-radius: 0.75rem; transition: all 0.2s; min-width: 60px; color: {{ request()->is('user/pembelians*') || request()->is('user/penghasilans*') || request()->is('user/jaringan*') ? 'rgb(37 99 235)' : 'rgb(75 85 99)' }}; border: none; background: none; cursor: pointer;"
                         class="fi-nav-item hover:text-gray-900 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-800">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            stroke="currentColor" class="size-6">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184" />
+                        <svg style="height: 1.25rem; width: 1.25rem; margin-bottom: 0.25rem;" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+                            </path>
                         </svg>
-
                         <span style="font-size: 0.75rem; font-weight: 500;">Laporan</span>
                     </button>
 
