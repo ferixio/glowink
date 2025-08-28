@@ -1,15 +1,15 @@
 <div class="grid grid-cols-1 gap-6 ">
-    <h2 class="text-3xl mt-6 font-bold text-gray-800">Halo, {{ $user->nama }} </h2>
+    <h2 class="md:text-3xl text-xl mt-4 text-blue-500 font-bold ">Halo, {{ $user->nama }} </h2>
 
     {{-- Group 1: Info Akun --}}
     <div class="bg-white rounded-xl shadow p-6 space-y-4">
         <h2 class="text-xl font-semibold text-gray-800">Info Akun</h2>
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4">
             @if ($isStockis)
-            <a href="/user/approve-pembelians" class="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm">
-                <div class="text-sm text-gray-500">Butuh Approve Pembelian</div>
-                <div class="mt-1 text-lg font-semibold text-green-600">{{ $totalPembelianStockis }}</div>
-            </a>
+                <a href="/user/approve-pembelians" class="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm">
+                    <div class="text-sm text-gray-500">Butuh Approve Pembelian</div>
+                    <div class="mt-1 text-lg font-semibold text-green-600">{{ $totalPembelianStockis }}</div>
+                </a>
             @endif
             <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm">
                 <div class="text-sm text-gray-500">ID</div>
@@ -132,81 +132,35 @@
         <h2 class="text-xl font-semibold text-gray-800">Aktivitas Terbaru</h2>
 
         @if ($aktivitas->count() > 0)
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Tanggal
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Judul
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Keterangan
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Status
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Nominal
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Tipe
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        @foreach ($aktivitas as $activity)
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+            <div class="space-y-3">
+                @foreach ($aktivitas as $activity)
+                    <div class="p-4 bg-white rounded-lg shadow hover:shadow-md transition">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-xs text-gray-500">
                                     {{ \Carbon\Carbon::parse($activity->created_at)->format('d/m/Y H:i') }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                </p>
+                                <p class="text-sm font-semibold text-gray-900">
                                     {{ $activity->judul }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                </p>
+                                <p class="text-xs text-gray-500">
                                     {{ $activity->keterangan ?? '-' }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span
-                                        class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
-                                        {{ $activity->status === 'success'
-                                            ? 'bg-green-100 text-green-800'
-                                            : ($activity->status === 'pending'
-                                                ? 'bg-yellow-100 text-yellow-800'
-                                                : ($activity->status === 'failed'
-                                                    ? 'bg-red-100 text-red-800'
-                                                    : 'bg-gray-100 text-gray-800')) }}">
-                                        {{ $activity->status ?? 'N/A' }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    @if ($activity->nominal)
-                                        <span
-                                            class="{{ $activity->tipe === 'plus' ? 'text-green-600' : 'text-red-600' }}">
-                                            {{ $activity->tipe === 'plus' ? '+' : '-' }} Rp
-                                            {{ number_format($activity->nominal, 0, ',', '.') }}
-                                        </span>
-                                    @else
-                                        -
-                                    @endif
-                                </td>
-                                {{-- <td class="px-6 py-4 whitespace-nowrap">
-                                    @if ($activity->tipe)
-                                        <span
-                                            class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
-                                            {{ $activity->tipe === 'plus' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                            {{ ucfirst($activity->tipe) }}
-                                        </span>
-                                    @else
-                                        -
-                                    @endif
-                                </td> --}}
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                                </p>
+                            </div>
+                            <div class="text-right">
+                                @if ($activity->nominal)
+                                    <p
+                                        class="text-sm font-bold {{ $activity->tipe === 'plus' ? 'text-green-600' : 'text-red-600' }}">
+                                        {{ $activity->tipe === 'plus' ? '+' : '-' }} Rp
+                                        {{ number_format($activity->nominal, 0, ',', '.') }}
+                                    </p>
+                                @else
+                                    <p class="text-sm text-gray-500">-</p>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
             </div>
         @else
             <div class="text-center py-8">

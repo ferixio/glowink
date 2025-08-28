@@ -99,66 +99,47 @@
     </div>
 
     <!-- Tabel Data -->
-    <div style="overflow-x: auto;">
-        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
-            <thead style="background-color: #f9fafb;">
-                <tr>
-                    <th
-                        style="padding: 10px; text-align: left; color: #6b7280; font-size: 12px; text-transform: uppercase;">
-                        ID Mitra</th>
-                    <th
-                        style="padding: 10px; text-align: left; color: #6b7280; font-size: 12px; text-transform: uppercase;">
-                        Nama Mitra</th>
-                    <th
-                        style="padding: 10px; text-align: left; color: #6b7280; font-size: 12px; text-transform: uppercase;">
-                        ID Sponsor</th>
-                    <th
-                        style="padding: 10px; text-align: left; color: #6b7280; font-size: 12px; text-transform: uppercase;">
-                        Poin</th>
+    <div class="space-y-3">
+        @forelse($jaringanMitra as $index => $item)
+            <div class="p-4 bg-white rounded-lg shadow hover:shadow-md transition">
+                <div class="flex justify-between items-center">
+                    {{-- Kiri: ID Mitra & Nama --}}
+                    <div>
+                        <p class="text-lg font-bold text-blue-500">
+                            {{ $item->user->id_mitra }}
+                        </p>
+                        <p class="text-sm font-medium text-gray-700">
+                            {{ $item->user->nama ?? 'N/A' }}
+                        </p>
+                        <p class="text-xs text-gray-500">
+                            ID Sponsor: {{ $item->user->id_sponsor ?? 'N/A' }}
+                        </p>
+                    </div>
 
-                    <th
-                        style="padding: 10px; text-align: left; color: #6b7280; font-size: 12px; text-transform: uppercase;">
-                        Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($jaringanMitra as $index => $item)
-                    <tr style="border-top: 1px solid #e5e7eb; background-color: #fff; transition: background 0.2s;"
-                        onmouseover="this.style.backgroundColor='#f9fafb'"
-                        onmouseout="this.style.backgroundColor='#fff'">
-                        <td style="padding: 10px;">{{ $item->user->id_mitra }}</td>
-                        <td style="padding: 10px; display: flex; align-items: center; gap: 8px;">
-
-                            <div>
-                                <div style="font-weight: 500;">{{ $item->user->nama ?? 'N/A' }}</div>
-                            </div>
-                        </td>
-                        <td style="padding: 10px;">{{ $item->user->id_sponsor ?? 'N/A' }}</td>
-                        <td style="padding: 10px;">
-                            <span
-                                style="padding: 4px 8px; border-radius: 12px; font-size: 12px; background-color: #f3f4f6; color: #374151;">
-                                {{ $item->user->poin_reward ?? 0 }}
-                            </span>
-                        </td>
-                        <td style="padding: 10px;">
+                    {{-- Kanan: Poin & Status --}}
+                    <div class="text-right">
+                        <span class="inline-block px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-700">
+                            {{ $item->user->poin_reward ?? 0 }} Poin
+                        </span>
+                        <div class="mt-2">
                             @if ($item->user->status_qr ?? false)
-                                <span
-                                    style="padding: 4px 8px; border-radius: 12px; font-size: 12px; background-color: #dcfce7; color: #166534;">QR
-                                    Aktif</span>
+                                <span class="inline-block px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">
+                                    QR Aktif
+                                </span>
                             @else
-                                <span
-                                    style="padding: 4px 8px; border-radius: 12px; font-size: 12px; background-color: #fee2e2 ; color: #b91c1c;">QR
-                                    non Aktif</span>
+                                <span class="inline-block px-2 py-1 text-xs rounded-full bg-red-100 text-red-700">
+                                    QR non Aktif
+                                </span>
                             @endif
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="6" style="padding: 20px; text-align: center; color: #6b7280;">Belum ada data
-                            jaringan mitra</td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @empty
+            <div class="p-4 bg-white rounded-lg shadow text-center text-gray-500">
+                Belum ada data jaringan mitra
+            </div>
+        @endforelse
     </div>
+
 </div>

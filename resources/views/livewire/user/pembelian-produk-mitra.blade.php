@@ -15,11 +15,11 @@
     @endif
 
     {{-- Mobile/Tablet Cart Icon --}}
-    <div class="lg:hidden fixed bottom-4 right-4 z-40">
+    <div class="lg:hidden fixed bottom-24 right-4 z-40">
         <button wire:click="toggleCartSidebar"
-            class="relative bg-orange-200 hover:bg-orange-300 text-gray-800  p-3 rounded-full shadow-lg transition-colors">
-            <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" id="cart">
-                <path
+            class="relative bg-blue-500 hover:bg-blue-600 text-white  p-3 rounded-full shadow-lg transition-colors">
+            <svg class="w-8 h-8 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" id="cart">
+                <path fill="white"
                     d="M8.5,19A1.5,1.5,0,1,0,10,20.5,1.5,1.5,0,0,0,8.5,19ZM19,16H7a1,1,0,0,1,0-2h8.49121A3.0132,3.0132,0,0,0,18.376,11.82422L19.96143,6.2749A1.00009,1.00009,0,0,0,19,5H6.73907A3.00666,3.00666,0,0,0,3.92139,3H3A1,1,0,0,0,3,5h.92139a1.00459,1.00459,0,0,1,.96142.7251l.15552.54474.00024.00506L6.6792,12.01709A3.00006,3.00006,0,0,0,7,18H19a1,1,0,0,0,0-2ZM17.67432,7l-1.2212,4.27441A1.00458,1.00458,0,0,1,15.49121,12H8.75439l-.25494-.89221L7.32642,7ZM16.5,19A1.5,1.5,0,1,0,18,20.5,1.5,1.5,0,0,0,16.5,19Z">
                 </path>
             </svg>
@@ -147,18 +147,18 @@
             }
         @endphp
 
-        <h1 class="md:text-3xl text-2xl my-4 text-blue-500 font-bold">{{ $title }}</h1>
+        <h1 class="hidden md:block md:text-3xl text-xl my-4 text-blue-500 font-bold">{{ $title }}</h1>
 
         @if ($currentPage === 0)
             {{-- Tab Navigation --}}
-            <div class="flex space-x-1 bg-gray-100 p-1 rounded-lg mb-6">
+            <div class="flex space-x-1 bg-gray-100 md:p-1 p-2 rounded-lg mb-6 mt-4 md:mt-0">
                 <button wire:click="switchTab('belanja')"
                     class="flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors {{ $activeTab === 'belanja' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-800' }}">
-                    Belanja
+                    Belanja ke Stockist
                 </button>
                 <button wire:click="switchTab('belanja_pribadi')"
                     class="flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors {{ $activeTab === 'belanja_pribadi' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-800' }}">
-                    Belanja Pribadi
+                    Stock Pribadi
                 </button>
             </div>
 
