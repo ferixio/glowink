@@ -17,13 +17,12 @@
             <!-- Action Buttons -->
             @if (!empty($selectedUserIds))
                 <div class="flex items-center gap-4 pt-6 border-t">
-                    <x-filament::button type="submit" size="lg" color="primary">
-                        <x-heroicon-m-check class="w-5 h-5 mr-2" />
+                    <x-filament::button class="flex" type="submit" size="lg" color="primary">
                         Update Sponsor
                     </x-filament::button>
 
-                    <x-filament::button type="button" size="lg" color="gray" wire:click="clearSelection">
-                        <x-heroicon-m-x-mark class="w-5 h-5 mr-2" />
+                    <x-filament::button class="flex" type="button" size="lg" color="gray"
+                        wire:click="clearSelection">
                         Clear Selection
                     </x-filament::button>
                 </div>
@@ -103,8 +102,18 @@
                 <div class="flex items-start space-x-2">
                     <span
                         class="w-5 h-5 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center text-xs font-medium mt-0.5">4</span>
-                    <p>Klik tombol "Update Sponsor" untuk mengubah id_sponsor semua user menjadi mitra yang dipilih</p>
+                    <p>Klik tombol "Update Sponsor" untuk mengubah id_sponsor dan struktur jaringan mitra</p>
                 </div>
+            </div>
+
+            <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800 rounded-md">
+                <h4 class="font-medium text-blue-900 dark:text-blue-100 mb-2">Informasi Penting:</h4>
+                <ul class="text-sm text-blue-800 dark:text-blue-200 space-y-1">
+                    <li>• ID sponsor akan diubah di tabel users</li>
+                    <li>• Struktur jaringan mitra akan dihitung ulang secara otomatis</li>
+                    <li>• Relasi jaringan akan diperbarui hingga 10 level ke atas</li>
+                    <li>• Semua downline dari user yang diubah juga akan diupdate</li>
+                </ul>
             </div>
         </div>
     </div>

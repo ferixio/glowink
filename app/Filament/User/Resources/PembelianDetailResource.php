@@ -78,7 +78,7 @@ class PembelianDetailResource extends Resource
                         event(new PembelianDetailAktivasi($record, auth()->user()));
 
                         \Filament\Notifications\Notification::make()
-                            ->title('PIN berhasil diterima')
+                            ->title('PIN berhasil diaktivasi')
                             ->success()
                             ->send();
                     })
