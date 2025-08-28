@@ -8,6 +8,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 
 class AktivitasResource extends Resource
@@ -16,6 +17,15 @@ class AktivitasResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?int $navigationSort = 6;
+    protected static ?string $recordTitleAttribute = null;
+    protected static ?string $navigationLabel = 'Aktivitas';
+
+    protected static ?string $label = '';
+
+    public function getTitle(): string | Htmlable
+    {
+        return '';
+    }
     public static function form(Form $form): Form
     {
         return $form
@@ -32,26 +42,27 @@ class AktivitasResource extends Resource
                     ->label('Aktivitas')
                     ->getStateUsing(function ($record) {
                         return '
-            <div style="line-height:1.4">
+            <div style="line-height:1.4; max-width: 220px; word-wrap: break-word; white-space: normal;">
                 <div style="font-size: 0.75rem; color: #6b7280; font-weight: 500;">' . e(format_tanggal_indonesia($record->created_at)) . '</div>
                 <div style="font-weight: 600; color: #111827;">' . e($record->judul) . '</div>
                 <div style="font-size: 0.85rem; color: ' . ($record->tipe === 'plus' ? '#059669' : ($record->tipe === 'minus' ? '#dc2626' : '#4b5563')) . ';">' . e($record->keterangan) . '</div>
             </div>
         ';
                     })
-                    ->html(),
+                    ->html()
+                    ->extraAttributes(['style' => 'max-width: 220px; white-space: normal; word-wrap: break-word;']),
+// supaya tabelnya juga ikut membatasi
 
                 Tables\Columns\TextColumn::make('status')
                     ->label('')
                     ->getStateUsing(function ($record) {
                         $nominalText = $record->nominal !== null
                         ? ($record->tipe === 'plus' ? '+' : ($record->tipe === 'minus' ? '-' : '')) . number_format($record->nominal, 0, ',', '.')
-
                         : '<span style=""> </span>';
 
                         return '
             <div style="line-height:1.4">
-                <div style="font-size: 0.85rem; font-weight: 500; color: ' . ('#059669') . ';">' . e($record->status) . '</div>
+                <div style="font-size: 0.85rem; font-weight: 500; color: #059669;">' . e($record->status) . '</div>
                 <div style="font-size: 1rem; font-weight: 700; color: #111827;">' . $nominalText . '</div>
             </div>
         ';

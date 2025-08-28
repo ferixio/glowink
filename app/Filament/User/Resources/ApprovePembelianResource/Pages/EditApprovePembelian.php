@@ -33,7 +33,7 @@ class EditApprovePembelian extends EditRecord
             //     }),
 
             Actions\Action::make('Set Selesai')
-                ->label('Selesai')
+                ->label('Diterima')
                 ->color('success')
                 ->visible(fn() => $this->record->status_pembelian === 'menunggu')
                 ->action(function () {

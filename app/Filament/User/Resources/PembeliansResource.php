@@ -36,35 +36,37 @@ class PembeliansResource extends Resource
                 //     ->searchable()->label("id")
                 //     ->url(fn($record) => static::getUrl('detail', ['record' => $record])),
                 Tables\Columns\TextColumn::make('user.nama')
-                    ->searchable()
-                    ->label("Nama Pembeli")->url(fn($record) => static::getUrl('detail', ['record' => $record])),
-                Tables\Columns\TextColumn::make('seller.nama')
-                    ->searchable()
-                    ->label("Nama Penjual")->url(fn($record) => static::getUrl('detail', ['record' => $record])),
-                Tables\Columns\TextColumn::make('kategori_pembelian')
-                    ->searchable()
-                    ->label("Kategori Pembelian")->url(fn($record) => static::getUrl('detail', ['record' => $record])),
-                Tables\Columns\TextColumn::make('nama_penerima')
-                    ->searchable()
-                    ->label("Nama Penerima")->url(fn($record) => static::getUrl('detail', ['record' => $record])),
-                Tables\Columns\TextColumn::make('alamat_tujuan')
-                    ->searchable()
-                    ->label("Alamat Tujuan")->url(fn($record) => static::getUrl('detail', ['record' => $record])),
-                Tables\Columns\TextColumn::make('no_telp')
-                    ->searchable()
-                    ->label("No HP Penerima")->url(fn($record) => static::getUrl('detail', ['record' => $record])),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->searchable()
-                    ->label("Tanggal Pembelian")->url(fn($record) => static::getUrl('detail', ['record' => $record])),
+                    ->label('Detail Pembelian')
+                    ->html()
+                    ->formatStateUsing(function ($state, $record) {
+                        $status = match ($record->status_pembelian) {
+                            'menunggu' => "<span class='inline-flex items-center text-gray-600 text-xs font-semibold'>Menunggu</span>",
+                            'transfer' => "<span class='inline-flex items-center text-yellow-600 text-xs font-semibold'>Transfer</span>",
+                            'proses' => "<span class='inline-flex items-center text-blue-600 text-xs font-semibold'>Proses</span>",
+                            'ditolak' => "<span class='inline-flex items-center text-red-600 text-xs font-semibold'>Ditolak</span>",
+                            'selesai' => "<span class='inline-flex items-center text-green-600 text-xs font-semibold'>Selesai</span>",
+                            default => "<span class='inline-flex items-center text-gray-500 text-xs font-semibold'>-</span>",
+                        };
 
-                Tables\Columns\BadgeColumn::make('status_pembelian')
-                    ->color(fn(string $state): string => match ($state) {
-                        'menunggu' => 'gray',
-                        'transfer' => 'warning',
-                        'proses' => 'info',
-                        'ditolak' => 'danger',
-                        'selesai' => 'success',
-                    })->url(fn($record) => static::getUrl('detail', ['record' => $record])),
+                        return "
+            <div class='flex flex-col'>
+                <span class='font-bold text-gray-800'>{$record->user->nama}</span>
+                <span class='text-sm text-gray-600'>Penjual: {$record->seller->nama}</span>
+                <span class='text-sm text-gray-600'>Tanggal: {$record->created_at->format('d M Y')}</span>
+                <div class='mt-1'>{$status}</div>
+            </div>
+        ";
+                    })
+                    ->url(fn($record) => static::getUrl('detail', ['record' => $record]))
+                    ->searchable(),
+
+                Tables\Columns\TextColumn::make('kategori_pembelian')
+                    ->label('Kategori')
+                    ->badge()
+                    ->color('primary')
+                    ->url(fn($record) => static::getUrl('detail', ['record' => $record]))
+                    ->searchable(),
+
             ])
             ->filters([
                 //

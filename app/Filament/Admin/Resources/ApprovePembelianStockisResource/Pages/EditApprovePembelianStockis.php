@@ -18,7 +18,7 @@ class EditApprovePembelianStockis extends EditRecord
         return [
 
             Actions\Action::make('Set selesai')
-                ->label('Selesai')
+                ->label('Diterima')
                 ->color('success')
                 ->visible(fn() => $this->record->status_pembelian === 'proses' || $this->record->status_pembelian === 'menunggu'
                     || $this->record->status_pembelian === 'ditolak' )

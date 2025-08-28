@@ -41,41 +41,45 @@ class PenghasilanResource extends Resource
             ->columns([
 
                 Tables\Columns\TextColumn::make('tgl_dapat_bonus')
-                    ->searchable()
-                    ->label('Tanggal Bonus')
-                    ->formatStateUsing(function ($state) {
-                        if (!$state) {
-                            return '-';
+                    ->label('Detail Bonus')
+                    ->html()
+                    ->formatStateUsing(function ($state, $record) {
+                        // Format tanggal
+                        if ($state) {
+                            $bulan = [
+                                1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+                                5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+                                9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember',
+                            ];
+                            $date = date_create($state);
+                            $d = date_format($date, 'j');
+                            $m = (int) date_format($date, 'n');
+                            $y = date_format($date, 'Y');
+                            $tanggalBonus = "$d {$bulan[$m]} $y";
+                        } else {
+                            $tanggalBonus = '-';
                         }
 
-                        $bulan = [
-                            1 => 'Januari',
-                            2 => 'Februari',
-                            3 => 'Maret',
-                            4 => 'April',
-                            5 => 'Mei',
-                            6 => 'Juni',
-                            7 => 'Juli',
-                            8 => 'Agustus',
-                            9 => 'September',
-                            10 => 'Oktober',
-                            11 => 'November',
-                            12 => 'Desember',
-                        ];
-                        $date = date_create($state);
-                        $d = date_format($date, 'j');
-                        $m = (int) date_format($date, 'n');
-                        $y = date_format($date, 'Y');
-                        return "$d {$bulan[$m]} $y";
-                    }),
-                // Tables\Columns\TextColumn::make('status_qr')->searchable(),
-                Tables\Columns\TextColumn::make('kategori_bonus')->searchable(),
+                        // Format nominal bonus
+                        $nominal = 'Rp ' . number_format($record->nominal_bonus, 0, ',', '.');
 
-                Tables\Columns\TextColumn::make('keterangan')->searchable(),
-                Tables\Columns\TextColumn::make('nominal_bonus')
-                    ->searchable()
-                    ->label('Nominal Bonus')
-                    ->formatStateUsing(fn($state) => 'Rp ' . number_format($state, 0, ',', '.')),
+                        return "
+            <div class='flex flex-col'>
+                <span class='font-bold text-gray-800'>{$tanggalBonus}</span>
+                <span class='text-sm text-gray-600'>{$record->keterangan}</span>
+                <span class='text-sm text-green-600 font-semibold'>{$nominal}</span>
+            </div>
+        ";
+                    })
+                    // ->url(fn($record) => static::getUrl('detail', ['record' => $record]))
+                    ->searchable(),
+
+                Tables\Columns\TextColumn::make('kategori_bonus')
+                    ->label('Kategori Bonus')
+                    ->badge()
+                    ->color('info')
+                    // ->url(fn($record) => static::getUrl('detail', ['record' => $record]))
+                    ->searchable(),
 
             ])
             ->filters([

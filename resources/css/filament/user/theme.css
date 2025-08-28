@@ -6,6 +6,60 @@ section.flex.flex-col {
     gap: 8px;
     padding-top: 14px;
 }
+
+/* Bottom Navigation Styles */
+.fi-bottom-nav {
+    box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1),
+        0 -2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.dark .fi-bottom-nav {
+    box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.3),
+        0 -2px 4px -1px rgba(0, 0, 0, 0.2);
+}
+
+.fi-nav-item {
+    position: relative;
+    transition: all 0.2s ease-in-out;
+}
+
+.fi-nav-item:hover {
+    transform: translateY(-2px);
+}
+
+.fi-nav-item:active {
+    transform: translateY(0);
+}
+
+.fi-submenu-overlay {
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.fi-submenu-panel {
+    max-height: 60vh;
+    overflow-y: auto;
+    border-radius: 12px 12px 0 0;
+}
+
+.fi-submenu-item {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+}
+
+.fi-submenu-item:hover {
+    transform: translateX(4px);
+}
+
+.fi-submenu-item:active {
+    transform: scale(0.98);
+}
+
+body.submenu-open {
+    overflow: hidden;
+}
+
 /* thead tr.bg-gray-100,
 thead tr.dark\:bg-white\/5 {
     background-color: #3b82f6 !important; 
@@ -15,6 +69,3 @@ thead tr.dark\:bg-white\/5 {
 .fi-ta-header-cell-label {
     color: white !important; 
 } */
-
-
-

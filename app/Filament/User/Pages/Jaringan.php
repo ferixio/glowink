@@ -11,4 +11,6 @@ class Jaringan extends Page
     protected static string $view = 'filament.user.pages.jaringan';
 
      protected static ?int $navigationSort = 5;
+
+     protected static ?string $label = '';
 }
