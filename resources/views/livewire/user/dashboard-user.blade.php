@@ -5,6 +5,12 @@
     <div class="bg-white rounded-xl shadow p-6 space-y-4">
         <h2 class="text-xl font-semibold text-gray-800">Info Akun</h2>
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4">
+            @if ($isStockis)
+            <a href="/user/approve-pembelians" class="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm">
+                <div class="text-sm text-gray-500">Butuh Approve Pembelian</div>
+                <div class="mt-1 text-lg font-semibold text-green-600">{{ $totalPembelianStockis }}</div>
+            </a>
+            @endif
             <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm">
                 <div class="text-sm text-gray-500">ID</div>
                 <div class="mt-1 text-lg font-semibold text-gray-700">{{ $user->id_mitra }}</div>

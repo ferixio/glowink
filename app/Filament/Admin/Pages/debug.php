@@ -15,7 +15,7 @@ class debug extends Page
     protected static ?string $navigationIcon = 'heroicon-o-wrench';
     protected static ?int $navigationSort = 5;
     protected static string $view = 'filament.admin.pages.debug';
-
+    protected static bool $shouldRegisterNavigation = false;
     public ?array $data = [];
     public string $activeTab = 'deviden';
 

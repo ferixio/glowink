@@ -110,25 +110,38 @@ class BonusGenerasiListener
             // Simpan sponsor untuk update batch
             $sponsorsToUpdate[] = $sponsor;
 
-            // Buat 2 aktivitas terpisah: Poin dan Bonus Generasi
+            // Tentukan keterangan berdasarkan status QR dan paket
             if ($statusQr) {
-                // Aktivitas untuk Poin
-                $activitiesToCreate[] = [
-                    'user_id' => $sponsor->id,
-                    'judul' => 'Poin',
-                    'keterangan' => "Mendapatkan {$totalPoints} poin dari mitra #{$user->id_mitra}",
-                    'tipe' => 'plus',
-                    'status' => 'Berhasil',
-                    'nominal' => $totalPoints,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
+                // Jika status QR true, tidak ada kehilangan peluang
+                if ($totalPoints > 0) {
+                    $keterangan = "Mendapatkan {$totalPoints} poin dan bonus generasi {$totalBonus} dari mitra #{$user->id_mitra}";
+                    $keteranganPembelianBonus = "ID {$sponsor->id_mitra} mendapatkan {$totalPoints} poin dan bonus generasi {$totalBonus} dari mitra #{$user->id_mitra}";
+                } else {
+                    $keterangan = "Mendapatkan bonus generasi {$totalBonus} dari mitra #{$user->id_mitra}";
+                    $keteranganPembelianBonus = "ID {$sponsor->id_mitra} mendapatkan bonus generasi {$totalBonus} dari mitra #{$user->id_mitra}";
+                }
+            } else {
+                // Jika status QR false, ada kehilangan peluang
+                if ($totalPoints > 0) {
+                    $keterangan = "Mendapatkan bonus generasi {$totalBonus} dari mitra #{$user->id_mitra}";
+                    $keteranganKehilangan = "Kehilangan peluang {$totalPoints} poin dan bonus generasi {$totalBonusJikaQR} dari mitra #{$user->id_mitra}";
+                    $keteranganPembelianBonus = "ID {$sponsor->id_mitra} mendapatkan bonus generasi {$totalBonus} dari mitra #{$user->id_mitra}";
+                    $keteranganPembelianBonusKehilangan = "ID {$sponsor->id_mitra} kehilangan peluang {$totalPoints} poin dan bonus generasi {$totalBonusJikaQR} dari mitra #{$user->id_mitra}";
+                } else {
+                    $keterangan = "Mendapatkan bonus generasi {$totalBonus} dari mitra #{$user->id_mitra}";
+                    $keteranganKehilangan = "Kehilangan peluang bonus generasi {$totalBonusJikaQR} dari mitra #{$user->id_mitra}";
+                    $keteranganPembelianBonus = "ID {$sponsor->id_mitra} mendapatkan bonus generasi {$totalBonus} dari mitra #{$user->id_mitra}";
+                    $keteranganPembelianBonusKehilangan = "ID {$sponsor->id_mitra} kehilangan peluang bonus generasi {$totalBonusJikaQR} dari mitra #{$user->id_mitra}";
+                }
+            }
 
-                // Aktivitas untuk Bonus Generasi
+            // Buat aktivitas berdasarkan status QR
+            if ($statusQr) {
+                // Jika status QR true, hanya buat aktivitas bonus generasi
                 $activitiesToCreate[] = [
                     'user_id' => $sponsor->id,
                     'judul' => 'Bonus Generasi',
-                    'keterangan' => "Mendapatkan bonus generasi {$totalBonus} dari mitra #{$user->id_mitra}",
+                    'keterangan' => $keterangan,
                     'tipe' => 'plus',
                     'status' => 'Berhasil',
                     'nominal' => $totalBonus,
@@ -136,44 +149,40 @@ class BonusGenerasiListener
                     'updated_at' => now(),
                 ];
             } else {
-
+                // Jika status QR false, buat aktivitas bonus generasi dan kehilangan peluang
                 if ($totalBonus > 0) {
                     $activitiesToCreate[] = [
                         'user_id' => $sponsor->id,
                         'judul' => 'Bonus Generasi',
-                        'keterangan' => "Mendapatkan bonus generasi {$totalBonus} dari mitra #{$user->id_mitra}",
+                        'keterangan' => $keterangan,
                         'tipe' => 'plus',
                         'status' => 'Berhasil',
                         'nominal' => $totalBonus,
                         'created_at' => now(),
                         'updated_at' => now(),
                     ];
-
                 }
 
-                $activitiesToCreate[] = [
-                    'user_id' => $sponsor->id,
-                    'judul' => 'Kehilangan Peluang Poin',
-                    'keterangan' => "Kehilangan peluang {$totalPoints} poin bonus generasi {$totalBonusJikaQR} dari mitra #{$user->id_mitra}",
-                    'tipe' => 'minus',
-                    'status' => '',
-                    'nominal' => null,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
-
+                // Hanya tampilkan kehilangan peluang jika ada poin atau bonus yang hilang
+                if ($totalPoints > 0 || $totalBonusJikaQR > 0) {
+                    $activitiesToCreate[] = [
+                        'user_id' => $sponsor->id,
+                        'judul' => 'Kehilangan Peluang',
+                        'keterangan' => $keteranganKehilangan,
+                        'tipe' => 'minus',
+                        'status' => '',
+                        'nominal' => null,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
             }
-
-            // Kumpulkan PembelianBonus untuk dibuat nanti
-            $idMitra = $sponsor->id_mitra ?? 'Unknown';
-            $point = $totalPoints ?? 1;
-            $nominalPembelianBonus = $statusQr ? 1500 : 300;
 
             if ($statusQr) {
                 $pembelianBonusesToCreate[] = [
                     'pembelian_id' => $pembelian->id,
                     'user_id' => $sponsor->id,
-                    'keterangan' => "ID {$idMitra} mendapatkan {$point} point dan BONUS GENERASI {$totalBonus} dari mitra #{$user->id_mitra}",
+                    'keterangan' => $keteranganPembelianBonus,
                     'tipe' => 'bonus',
                     'created_at' => now(),
                     'updated_at' => now(),
@@ -182,21 +191,23 @@ class BonusGenerasiListener
                 $pembelianBonusesToCreate[] = [
                     'pembelian_id' => $pembelian->id,
                     'user_id' => $sponsor->id,
-                    'keterangan' => "ID {$idMitra} mendapatkan BONUS GENERASI {$nominalPembelianBonus} dari mitra #{$user->id_mitra}",
+                    'keterangan' => $keteranganPembelianBonus,
                     'tipe' => 'bonus',
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];
 
-                $pembelianBonusesToCreate[] = [
-                    'pembelian_id' => $pembelian->id,
-                    'user_id' => $sponsor->id,
-                    'keterangan' => "ID {$idMitra} kehilangan peluang {$point} point dan Bonus Generasi {$totalBonusJikaQR} dari mitra #{$user->id_mitra}",
-                    'tipe' => 'loss',
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
-
+                // Hanya buat pembelian bonus kehilangan jika ada poin atau bonus yang hilang
+                if ($totalPoints > 0 || $totalBonusJikaQR > 0) {
+                    $pembelianBonusesToCreate[] = [
+                        'pembelian_id' => $pembelian->id,
+                        'user_id' => $sponsor->id,
+                        'keterangan' => $keteranganPembelianBonusKehilangan,
+                        'tipe' => 'loss',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
             }
 
         }

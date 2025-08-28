@@ -21,7 +21,7 @@ class UbahIdSponsor extends Page implements HasForms
     protected static string $view = 'filament.admin.pages.ubah-id-sponsor';
     protected static ?string $title = 'Ubah ID Sponsor';
     protected static ?string $navigationLabel = 'Ubah ID Sponsor';
-
+    protected static bool $shouldRegisterNavigation = false;
     public ?array $data = [];
     public array $selectedUserIds = [];
 
