@@ -11,6 +11,7 @@ use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class UbahIdSponsor extends Page implements HasForms
 {
@@ -133,28 +134,47 @@ class UbahIdSponsor extends Page implements HasForms
             return;
         }
 
-        // Update id_sponsor for all selected users
-        $updatedCount = User::whereIn('id', $selectedUserIds)
-            ->update(['id_sponsor' => $newSponsorId]);
+        try {
+            // Start transaction to ensure data consistency
+            DB::beginTransaction();
 
-        if ($updatedCount > 0) {
-            // Get sponsor info for notification
-            $sponsor = User::find($newSponsorId);
-            $sponsorName = $sponsor ? $sponsor->nama : 'Unknown';
+            // Update id_sponsor for all selected users
+            $updatedCount = User::whereIn('id', $selectedUserIds)
+                ->update(['id_sponsor' => $newSponsorId]);
 
-            Notification::make()
-                ->title('Berhasil')
-                ->body("ID sponsor berhasil diubah untuk {$updatedCount} user menjadi {$sponsorName}.")
-                ->success()
-                ->send();
+            if ($updatedCount > 0) {
+                // Update jaringan_mitras table for all selected users
+                $this->rebuildNetworkForUsers($selectedUserIds, $newSponsorId);
 
-            // Reset form
-            $this->selectedUserIds = [];
-            $this->form->fill();
-        } else {
+                // Get sponsor info for notification
+                $sponsor = User::find($newSponsorId);
+                $sponsorName = $sponsor ? $sponsor->nama : 'Unknown';
+
+                DB::commit();
+
+                Notification::make()
+                    ->title('Berhasil')
+                    ->body("ID sponsor berhasil diubah untuk {$updatedCount} user menjadi {$sponsorName}. Jaringan mitra telah diperbarui.")
+                    ->success()
+                    ->send();
+
+                // Reset form
+                $this->selectedUserIds = [];
+                $this->form->fill();
+            } else {
+                DB::rollBack();
+                Notification::make()
+                    ->title('Error')
+                    ->body('Gagal mengubah ID sponsor.')
+                    ->danger()
+                    ->send();
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+
             Notification::make()
                 ->title('Error')
-                ->body('Gagal mengubah ID sponsor.')
+                ->body('Terjadi kesalahan: ' . $e->getMessage())
                 ->danger()
                 ->send();
         }
@@ -164,5 +184,69 @@ class UbahIdSponsor extends Page implements HasForms
     {
         $this->selectedUserIds = [];
         $this->form->fill();
+    }
+
+    /**
+     * Rebuild network structure for multiple users
+     */
+    private function rebuildNetworkForUsers(array $userIds, int $newSponsorId): void
+    {
+        foreach ($userIds as $userId) {
+            $this->rebuildNetworkForUser($userId, $newSponsorId);
+        }
+    }
+
+    /**
+     * Rebuild network structure for a single user
+     */
+    private function rebuildNetworkForUser(int $userId, int $newSponsorId): void
+    {
+        // Delete all existing network relationships for this user
+        DB::table('jaringan_mitras')->where('user_id', $userId)->delete();
+
+        $currentSponsorId = $newSponsorId;
+        $level = 1;
+        $maxLevel = 10; // Maximum network depth
+
+        // Build network structure from new sponsor up to 10 levels
+        while ($currentSponsorId && $level <= $maxLevel) {
+            // Check if sponsor exists
+            $sponsor = User::find($currentSponsorId);
+            if (!$sponsor) {
+                break;
+            }
+
+            // Create network relationship
+            DB::table('jaringan_mitras')->insert([
+                'user_id' => $userId,
+                'sponsor_id' => $currentSponsorId,
+                'level' => $level,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            // Move to next level up
+            $currentSponsorId = $sponsor->id_sponsor;
+            $level++;
+        }
+
+        // Also rebuild network for all downlines of this user
+        $this->rebuildNetworkForDownlines($userId);
+    }
+
+    /**
+     * Rebuild network structure for all downlines of a user
+     */
+    private function rebuildNetworkForDownlines(int $userId): void
+    {
+        // Get all direct downlines
+        $downlines = DB::table('jaringan_mitras')
+            ->where('sponsor_id', $userId)
+            ->where('level', 1)
+            ->get();
+
+        foreach ($downlines as $downline) {
+            $this->rebuildNetworkForUser($downline->user_id, $userId);
+        }
     }
 }

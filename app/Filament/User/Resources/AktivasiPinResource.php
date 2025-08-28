@@ -78,7 +78,7 @@ class AktivasiPinResource extends Resource
                         $record->update(['is_accept' => true]);
 
                         \Filament\Notifications\Notification::make()
-                            ->title('PIN berhasil diterima')
+                            ->title('PIN berhasil diaktivasi')
                             ->success()
                             ->send();
                     }),
