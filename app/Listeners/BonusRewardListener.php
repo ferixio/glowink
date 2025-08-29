@@ -18,6 +18,11 @@ class BonusRewardListener
         $statusQr = $user->status_qr;
         $idMitra = $user->id_mitra;
 
+        // Formatter Rupiah
+        $format = function ($number) {
+            return 'Rp. ' . number_format((float) $number, 0, ',', '.');
+        };
+
         // Cek apakah user memiliki QR aktif
         if ($user->status_qr && $sponsor) {
             $hasPaket2 = false;
@@ -50,7 +55,7 @@ class BonusRewardListener
                 Aktivitas::create([
                     'user_id' => $user->id,
                     'judul' => 'Bonus Cashback',
-                    'keterangan' => "Menerima {$keterangan}",
+                    'keterangan' => "Menerima {$keterangan} {$format($bonusAmount)}",
                     'tipe' => 'plus',
                     'status' => 'Berhasil',
                     'nominal' => $bonusAmount,
@@ -59,7 +64,7 @@ class BonusRewardListener
                 PembelianBonus::create([
                     'pembelian_id' => $pembelian->id,
                     'user_id' => $user->id,
-                    'keterangan' => "ID {$idMitra} mendapatkan bonus cashback {$bonusAmount}  ",
+                    'keterangan' => "ID {$idMitra} mendapatkan bonus cashback {$format($bonusAmount)}",
                     'tipe' => 'bonus',
                     'created_at' => now(),
                     'updated_at' => now(),
@@ -103,7 +108,7 @@ class BonusRewardListener
                     Aktivitas::create([
                         'user_id' => $user->id,
                         'judul' => 'Bonus Cashback',
-                        'keterangan' => "Menerima {$keterangan}",
+                        'keterangan' => "Menerima {$keterangan} {$format($bonusAmount)}",
                         'tipe' => 'plus',
                         'status' => 'Berhasil',
                         'nominal' => $bonusAmount,
