@@ -7,7 +7,8 @@
             <h2 class="text-xl font-semibold text-gray-800">Info Stokis</h2>
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4">
 
-                <a href="/user/approve-pembelians?tableFilters[status_pembelian][value]=menunggu" class="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm">
+                <a href="/user/approve-pembelians?tableFilters[status_pembelian][value]=menunggu"
+                    class="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm">
                     <div class="text-sm text-gray-500">Butuh Approve Pembelian</div>
                     <div class="mt-1 text-lg font-semibold text-green-600">{{ $totalPembelianStockis }}</div>
                 </a>
@@ -153,14 +154,14 @@
                                 <p class="text-sm font-semibold text-gray-900">
                                     {{ $activity->judul }}
                                 </p>
-                                <p class="text-xs text-gray-500">
+                                <p class="text-xs text-gray-500  md:w-full w-64">
                                     {{ $activity->keterangan ?? '-' }}
                                 </p>
                             </div>
                             <div class="text-right">
                                 @if ($activity->nominal)
                                     <p
-                                        class="text-sm font-bold {{ $activity->tipe === 'plus' ? 'text-green-600' : 'text-red-600' }}">
+                                        class="text-sm font-bold {{ $activity->tipe === 'plus' ? 'text-green-600' : '' }}">
                                         {{ $activity->tipe === 'plus' ? '+' : '-' }} Rp
                                         {{ number_format($activity->nominal, 0, ',', '.') }}
                                     </p>

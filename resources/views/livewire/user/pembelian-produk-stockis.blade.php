@@ -15,7 +15,7 @@
     @endif
 
     {{-- Mobile/Tablet Cart Icon --}}
-    <div class="lg:hidden fixed bottom-4 right-4 z-40">
+    <div class="lg:hidden fixed bottom-24 right-4 z-40">
         <button wire:click="toggleCartSidebar"
             class="relative bg-orange-200 hover:bg-orange-300 text-gray-800  p-3 rounded-full shadow-lg transition-colors">
             <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" id="cart">
