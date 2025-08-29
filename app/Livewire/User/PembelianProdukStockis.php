@@ -5,6 +5,7 @@ namespace App\Livewire\User;
 use App\Models\Pembelian;
 use App\Models\PembelianDetail;
 use App\Models\Produk;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -214,10 +215,14 @@ class PembelianProdukStockis extends Component
                 return;
             }
 
+            // Get admin user ID
+            $adminUser = User::where('isAdmin', true)->first();
+            $adminUserId = $adminUser ? $adminUser->id : 1; // fallback to 1 if no admin found
+
             $pembelian = Pembelian::create([
                 'tgl_beli' => $this->tanggal,
                 'user_id' => Auth::id(),
-                'beli_dari' => 1, // isi jika ada logic stokis/mitra
+                'beli_dari' => $adminUserId, // ID user yang memiliki isAdmin = true
                 'tujuan_beli' => 'null', // isi jika ada
                 'nama_penerima' => $this->nama,
                 'no_telp' => $this->telepon,
