@@ -154,120 +154,151 @@ class BonusAktivasiPinListener
 
             $totalPoints = 0;
             $totalBonus = 0;
+            $totalBonusJikaQR = 0;
+            $hasPaket2 = false;
 
-            $totalBonusAktivasi = 0;
+            // Hitung total poin dan bonus dari aktivasi pin
+            if ($pembelianDetail->paket == 2) {
+                $hasPaket2 = true;
+                $totalPoints = 1;
+                $totalBonusJikaQR = 1500;
 
-            if ($pembelianDetail->paket == 1) {
-                $totalBonusAktivasi = 300;
-            } elseif ($pembelianDetail->paket == 2) {
-                $totalBonusAktivasi = 1500;
-            }
-            // Hitung total poin dan bonus dari satu aktivasi pin
-            $totalPoints = 1;
-
-            if ($sponsor->status_qr) {
-                $totalBonus = 1500;
-            } else {
-                $totalBonus = 300;
+                if ($sponsor->status_qr) {
+                    $totalBonus = 1500;
+                }
+                // Jika status_qr false, totalBonus tetap 0
+            } else if ($pembelianDetail->paket == 1) {
+                $totalBonusJikaQR = 1500; // Kehilangan peluang bonus 1500 jika status QR false
+                // Untuk paket 1, bonus diberikan berdasarkan status QR
+                if ($sponsor->status_qr) {
+                    $totalBonus = 1500;
+                } else {
+                    $totalBonus = 300;
+                }
             }
 
             // Update sponsor dan siapkan data untuk aktivitas
-            if ($totalPoints > 0) {
-                $statusQr = $sponsor->status_qr;
+            $statusQr = $sponsor->status_qr;
 
-                // Update sponsor data
-                if ($statusQr) {
-                    $sponsor->poin_reward += $totalPoints;
+            // Update sponsor data
+            if ($statusQr) {
+                $sponsor->poin_reward += $totalPoints;
+            }
+
+            $sponsor->saldo_penghasilan += $totalBonus;
+
+            // Buat Penghasilan record
+            \App\Models\Penghasilan::create([
+                'user_id' => $sponsor->id,
+                'kategori_bonus' => 'Bonus Generasi',
+                'status_qr' => $statusQr,
+                'tgl_dapat_bonus' => now(),
+                'keterangan' => "bonus Generasi dari aktivasi pin mitra #{$user->id_mitra}",
+                'nominal_bonus' => $totalBonus,
+            ]);
+
+            // Simpan sponsor untuk update batch
+            $sponsorsToUpdate[] = $sponsor;
+
+            // Tentukan keterangan berdasarkan status QR dan paket
+            if ($statusQr) {
+                // Jika status QR true, tidak ada kehilangan peluang
+                if ($totalPoints > 0) {
+                    $keterangan = "Mendapatkan {$totalPoints} poin dan bonus generasi {$totalBonus} dari aktivasi pin mitra #{$user->id_mitra}";
+                    $keteranganPembelianBonus = "ID {$sponsor->id_mitra} mendapatkan {$totalPoints} poin dan bonus generasi {$totalBonus} dari aktivasi pin mitra #{$user->id_mitra}";
+                } else {
+                    $keterangan = "Mendapatkan bonus generasi {$totalBonus} dari aktivasi pin mitra #{$user->id_mitra}";
+                    $keteranganPembelianBonus = "ID {$sponsor->id_mitra} mendapatkan bonus generasi {$totalBonus} dari aktivasi pin mitra #{$user->id_mitra}";
                 }
+            } else {
+                // Jika status QR false, ada kehilangan peluang
+                if ($totalPoints > 0) {
+                    $keterangan = "Mendapatkan bonus generasi {$totalBonus} dari aktivasi pin mitra #{$user->id_mitra}";
+                    $keteranganKehilangan = "Kehilangan peluang {$totalPoints} poin dan bonus generasi {$totalBonusJikaQR} dari aktivasi pin mitra #{$user->id_mitra}";
+                    $keteranganPembelianBonus = "ID {$sponsor->id_mitra} mendapatkan bonus generasi {$totalBonus} dari aktivasi pin mitra #{$user->id_mitra}";
+                    $keteranganPembelianBonusKehilangan = "ID {$sponsor->id_mitra} kehilangan peluang {$totalPoints} poin dan bonus generasi {$totalBonusJikaQR} dari aktivasi pin mitra #{$user->id_mitra}";
+                } else {
+                    $keterangan = "Mendapatkan bonus generasi {$totalBonus} dari aktivasi pin mitra #{$user->id_mitra}";
+                    $keteranganKehilangan = "Kehilangan peluang bonus generasi {$totalBonusJikaQR} dari aktivasi pin mitra #{$user->id_mitra}";
+                    $keteranganPembelianBonus = "ID {$sponsor->id_mitra} mendapatkan bonus generasi {$totalBonus} dari aktivasi pin mitra #{$user->id_mitra}";
+                    $keteranganPembelianBonusKehilangan = "ID {$sponsor->id_mitra} kehilangan peluang bonus generasi {$totalBonusJikaQR} dari aktivasi pin mitra #{$user->id_mitra}";
+                }
+            }
 
-                $sponsor->saldo_penghasilan += $totalBonus;
-
-                // Buat Penghasilan record
-                \App\Models\Penghasilan::create([
+            // Buat aktivitas berdasarkan status QR
+            if ($statusQr) {
+                // Jika status QR true, hanya buat aktivitas bonus generasi
+                $activitiesToCreate[] = [
                     'user_id' => $sponsor->id,
-                    'kategori_bonus' => 'Bonus Generasi',
-                    'status_qr' => $statusQr,
-                    'tgl_dapat_bonus' => now(),
-                    'keterangan' => "bonus Generasi dari aktivasi pin mitra #{$user->id_mitra}",
-                    'nominal_bonus' => $totalBonus,
-                ]);
-
-                // Simpan sponsor untuk update batch
-                $sponsorsToUpdate[] = $sponsor;
-
-                // Buat 2 aktivitas terpisah: Poin dan Bonus Aktivasi Pin
-                if ($statusQr) {
-                    // Aktivitas untuk Poin
+                    'judul' => 'Bonus Generasi',
+                    'keterangan' => $keterangan,
+                    'tipe' => 'plus',
+                    'status' => 'Berhasil',
+                    'nominal' => $totalBonus,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            } else {
+                // Jika status QR false, buat aktivitas bonus generasi dan kehilangan peluang
+                if ($totalBonus > 0) {
                     $activitiesToCreate[] = [
                         'user_id' => $sponsor->id,
-                        'judul' => 'Poin',
-                        'keterangan' => "Mendapatkan {$totalPoints} poin dari aktivasi pin mitra #{$user->id_mitra}",
-                        'tipe' => 'plus',
-                        'status' => 'Berhasil',
-                        'nominal' => $totalPoints,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ];
-
-                    // Aktivitas untuk Bonus Aktivasi Pin
-                    $activitiesToCreate[] = [
-                        'user_id' => $sponsor->id,
-                        'judul' => 'Bonus Aktivasi Pin',
-                        'keterangan' => "Mendapatkan bonus aktivasi pin {$totalBonus} dari mitra #{$user->id_mitra}",
+                        'judul' => 'Bonus Generasi',
+                        'keterangan' => $keterangan,
                         'tipe' => 'plus',
                         'status' => 'Berhasil',
                         'nominal' => $totalBonus,
                         'created_at' => now(),
                         'updated_at' => now(),
                     ];
-                } else {
+                }
 
+                // Tampilkan kehilangan peluang untuk paket 2 (poin yang hilang) atau paket 1 (bonus yang hilang)
+                if ($hasPaket2 || $pembelianDetail->paket == 1) {
                     $activitiesToCreate[] = [
                         'user_id' => $sponsor->id,
-                        'judul' => 'Kehilangan Peluang Poin',
-                        'keterangan' => "Kehilangan peluang {$totalPoints} poin dan bonus aktivasi pin {$totalBonusAktivasi} dari aktivasi pin member #{$user->id_mitra}",
+                        'judul' => 'Kehilangan Peluang',
+                        'keterangan' => $keteranganKehilangan,
                         'tipe' => 'minus',
                         'status' => '',
                         'nominal' => null,
                         'created_at' => now(),
                         'updated_at' => now(),
                     ];
+                }
+            }
 
-                    // Aktivitas untuk Kehilangan Peluang Bonus Aktivasi Pin
-
+            if ($statusQr) {
+                $pembelianBonusesToCreate[] = [
+                    'pembelian_id' => $pembelian->id,
+                    'aktivasi_pin_id' => $aktivasiPin->id,
+                    'user_id' => $sponsor->id,
+                    'keterangan' => $keteranganPembelianBonus,
+                    'tipe' => 'bonus',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            } else {
+                // Untuk paket 2 dengan status_qr false, tidak buat keterangan mendapatkan bonus
+                if ($pembelianDetail->paket == 1) {
+                    $pembelianBonusesToCreate[] = [
+                        'pembelian_id' => $pembelian->id,
+                        'aktivasi_pin_id' => $aktivasiPin->id,
+                        'user_id' => $sponsor->id,
+                        'keterangan' => $keteranganPembelianBonus,
+                        'tipe' => 'bonus',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
                 }
 
-                // Kumpulkan PembelianBonus untuk dibuat nanti
-                $idMitra = $sponsor->id_mitra ?? 'Unknown';
-                $point = 1;
-                $nominalPembelianBonus = $statusQr ? 1500 : 300;
-
-                if ($statusQr) {
+                // Buat pembelian bonus kehilangan untuk paket 2 (poin yang hilang) atau paket 1 (bonus yang hilang)
+                if ($hasPaket2 || $pembelianDetail->paket == 1) {
                     $pembelianBonusesToCreate[] = [
                         'pembelian_id' => $pembelian->id,
                         'aktivasi_pin_id' => $aktivasiPin->id,
                         'user_id' => $sponsor->id,
-                        'keterangan' => "ID {$idMitra} mendapatkan {$point} point dan BONUS AKTIVASI PIN {$nominalPembelianBonus}",
-                        'tipe' => 'bonus',
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ];
-                } else {
-                    $pembelianBonusesToCreate[] = [
-                        'pembelian_id' => $pembelian->id,
-                        'aktivasi_pin_id' => $aktivasiPin->id,
-                        'user_id' => $sponsor->id,
-                        'keterangan' => "ID {$idMitra} mendapatkan BONUS AKTIVASI PIN {$nominalPembelianBonus}",
-                        'tipe' => 'bonus',
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ];
-
-                    $pembelianBonusesToCreate[] = [
-                        'pembelian_id' => $pembelian->id,
-                        'aktivasi_pin_id' => $aktivasiPin->id,
-                        'user_id' => $sponsor->id,
-                        'keterangan' => "ID {$idMitra} kehilangan peluang {$point} point dan BONUS AKTIVASI PIN 1500 dari mitra #{$user->id_mitra}",
+                        'keterangan' => $keteranganPembelianBonusKehilangan,
                         'tipe' => 'loss',
                         'created_at' => now(),
                         'updated_at' => now(),

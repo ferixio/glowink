@@ -64,6 +64,7 @@ class BonusGenerasiListener
             $totalPoints = 0;
             $totalBonus = 0;
             $totalBonusJikaQR = 0;
+            $hasPaket2 = false;
 
             // Hitung total poin dan bonus dari semua pembelian detail
             foreach ($pembelian->details as $detail) {
@@ -71,7 +72,7 @@ class BonusGenerasiListener
                 for ($i = 0; $i < $detail->jml_beli; $i++) {
 
                     if ($detail->paket == 2) {
-
+                        $hasPaket2 = true;
                         $totalPoints += 1;
 
                         $totalBonusJikaQR += 1500;
@@ -163,8 +164,8 @@ class BonusGenerasiListener
                     ];
                 }
 
-                // Hanya tampilkan kehilangan peluang jika ada poin atau bonus yang hilang
-                if ($totalPoints > 0 || $totalBonusJikaQR > 0) {
+                // Hanya tampilkan kehilangan peluang jika ada paket 2 (poin yang hilang)
+                if ($hasPaket2) {
                     $activitiesToCreate[] = [
                         'user_id' => $sponsor->id,
                         'judul' => 'Kehilangan Peluang',
@@ -197,8 +198,8 @@ class BonusGenerasiListener
                     'updated_at' => now(),
                 ];
 
-                // Hanya buat pembelian bonus kehilangan jika ada poin atau bonus yang hilang
-                if ($totalPoints > 0 || $totalBonusJikaQR > 0) {
+                // Hanya buat pembelian bonus kehilangan jika ada paket 2 (poin yang hilang)
+                if ($hasPaket2) {
                     $pembelianBonusesToCreate[] = [
                         'pembelian_id' => $pembelian->id,
                         'user_id' => $sponsor->id,
