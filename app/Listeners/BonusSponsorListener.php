@@ -34,7 +34,7 @@ class BonusSponsorListener
             PembelianBonus::create([
                 'pembelian_id' => $pembelian->id,
                 'user_id' => $sponsor->id,
-                'keterangan' => "ID {$sponsor->id_mitra} Menerima bonus sponsor {$nominalBonus} dari mitra #{$user->id_mitra} ",
+                'keterangan' => "ID {$sponsor->id_mitra} Menerima bonus sponsor " . ('Rp. ' . number_format((float) $nominalBonus, 0, ',', '.')) . " dari mitra #{$user->id_mitra} ",
                 'tipe' => 'bonus',
                 'created_at' => now(),
                 'updated_at' => now(),
