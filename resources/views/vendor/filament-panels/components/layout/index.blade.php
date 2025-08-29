@@ -118,6 +118,11 @@
                 class="fi-sidebar-close-overlay fixed inset-0 z-30  transition duration-500 dark:bg-gray-950/75 lg:hidden">
             </div>
 
+            {{-- Mobile Sidebar (hidden by default, shown when Menu clicked) --}}
+            <x-filament-panels::sidebar :navigation="$navigation" class="fi-main-sidebar lg:hidden"
+                x-show="$store.sidebar.isOpen" style="z-index: 60;" />
+
+            {{-- Desktop Sidebar --}}
             <x-filament-panels::sidebar :navigation="$navigation" class="fi-main-sidebar hidden lg:block" />
 
             {{-- Mobile Bottom Navigation --}}
@@ -183,7 +188,11 @@
 
                     {{-- Transaksi --}}
                     <button
-                        @click="openSubmenu('Transaksi', [{label: 'Belanja', url: '/user/pembelian-produk'}, {label: 'RO Bulanan', url: '/user/pembelian-r-o-bulanan'}, {label: 'Aktivasi PIN', url: '/user/aktivasi-pins'}])"
+                        @click="openSubmenu('Transaksi', [
+                            {label: 'Belanja', url: '/user/pembelian-produk'}, 
+                            @if (auth()->user()->status_qr ?? false) {label: 'RO Bulanan', url: '/user/pembelian-r-o-bulanan'}, @endif
+                            {label: 'Aktivasi PIN', url: '/user/aktivasi-pins'}
+                        ])"
                         style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.5rem; border-radius: 0.75rem; transition: all 0.2s; min-width: 60px; color: {{ request()->is('user/pembelian-produk') || request()->is('user/pembelian-r-o-bulanan') || request()->is('user/aktivasi-pins') ? 'rgb(37 99 235)' : 'rgb(75 85 99)' }}; border: none; background: none; cursor: pointer;"
                         class="fi-nav-item hover:text-gray-900 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-800">
                         <svg style="height: 1.25rem; width: 1.25rem; margin-bottom: 0.25rem;" fill="none"
@@ -195,21 +204,11 @@
                         <span style="font-size: 0.75rem; font-weight: 500;">Transaksi</span>
                     </button>
 
-                    {{-- Aktivitas --}}
-                    <a href="/user/aktivitas"
-                        style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.5rem; border-radius: 0.75rem; transition: all 0.2s; min-width: 60px; color: {{ request()->is('user/aktivitas*') ? 'rgb(37 99 235)' : 'rgb(75 85 99)' }}; text-decoration: none;"
-                        class="fi-nav-item hover:text-gray-900 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-800">
-                        <svg style="height: 1.25rem; width: 1.25rem; margin-bottom: 0.25rem;" fill="none"
-                            stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                        </svg>
-                        <span style="font-size: 0.75rem; font-weight: 500;">Aktivitas</span>
-                    </a>
+
 
                     {{-- Laporan --}}
                     <button
-                        @click="openSubmenu('Laporan', [{label: 'Pembelian', url: '/user/pembelians'}, {label: 'Penghasilan', url: '/user/penghasilans'}, {label: 'Jaringan', url: '/user/jaringan'}])"
+                        @click="openSubmenu('Laporan', [{label: 'Aktivitas', url: '/user/aktivitas'},{label: 'Pembelian', url: '/user/pembelians'}, {label: 'Penghasilan', url: '/user/penghasilans'}, {label: 'Jaringan', url: '/user/jaringan'}])"
                         style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.5rem; border-radius: 0.75rem; transition: all 0.2s; min-width: 60px; color: {{ request()->is('user/pembelians*') || request()->is('user/penghasilans*') || request()->is('user/jaringan*') ? 'rgb(37 99 235)' : 'rgb(75 85 99)' }}; border: none; background: none; cursor: pointer;"
                         class="fi-nav-item hover:text-gray-900 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-800">
                         <svg style="height: 1.25rem; width: 1.25rem; margin-bottom: 0.25rem;" fill="none"
@@ -223,7 +222,7 @@
 
                     {{-- Stokist --}}
                     @if (auth()->user()->isStockis ?? false)
-                        <a href="/user/approve-pembelians"
+                        {{-- <a href="/user/approve-pembelians"
                             style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.5rem; border-radius: 0.75rem; transition: all 0.2s; min-width: 60px; color: {{ request()->is('user/approve-pembelians*') ? 'rgb(37 99 235)' : 'rgb(75 85 99)' }}; text-decoration: none;"
                             class="fi-nav-item hover:text-gray-900 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-800">
                             <svg style="height: 1.25rem; width: 1.25rem; margin-bottom: 0.25rem;" fill="none"
@@ -232,8 +231,33 @@
                                     d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                             </svg>
                             <span style="font-size: 0.75rem; font-weight: 500;">Stokist</span>
-                        </a>
+                        </a> --}}
+
+                        <button
+                            @click="openSubmenu('Stockis', [{label: 'Terima Pembelian', url: '/user/approve-pembelians'}, {label: 'Belanja Stok', url: '/user/pembelian-produk-stokis'}])"
+                            style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.5rem; border-radius: 0.75rem; transition: all 0.2s; min-width: 60px; color: {{ request()->is('user/approve-pembelians*') || request()->is('user/pembelian-produk-stokis*') ? 'rgb(37 99 235)' : 'rgb(75 85 99)' }}; border: none; background: none; cursor: pointer;"
+                            class="fi-nav-item hover:text-gray-900 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-800">
+                            <svg style="height: 1.25rem; width: 1.25rem; margin-bottom: 0.25rem;" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                            </svg>
+                            <span style="font-size: 0.75rem; font-weight: 500;">Stockis</span>
+                        </button>
                     @endif
+
+                    {{-- Menu (Sidebar Toggle) --}}
+                    <button @click="toggleSidebar()"
+                        style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.5rem; border-radius: 0.75rem; transition: all 0.2s; min-width: 60px; color: rgb(75 85 99); border: none; background: none; cursor: pointer;"
+                        class="fi-nav-item hover:text-gray-900 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-800">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                            style="height: 1.28rem; width: 1.28rem; margin-bottom: 0.25rem;" fill="none"
+                            viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                        </svg>
+                        <span style="font-size: 0.75rem; font-weight: 500;">Menu</span>
+                    </button>
                 </div>
             </div>
 
@@ -254,6 +278,14 @@
                         closeSubmenu() {
                             this.activeSubmenu = false;
                             document.body.classList.remove('submenu-open');
+                        },
+
+                        toggleSidebar() {
+                            if (this.$store.sidebar.isOpen) {
+                                this.$store.sidebar.close();
+                            } else {
+                                this.$store.sidebar.open();
+                            }
                         }
                     }
                 }

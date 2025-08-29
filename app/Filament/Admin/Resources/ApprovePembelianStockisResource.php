@@ -9,6 +9,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class ApprovePembelianStockisResource extends Resource
 {
@@ -32,6 +33,7 @@ class ApprovePembelianStockisResource extends Resource
                 Tables\Columns\TextColumn::make('id')
                     ->searchable()
                     ->label("ID Pembelian"),
+      
 
                 Tables\Columns\TextColumn::make('user.nama')
                     ->searchable()
@@ -78,10 +80,10 @@ class ApprovePembelianStockisResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->where('beli_dari', 1) ->orderByDesc('updated_at');
+            ->where('beli_dari', Auth::id())->orderByDesc('updated_at');
     }
 
-        public static function getNavigationBadge(): ?string
+    public static function getNavigationBadge(): ?string
     {
         return Pembelian::where('beli_dari', 1)->where('status_pembelian', 'menunggu')->count();
     }

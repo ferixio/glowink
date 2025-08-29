@@ -55,7 +55,7 @@ class EditApprovePembelianStockis extends EditRecord
             Actions\Action::make('Set Ditolak')
                 ->label('Ditolak')
                 ->color('danger')
-                ->visible(fn() => $this->record->status_pembelian !== 'ditolak')
+                ->visible(fn() => $this->record->status_pembelian !== 'ditolak' && $this->record->status_pembelian !== 'selesai')
                 ->action(function () {
                     $this->record->status_pembelian = 'ditolak';
                     $this->record->save();
@@ -84,10 +84,10 @@ class EditApprovePembelianStockis extends EditRecord
         ];
     }
 
-    protected function getRedirectUrl(): string
-    {
-        return $this->getResource()::getUrl('index');
-    }
+    // protected function getRedirectUrl(): string
+    // {
+    //     return $this->getResource()::getUrl('index');
+    // }
     protected function getFormActions(): array
     {
         return [

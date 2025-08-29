@@ -62,7 +62,12 @@ class ApprovePembelianResource extends Resource
                     }),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('status_pembelian')->options([
+                    'menunggu' => 'Menunggu',
+                    // 'proses' => 'Proses',
+                    'ditolak' => 'Ditolak',
+                    'selesai' => 'Selesai',
+                ]),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

@@ -129,7 +129,7 @@ class AktivasiPinResource extends Resource
     {
         return parent::getEloquentQuery()->where(function ($query) {
             $query->where('user_id', auth()->id());
-        })->orderByDesc('updated_at');
+        })->orderByDesc('created_at');
     }
 
     public static function getPages(): array
