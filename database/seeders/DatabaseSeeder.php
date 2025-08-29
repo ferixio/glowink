@@ -17,9 +17,9 @@ class DatabaseSeeder extends Seeder
             MitraSeeder::class,
             JaringanMitraSeeder::class,
             UserSeeder::class,
-            ProdukStokSeeder::class,
-            PembelianSeeder::class,
-            PembelianDetailSeeder::class,
+            // ProdukStokSeeder::class,
+            // PembelianSeeder::class,
+            // PembelianDetailSeeder::class,
             LevelKarirSeeder::class,
         ]);
 

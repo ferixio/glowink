@@ -54,8 +54,6 @@ class SpillOverBonusBulananListener
                 ->with('user:id')
                 ->get();
 
-          
-
             if ($usersAtTargetLevel->isEmpty()) {
                 return;
             }
@@ -63,7 +61,6 @@ class SpillOverBonusBulananListener
             // Pilih satu user secara random
             $selectedUser = $usersAtTargetLevel->random();
             $userData = $selectedUser->user;
-  
 
             // Cari upline 9 level ke atas dari user yang terpilih
             $this->processUplineBonus($userData->id, $pembelian, $userId);
@@ -109,37 +106,40 @@ class SpillOverBonusBulananListener
                     continue;
                 }
 
-                $totalPoints = 0;
-                $totalBonus = 0;
+                // Formatter Rupiah
+                $format = function ($number) {
+                    return 'Rp. ' . number_format((float) $number, 0, ',', '.');
+                };
 
-                // Hitung total poin dan bonus dari semua pembelian detail
+                $potentialPoints = 0;
+                $potentialBonus = 0;
+
+                // Hitung total poin dan bonus POTENSIAL dari semua pembelian detail
                 foreach ($pembelian->details as $detail) {
                     // Perulangan berdasarkan quantity pembelian
                     for ($i = 0; $i < $detail->jml_beli; $i++) {
-                        // Setiap quantity menambahkan 1 poin dan bonus
-                        // Hanya menambahkan poin jika paket bernilai 2
                         if ($detail->paket == 2) {
-                            $totalPoints += 1;
-                        }
-
-                        if ($sponsor->status_qr && $detail->paket == 2) {
-                            $totalBonus += 1500;
-                        } else {
-                            $totalBonus += 300;
+                            $potentialPoints += 1;
+                            $potentialBonus += 1500;
+                        } else if ($detail->paket == 1) {
+                            $potentialBonus += 300;
                         }
                     }
                 }
 
-                // Update sponsor dan siapkan data untuk aktivitas
-                if ($totalPoints > 0) {
-                    $statusQr = $sponsor->status_qr;
+                $statusQr = $sponsor->status_qr;
+
+                if ($statusQr) {
+                    $awardedPoints = $potentialPoints;
+                    $awardedBonus = $potentialBonus;
 
                     // Update sponsor data
-                    if ($statusQr) {
-                        $sponsor->poin_reward += $totalPoints;
+                    if ($awardedPoints > 0) {
+                        $sponsor->poin_reward += $awardedPoints;
                     }
-
-                    $sponsor->saldo_penghasilan += $totalBonus;
+                    if ($awardedBonus > 0) {
+                        $sponsor->saldo_penghasilan += $awardedBonus;
+                    }
 
                     // Buat Penghasilan record satu persatu
                     \App\Models\Penghasilan::create([
@@ -148,57 +148,35 @@ class SpillOverBonusBulananListener
                         'status_qr' => $statusQr,
                         'tgl_dapat_bonus' => now(),
                         'keterangan' => "bonus generasi dari mitra #{$userWhoROBulanan} dari RO Bulanan",
-                        'nominal_bonus' => $totalBonus,
+                        'nominal_bonus' => $awardedBonus,
                     ]);
 
                     // Simpan sponsor untuk update batch
                     $sponsorsToUpdate[] = $sponsor;
 
-                    // Buat 2 aktivitas terpisah: Poin dan Bonus Generasi
-                    if ($statusQr) {
-                        // Aktivitas untuk Poin
+                    // Aktivitas Poin (jika ada)
+                    if ($awardedPoints > 0) {
                         $activitiesToCreate[] = [
                             'user_id' => $sponsor->id,
                             'judul' => 'Poin',
-                            'keterangan' => "Mendapatkan {$totalPoints} poin dari mitra #{$userWhoROBulanan} dari RO Bulanan",
+                            'keterangan' => "Mendapatkan {$awardedPoints} poin dari mitra #{$userWhoROBulanan} dari RO Bulanan",
                             'tipe' => 'plus',
                             'status' => 'Berhasil',
-                            'nominal' => $totalPoints,
+                            'nominal' => $awardedPoints,
                             'created_at' => now(),
                             'updated_at' => now(),
                         ];
+                    }
 
-                        // Aktivitas untuk Bonus Generasi
+                    // Aktivitas Bonus Generasi (jika ada)
+                    if ($awardedBonus > 0) {
                         $activitiesToCreate[] = [
                             'user_id' => $sponsor->id,
                             'judul' => 'Bonus Generasi',
-                            'keterangan' => "Mendapatkan bonus generasi {$totalBonus} dari mitra #{$userWhoROBulanan} dari RO Bulanan",
+                            'keterangan' => "Mendapatkan bonus generasi {$format($awardedBonus)} dari mitra #{$userWhoROBulanan} dari RO Bulanan",
                             'tipe' => 'plus',
                             'status' => 'Berhasil',
-                            'nominal' => $totalBonus,
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                        ];
-                    } else {
-                        // Aktivitas untuk Kehilangan Peluang Poin
-                        $activitiesToCreate[] = [
-                            'user_id' => $sponsor->id,
-                            'judul' => 'Kehilangan Peluang Poin',
-                            'keterangan' => "Kehilangan peluang {$totalPoints} poin dari member #{$userWhoROBulanan} dari RO Bulanan",
-                            'tipe' => 'minus',
-                            'status' => '',
-                            'nominal' => null,
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                        ];
-
-                        $activitiesToCreate[] = [
-                            'user_id' => $sponsor->id,
-                            'judul' => 'Bonus Generasi',
-                            'keterangan' => "Mendapatkan bonus generasi {$totalBonus} dari mitra #{$userWhoROBulanan} dari RO Bulanan",
-                            'tipe' => 'plus',
-                            'status' => 'Berhasil',
-                            'nominal' => $totalBonus,
+                            'nominal' => $awardedBonus,
                             'created_at' => now(),
                             'updated_at' => now(),
                         ];
@@ -206,32 +184,40 @@ class SpillOverBonusBulananListener
 
                     // Kumpulkan PembelianBonus untuk dibuat nanti
                     $idMitra = $sponsor->id_mitra ?? 'Unknown';
-                    $point = 1;
-                    $nominalPembelianBonus = $statusQr ? 1500 : 300;
-
-                    if ($statusQr) {
+                    if ($awardedBonus > 0) {
                         $pembelianBonusesToCreate[] = [
                             'pembelian_id' => $pembelian->id,
                             'user_id' => $sponsor->id,
-                            'keterangan' => "ID {$idMitra} mendapatkan {$point} point dan BONUS GENERASI {$nominalPembelianBonus} dari RO Bulanan",
+                            'keterangan' => "ID {$idMitra} mendapatkan {$awardedPoints} point dan BONUS GENERASI {$format($awardedBonus)} dari RO Bulanan",
                             'tipe' => 'bonus',
                             'created_at' => now(),
                             'updated_at' => now(),
                         ];
-                    } else {
-                        $pembelianBonusesToCreate[] = [
-                            'pembelian_id' => $pembelian->id,
+                    }
+                } else {
+                    // status_qr false: TIDAK mendapatkan poin dan bonus; tampilkan kehilangan peluang total
+                    $lostPoints = $potentialPoints;
+                    $lostBonus = $potentialBonus;
+
+                    // Aktivitas Kehilangan peluang (jika ada yang hilang)
+                    if ($lostPoints > 0 || $lostBonus > 0) {
+                        $activitiesToCreate[] = [
                             'user_id' => $sponsor->id,
-                            'keterangan' => "ID {$idMitra} mendapatkan BONUS GENERASI {$nominalPembelianBonus} dari RO Bulanan",
-                            'tipe' => 'bonus',
+                            'judul' => 'Kehilangan Peluang',
+                            'keterangan' => "Kehilangan peluang {$lostPoints} poin dan bonus generasi {$format($lostBonus)} dari RO Bulanan",
+                            'tipe' => 'minus',
+                            'status' => '',
+                            'nominal' => null,
                             'created_at' => now(),
                             'updated_at' => now(),
                         ];
 
+                        // PembelianBonus kehilangan
+                        $idMitra = $sponsor->id_mitra ?? 'Unknown';
                         $pembelianBonusesToCreate[] = [
                             'pembelian_id' => $pembelian->id,
                             'user_id' => $sponsor->id,
-                            'keterangan' => "ID {$idMitra} kehilangan peluang {$point} point dari RO Bulanan",
+                            'keterangan' => "ID {$idMitra} kehilangan peluang {$lostPoints} point dan BONUS GENERASI {$format($lostBonus)} dari RO Bulanan",
                             'tipe' => 'loss',
                             'created_at' => now(),
                             'updated_at' => now(),

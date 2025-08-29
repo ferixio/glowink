@@ -142,17 +142,19 @@ class BonusGenerasiListener
             // Buat 2 aktivitas terpisah: Poin dan Bonus Generasi
             if ($statusQr) {
 
-                // Aktivitas untuk Bonus Generasi
-                $activitiesToCreate[] = [
-                    'user_id' => $sponsor->id,
-                    'judul' => 'Bonus Generasi',
-                    'keterangan' => $keterangan,
-                    'tipe' => 'plus',
-                    'status' => 'Berhasil',
-                    'nominal' => $totalBonus,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
+                // Aktivitas untuk Bonus Generasi (hanya jika ada bonus > 0)
+                if ($totalBonus > 0) {
+                    $activitiesToCreate[] = [
+                        'user_id' => $sponsor->id,
+                        'judul' => 'Bonus Generasi',
+                        'keterangan' => $keterangan,
+                        'tipe' => 'plus',
+                        'status' => 'Berhasil',
+                        'nominal' => $totalBonus,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
             } else {
 
                 if ($totalBonus > 0) {
@@ -185,23 +187,29 @@ class BonusGenerasiListener
             }
 
             if ($statusQr) {
-                $pembelianBonusesToCreate[] = [
-                    'pembelian_id' => $pembelian->id,
-                    'user_id' => $sponsor->id,
-                    'keterangan' => $keteranganPembelianBonus,
-                    'tipe' => 'bonus',
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
+                // Pembelian bonus hanya jika ada bonus > 0
+                if ($totalBonus > 0) {
+                    $pembelianBonusesToCreate[] = [
+                        'pembelian_id' => $pembelian->id,
+                        'user_id' => $sponsor->id,
+                        'keterangan' => $keteranganPembelianBonus,
+                        'tipe' => 'bonus',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
             } else {
-                $pembelianBonusesToCreate[] = [
-                    'pembelian_id' => $pembelian->id,
-                    'user_id' => $sponsor->id,
-                    'keterangan' => $keteranganPembelianBonus,
-                    'tipe' => 'bonus',
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
+                // Pembelian bonus hanya jika ada bonus > 0
+                if ($totalBonus > 0) {
+                    $pembelianBonusesToCreate[] = [
+                        'pembelian_id' => $pembelian->id,
+                        'user_id' => $sponsor->id,
+                        'keterangan' => $keteranganPembelianBonus,
+                        'tipe' => 'bonus',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
 
                 // Buat pembelian bonus kehilangan hanya jika ada paket 2
                 if ($hasPaket2) {
