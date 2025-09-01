@@ -45,7 +45,7 @@ class ProsesPembelianDiterima
                                     'user_id' => $sponsor->id,
                                     'judul' => 'Bonus Sponsor Quick Reward',
                                     'keterangan' => "Menerima bonus sponsor QR dari #{$user->id_mitra}",
-                                    'tipe' => null,
+                                    'tipe' => 'plus',
                                     'status' => 'Berhasil',
                                     'nominal' => 20000,
                                 ]);
@@ -57,7 +57,7 @@ class ProsesPembelianDiterima
                                 \App\Models\PembelianBonus::create([
                                     'pembelian_id' => $pembelian->id,
                                     'user_id' => $sponsor->id,
-                                    'keterangan' => 'bonus sponsor (Member update Quick Reward)',
+                                    'keterangan' => "bonus sponsor (Member update Quick Reward) Rp.20000 dari mitra #{$user->id_mitra}",
                                 ]);
                             }
                         }
