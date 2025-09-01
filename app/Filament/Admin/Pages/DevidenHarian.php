@@ -101,7 +101,8 @@ class DevidenHarian extends Page implements HasForms
         $detailQuery = PembelianDetail::where('paket', 1)
             ->whereIn('pembelian_id', $pembelianIds);
         $detailIds = $detailQuery->pluck('id');
-        $omsetNasionalTotal = PembelianDetail::whereIn('id', $detailIds)->sum('harga_beli');
+        $omsetNasionalTotal = PembelianDetail::whereIn('id', $detailIds)->count();
+        // dd($omsetNasionalTotal);
         // Query RO Basic yang sudah diperbaiki dan dioptimalkan
         $RObasicTotal = PembelianDetail::where('paket', 1)
             ->whereHas('pembelian', function ($q) use ($selectedDate) {
@@ -109,7 +110,7 @@ class DevidenHarian extends Page implements HasForms
                     ->where('kategori_pembelian', 'repeat order')
                     ->whereIn('status_pembelian', ['selesai']);
             })
-            ->sum('harga_beli');
+            ->count();
 
         $totalMemberUpTo20Point = \App\Models\User::where('poin_reward', '>=', 20)->count();
 
@@ -166,7 +167,7 @@ class DevidenHarian extends Page implements HasForms
         $detailQuery = PembelianDetail::where('paket', 1)
             ->whereIn('pembelian_id', $pembelianIds);
         $detailIds = $detailQuery->pluck('id');
-        $omsetNasionalTotal = PembelianDetail::whereIn('id', $detailIds)->sum('harga_beli');
+        $omsetNasionalTotal = PembelianDetail::whereIn('id', $detailIds)->count();
         // Query RO Basic yang sudah diperbaiki dan dioptimalkan
         $RObasicTotal = PembelianDetail::where('paket', 1)
             ->whereHas('pembelian', function ($q) use ($selectedDate) {
@@ -174,7 +175,7 @@ class DevidenHarian extends Page implements HasForms
                     ->where('kategori_pembelian', 'repeat order')
                     ->whereIn('status_pembelian', ['selesai']);
             })
-            ->sum('harga_beli');
+            ->count();
 
         $totalMemberUpTo20Point = \App\Models\User::where('poin_reward', '>=', 20)->count();
 

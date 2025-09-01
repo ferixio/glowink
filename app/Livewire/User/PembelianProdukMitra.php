@@ -50,6 +50,7 @@ class PembelianProdukMitra extends Component
     // New properties for tabbed interface
     public $activeTab = 'belanja'; // 'belanja' or 'belanja_pribadi'
     public $produkPribadi = []; // Products from user's personal stock
+    public bool $isMitraQR = false;
 
     public function mount()
     {
@@ -60,6 +61,7 @@ class PembelianProdukMitra extends Component
         $this->loadKabupatenList();
         $this->loadStockis();
         $this->loadProdukPribadi();
+        $this->isMitraQR = Auth::user()->status_qr;
     }
 
     public function loadKabupatenList()

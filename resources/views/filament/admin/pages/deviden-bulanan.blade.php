@@ -37,7 +37,7 @@
                     <div style="background: #eff6ff; padding: 1rem; border-radius: 0.5rem;">
                         <div style="font-size: 0.875rem; font-weight: 500; color: #2563eb;">Omzet RO QR</div>
                         <div style="font-size: 1.125rem; font-weight: 600; color: #1e3a8a;">
-                            Rp {{ number_format($this->devidenBulananData['omzet_ro_qr'], 0, ',', '.') }}</div>
+                            {{ $this->devidenBulananData['omzet_ro_qr'] }}</div>
                     </div>
                     <div style="background: #f0fdf4; padding: 1rem; border-radius: 0.5rem;">
                         <div style="font-size: 0.875rem; font-weight: 500; color: #16a34a;">Tanggal Awal</div>
@@ -130,7 +130,7 @@
                 </div>
             @endif
 
-            <!-- Summary Statistics -->
+            {{-- <!-- Summary Statistics -->
             @if (count($this->detailDevidenBulananData) > 0)
                 <div
                     style="background: white; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); padding: 1.5rem;">
@@ -157,7 +157,7 @@
                         </div>
                     </div>
                 </div>
-            @endif
+            @endif --}}
         </div>
     @endif
 

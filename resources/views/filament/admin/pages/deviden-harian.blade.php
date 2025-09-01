@@ -13,8 +13,8 @@
                     <div class="text-gray-500 text-sm">Omzet Aktivasi</div>
                     <div class="text-2xl font-bold">
                         <div class="text-blue-600 hover:underline">
-                            Rp
-                            {{ number_format($devidenHarian ? $devidenHarian->omzet_aktivasi : $searchResults->omzet_aktivasi, 0, ',', '.') }}
+                            
+                            {{ $devidenHarian ? $devidenHarian->omzet_aktivasi : $searchResults->omzet_aktivasi }}
                         </div>
                     </div>
                 </div>
@@ -26,8 +26,8 @@
                 </div>
                 <div>
                     <div class="text-gray-500 text-sm">Omzet RO Basic</div>
-                    <div class="text-2xl font-bold">Rp
-                        {{ number_format($devidenHarian ? $devidenHarian->omzet_ro_basic : $searchResults->omzet_ro_basic, 0, ',', '.') }}
+                    <div class="text-2xl font-bold">
+                        {{ $devidenHarian ? $devidenHarian->omzet_ro_basic : $searchResults->omzet_ro_basic }}
                     </div>
                 </div>
             </a>

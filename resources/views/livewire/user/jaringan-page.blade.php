@@ -111,8 +111,9 @@
                         <p class="text-sm font-medium text-gray-700">
                             {{ $item->user->nama ?? 'N/A' }}
                         </p>
-                        <p class="text-xs text-gray-500">
-                            ID Sponsor: {{ $item->user->id_sponsor ?? 'N/A' }}
+                        <p class=" text-xs text-gray-500">
+                            ID Mitra Sponsor: <strong
+                                class="text-green-600 font-bold text-base ">{{ $item->user->sponsorWithMitra->id_mitra ?? 'N/A' }}</strong>
                         </p>
                     </div>
 

@@ -18,7 +18,7 @@ class PembelianROBulanan extends Page
 
     public static function shouldRegisterNavigation(): bool
     {
-        return Auth::user()->status_qr == true;
+        return Auth::user()->poin_reward >= 20;
     }
 
 }
