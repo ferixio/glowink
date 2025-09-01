@@ -108,11 +108,11 @@
                                         </td>
                                         <td
                                             style="padding: 1rem 1.5rem; white-space: nowrap; font-size: 0.875rem; color: #6b7280;">
-                                            {{ number_format($detail['jumlah_mitra_transaksi'], 0, ',', '.') }}
+                                            {{ $detail['jumlah_mitra_transaksi'] }}
                                         </td>
                                         <td
                                             style="padding: 1rem 1.5rem; white-space: nowrap; font-size: 0.875rem; color: #6b7280;">
-                                            Rp {{ number_format($detail['omzet_ro_qr'], 0, ',', '.') }}
+                                            {{ number_format($detail['omzet_ro_qr'], 0, ',', '.') }}
                                         </td>
                                         <td
                                             style="padding: 1rem 1.5rem; white-space: nowrap; font-size: 0.875rem; color: #6b7280;">
@@ -208,7 +208,7 @@
                                 </td>
                                 <td
                                     style="padding: 1rem 1.5rem; white-space: nowrap; font-size: 0.875rem; color: #6b7280;">
-                                    Rp {{ number_format($row['total'], 0, ',', '.') }}
+                                    {{ $row['total'] }}
                                 </td>
                                 <td
                                     style="padding: 1rem 1.5rem; white-space: nowrap; font-size: 0.875rem; color: #6b7280;">

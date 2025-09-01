@@ -46,12 +46,8 @@ class BonusSponsorListener
             if ($statusQr) {
                 foreach ($pembelian->details as $detail) {
                     if ($detail->paket == 2) {
-
-                        $user->saldo_penghasilan += 20000;
-                        $user->save();
-
                         \App\Models\Penghasilan::create([
-                            'user_id' => $user->id,
+                            'user_id' => $sponsor->id,
                             'kategori_bonus' => 'Bonus Sponsor',
                             'status_qr' => $statusQr,
                             'tgl_dapat_bonus' => now(),
@@ -59,7 +55,7 @@ class BonusSponsorListener
                             'nominal_bonus' => 20000,
                         ]);
                         \App\Models\Aktivitas::create([
-                            'user_id' => $user->id,
+                            'user_id' => $sponsor->id,
                             'judul' => 'Bonus Sponsor Quick Reward',
                             'keterangan' => "Menerima bonus sponsor QR dari {$user->id_mitra}",
                             'tipe' => 'plus',
@@ -68,14 +64,16 @@ class BonusSponsorListener
                         ]);
                         PembelianBonus::create([
                             'pembelian_id' => $pembelian->id,
-                            'user_id' => $user->id,
-                            'keterangan' => "ID {$user->id_mitra} Menerima bonus sponsor QR dari 20000 dari mitra #{$user->id_mitra} ",
+                            'user_id' => $sponsor->id,
+                            'keterangan' => "ID {$sponsor->id_mitra} Menerima bonus sponsor QR dari 20000 dari mitra #{$user->id_mitra} ",
                             'tipe' => 'bonus',
                             'created_at' => now(),
                             'updated_at' => now(),
 
                         ]);
 
+                        $sponsor->saldo_penghasilan += 20000;
+                        $sponsor->save();
                         break;
                     }
                 }
