@@ -190,7 +190,7 @@
                     <button
                         @click="openSubmenu('Transaksi', [
                             {label: 'Belanja', url: '/user/pembelian-produk'}, 
-                            @if (auth()->user()->status_qr ?? false) {label: 'RO Bulanan', url: '/user/pembelian-r-o-bulanan'}, @endif
+                            @if (auth()->user()->poin_reward >= 20) {label: 'RO Bulanan', url: '/user/pembelian-r-o-bulanan'}, @endif
                             {label: 'Aktivasi PIN', url: '/user/aktivasi-pins'}
                         ])"
                         style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.5rem; border-radius: 0.75rem; transition: all 0.2s; min-width: 60px; color: {{ request()->is('user/pembelian-produk') || request()->is('user/pembelian-r-o-bulanan') || request()->is('user/aktivasi-pins') ? 'rgb(37 99 235)' : 'rgb(75 85 99)' }}; border: none; background: none; cursor: pointer;"

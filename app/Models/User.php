@@ -72,6 +72,14 @@ class User extends Authenticatable implements FilamentUser, HasName
     }
 
     /**
+     * Relasi untuk mendapatkan data sponsor dengan eager loading
+     */
+    public function sponsorWithMitra()
+    {
+        return $this->belongsTo(User::class, 'id_sponsor')->select('id', 'id_mitra', 'nama');
+    }
+
+    /**
      * Relasi dengan stok produk yang dimiliki user
      */
     public function produkStoks()

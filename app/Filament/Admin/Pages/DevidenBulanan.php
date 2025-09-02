@@ -160,7 +160,7 @@ class DevidenBulanan extends Page implements HasForms
             ->flatMap(function ($pembelian) {
                 return $pembelian->details->where('paket', 2);
             })
-            ->sum('harga_beli');
+            ->count();
         $this->omzetROQR = $omsetRObulanan;
         Log::info('omsetRObulanan:', ['value' => $omsetRObulanan]);
 

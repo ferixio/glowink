@@ -51,8 +51,8 @@ class JaringanPage extends Component
     {
         $currentUser = Auth::user();
 
-        // Ambil data jaringan mitra untuk user yang sedang login
-        $query = JaringanMitra::with(['user', 'sponsor'])
+        // Ambil data jaringan mitra untuk user yang sedang login dengan eager loading sponsor
+        $query = JaringanMitra::with(['user.sponsorWithMitra'])
             ->where('sponsor_id', $currentUser->id);
 
         // Filter berdasarkan level

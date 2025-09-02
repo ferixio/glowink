@@ -101,11 +101,14 @@
                         </button>
                     @else
                         {{-- Show all buttons for regular shopping --}}
-                        <button
-                            class="w-full mb-2 bg-teal-700 hover:bg-teal-800 text-white font-semibold py-2 px-4 rounded-md transition"
-                            wire:click="changePage(1)" @if ($totalQty == 0) disabled @endif>
-                            Aktivasi Member Baru
-                        </button>
+
+                        @if ($isMitraQR)
+                            <button
+                                class="w-full mb-2 bg-teal-700 hover:bg-teal-800 text-white font-semibold py-2 px-4 rounded-md transition"
+                                wire:click="changePage(1)" @if ($totalQty == 0) disabled @endif>
+                                Aktivasi Member Baru
+                            </button>
+                        @endif
                         <button
                             class="w-full mb-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md transition"
                             wire:click="stockPribadi" @if ($totalQty == 0) disabled @endif>
@@ -150,6 +153,7 @@
         <h1 class="hidden md:block md:text-3xl text-xl my-4 text-blue-500 font-bold">{{ $title }}</h1>
 
         @if ($currentPage === 0)
+            @if ($isMitraQR)
             {{-- Tab Navigation --}}
             <div class="flex space-x-1 bg-gray-100 md:p-1 p-2 rounded-lg mb-6 mt-4 md:mt-0">
                 <button wire:click="switchTab('belanja')"
@@ -161,7 +165,7 @@
                     Stock Pribadi
                 </button>
             </div>
-
+            @endif
             {{-- Tab Content --}}
             @if ($activeTab === 'belanja')
                 {{-- Regular Shopping Tab --}}
@@ -634,6 +638,7 @@
                 </div>
 
                 @if ($activeTab === 'belanja_pribadi')
+
                     {{-- Only show Aktivasi Member button for personal shopping --}}
                     <button
                         class="w-full mb-2 bg-teal-700 hover:bg-teal-800 text-white font-semibold py-1.5 px-4 rounded-md transition"
@@ -642,11 +647,13 @@
                     </button>
                 @else
                     {{-- Show all buttons for regular shopping --}}
-                    <button
-                        class="w-full mb-2 bg-teal-700 hover:bg-teal-800 text-white font-semibold py-1.5 px-4 rounded-md transition"
-                        wire:click="changePage(1)" @if ($totalQty == 0) disabled @endif>
-                        Aktivasi Member Baru
-                    </button>
+                    @if ($isMitraQR)
+                        <button
+                            class="w-full mb-2 bg-teal-700 hover:bg-teal-800 text-white font-semibold py-1.5 px-4 rounded-md transition"
+                            wire:click="changePage(1)" @if ($totalQty == 0) disabled @endif>
+                            Aktivasi Member Baru
+                        </button>
+                    @endif
                     <button
                         class="w-full mb-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md transition"
                         wire:click="stockPribadi" @if ($totalQty == 0) disabled @endif>
