@@ -57,6 +57,7 @@ class ProsesPembelianDiterima
                                 \App\Models\PembelianBonus::create([
                                     'pembelian_id' => $pembelian->id,
                                     'user_id' => $sponsor->id,
+                                    'tipe' => 'bonus',
                                     'keterangan' => "bonus sponsor (Member update Quick Reward) Rp.20000 dari mitra #{$user->id_mitra}",
                                 ]);
                             }
