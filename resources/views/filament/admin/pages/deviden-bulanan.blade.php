@@ -136,7 +136,7 @@
                                             Rp {{ number_format($detail['cumulative_nominal'] ?? 0, 0, ',', '.') }}
                                         </td>
                                         <td style="padding: 1rem 1.5rem; white-space: nowrap; font-size: 0.875rem;">
-                                            <a href="{{ route('filament.admin.pages.list-detail-mitra-level-deviden-bulanan') }}?level={{ $detail['nama_level'] }}"
+                                            <a target="_blank" href="{{ route('filament.admin.pages.list-detail-mitra-level-deviden-bulanan') }}?level={{ $detail['nama_level'] }}"
                                                 style="background: #3b82f6; color: white; padding: 0.5rem 1rem; border-radius: 0.375rem; font-size: 0.75rem; font-weight: 500; text-decoration: none; transition: background-color 0.2s;"
                                                 onmouseover="this.style.backgroundColor='#2563eb'"
                                                 onmouseout="this.style.backgroundColor='#3b82f6'">
