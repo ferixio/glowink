@@ -65,7 +65,10 @@
                                         <button type="button"
                                             class="w-7 h-7 flex items-center justify-center bg-gray-200 rounded-full hover:bg-gray-300 text-gray-700 text-sm font-bold"
                                             wire:click="decrement({{ $item['id'] }})">−</button>
-                                        <span class="text-sm font-medium w-6 text-center">{{ $item['qty'] }}</span>
+                                        <input type="number" min="1"
+                                            class="w-14 text-sm font-medium text-center border border-gray-300 rounded"
+                                            wire:model.lazy="quantities.{{ $item['id'] }}"
+                                            wire:change="updateQty({{ $item['id'] }}, $event.target.value)" />
                                         <button type="button"
                                             class="w-7 h-7 flex items-center justify-center bg-gray-200 rounded-full hover:bg-gray-300 text-gray-700 text-sm font-bold"
                                             wire:click="increment({{ $item['id'] }})">+</button>
@@ -256,7 +259,10 @@
                                     <button type="button"
                                         class="w-7 h-7 flex items-center justify-center bg-gray-200 rounded-full hover:bg-gray-300 text-gray-700 text-sm font-bold"
                                         wire:click="decrement({{ $item['id'] }})">−</button>
-                                    <span class="text-sm font-medium w-6 text-center">{{ $item['qty'] }}</span>
+                                    <input type="number" min="1"
+                                        class="w-14 text-sm font-medium text-center border border-gray-300 rounded"
+                                        wire:model.lazy="quantities.{{ $item['id'] }}"
+                                        wire:change="updateQty({{ $item['id'] }}, $event.target.value)" />
                                     <button type="button"
                                         class="w-7 h-7 flex items-center justify-center bg-gray-200 rounded-full hover:bg-gray-300 text-gray-700 text-sm font-bold"
                                         wire:click="increment({{ $item['id'] }})">+</button>

@@ -21,6 +21,7 @@ class PembelianProdukStockis extends Component
     public $search = '';
     public $filteredProduks = [];
     public $activeFilter = 'all';
+    public $quantities = [];
 
     // Form properties
     public $nama = '';
@@ -36,6 +37,7 @@ class PembelianProdukStockis extends Component
         $this->cart = Session::get('cart', []);
         $this->loadProduks();
         $this->updateTotals();
+        $this->syncQuantitiesFromCart();
 
         // Auto-fill form dengan data user yang login
         $user = Auth::user();
@@ -118,6 +120,7 @@ class PembelianProdukStockis extends Component
             Session::put('cart', $cart);
             $this->cart = $cart;
             $this->updateTotals();
+            $this->syncQuantitiesFromCart();
 
             Log::info('Cart updated successfully');
             // session()->flash('success', 'Produk berhasil ditambahkan ke keranjang');
@@ -139,6 +142,7 @@ class PembelianProdukStockis extends Component
                 Session::put('cart', $cart);
                 $this->cart = $cart;
                 $this->updateTotals();
+                $this->syncQuantitiesFromCart();
                 Log::info('Increment successful. New qty: ' . $cart[$key]['qty']);
                 return;
             }
@@ -158,6 +162,7 @@ class PembelianProdukStockis extends Component
                 Session::put('cart', $cart);
                 $this->cart = $cart;
                 $this->updateTotals();
+                $this->syncQuantitiesFromCart();
                 Log::info('Decrement successful. New qty: ' . $cart[$key]['qty']);
                 return;
             }
@@ -177,6 +182,7 @@ class PembelianProdukStockis extends Component
                 Session::put('cart', $cart);
                 $this->cart = $cart;
                 $this->updateTotals();
+                $this->syncQuantitiesFromCart();
                 Log::info('Remove successful');
                 return;
             }
@@ -190,6 +196,37 @@ class PembelianProdukStockis extends Component
         $this->totalPrice = collect($this->cart)->sum(function ($item) {
             return $item['qty'] * $item['harga'];
         });
+    }
+
+    private function syncQuantitiesFromCart(): void
+    {
+        $this->quantities = [];
+        foreach ($this->cart as $item) {
+            if (isset($item['id'])) {
+                $this->quantities[$item['id']] = (int) ($item['qty'] ?? 1);
+            }
+        }
+    }
+
+    public function updateQty($produkId, $qty): void
+    {
+        $qty = (int) $qty;
+        if ($qty < 1) {
+            $qty = 1;
+        }
+
+        $cart = Session::get('cart', []);
+
+        foreach ($cart as $key => $item) {
+            if ($item['id'] == $produkId) {
+                $cart[$key]['qty'] = $qty;
+                Session::put('cart', $cart);
+                $this->cart = $cart;
+                $this->updateTotals();
+                $this->syncQuantitiesFromCart();
+                break;
+            }
+        }
     }
 
     public function checkout()
