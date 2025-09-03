@@ -176,18 +176,37 @@ class DevidenBulanan extends Page implements HasForms
 
         // Simpan detail untuk setiap level karir (dalam bentuk array untuk ditampilkan)
         $this->detailDevidenBulananData = [];
+
+        // Ambil semua level karir untuk perhitungan cumulative
+        $allLevelKarir = \App\Models\LevelKarir::orderBy('poin_reward', 'asc')->get();
+
         foreach ($result as $namaLevel => $stats) {
             $levelKarir = \App\Models\LevelKarir::where('nama_level', $namaLevel)->first();
             if ($levelKarir) {
                 $nominalDevidenBulanan = 0;
+                $cumulativeNominal = 0;
+
                 if ($stats['jumlahMitraTransaksi'] > 0) {
                     //rumus
                     $nominalDevidenBulanan = ($levelKarir->angka_deviden * $omsetRObulanan) / $stats['jumlahMitraTransaksi'];
+
+                    // Hitung cumulative bonus dari level ini dan semua level di bawahnya
+                    foreach ($allLevelKarir as $level) {
+                        if ($level->poin_reward <= $levelKarir->poin_reward) {
+                            $levelStats = $result[$level->nama_level] ?? null;
+                            if ($levelStats && $levelStats['jumlahMitraTransaksi'] > 0) {
+                                $levelNominal = ($level->angka_deviden * $omsetRObulanan) / $levelStats['jumlahMitraTransaksi'];
+                                $cumulativeNominal += $levelNominal;
+                            }
+                        }
+                    }
+
                     Log::info("Perhitungan nominalDevidenBulanan untuk level {$namaLevel}:", [
                         'angka_deviden' => $levelKarir->angka_deviden,
                         'omsetRObulanan' => $omsetRObulanan,
                         'jumlahMitraTransaksi' => $stats['jumlahMitraTransaksi'],
                         'nominalDevidenBulanan' => $nominalDevidenBulanan,
+                        'cumulativeNominal' => $cumulativeNominal,
                     ]);
                 }
 
@@ -199,6 +218,7 @@ class DevidenBulanan extends Page implements HasForms
                     'minimal_RO_QR' => $levelKarir->minimal_RO_QR,
                     'angka_deviden' => $levelKarir->angka_deviden,
                     'nominal_deviden_bulanan' => $nominalDevidenBulanan,
+                    'cumulative_nominal' => $cumulativeNominal,
                 ];
 
                 // Log data yang akan disimpan ke detail_deviden_bulanans
@@ -209,6 +229,7 @@ class DevidenBulanan extends Page implements HasForms
                     'omzet_ro_qr' => $omsetRObulanan,
                     'angka_deviden' => $levelKarir->angka_deviden,
                     'nominal_deviden_bulanan' => $nominalDevidenBulanan,
+                    'cumulative_nominal' => $cumulativeNominal,
                 ]);
             }
         }
