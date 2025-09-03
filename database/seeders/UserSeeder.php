@@ -74,8 +74,8 @@ class UserSeeder extends Seeder
                 'group_sponsor' => [],
                 'saldo_penghasilan' => 0,
                 'poin_reward' => 750,
-                'plan_karir_sekarang' => 'Gold',
-                'next_plan_karir' => 'Gold',
+                'plan_karir_sekarang' => 'gold',
+                'next_plan_karir' => 'gold',
                 'next_poin_karir' => 0,
             ]
         );
@@ -101,8 +101,8 @@ class UserSeeder extends Seeder
             'group_sponsor' => [],
             'saldo_penghasilan' => 0,
             'poin_reward' => 750,
-            'plan_karir_sekarang' => 'Gold',
-            'next_plan_karir' => 'Gold',
+            'plan_karir_sekarang' => 'gold',
+            'next_plan_karir' => 'gold',
             'next_poin_karir' => 0,
         ]);
 

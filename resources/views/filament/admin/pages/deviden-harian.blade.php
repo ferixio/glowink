@@ -13,7 +13,7 @@
                     <div class="text-gray-500 text-sm">Omzet Aktivasi</div>
                     <div class="text-2xl font-bold">
                         <div class="text-blue-600 hover:underline">
-                            
+
                             {{ $devidenHarian ? $devidenHarian->omzet_aktivasi : $searchResults->omzet_aktivasi }}
                         </div>
                     </div>
@@ -79,8 +79,7 @@
             <div class="text-lg font-semibold text-gray-800">Status Deviden Bulan {{ $this->monthLabel }}</div>
             <div class="text-sm text-gray-500">Periode {{ $this->monthRangeLabel }}</div>
         </div>
-        <div
-            style="overflow-x:auto; width:100%; ">
+        <div style="overflow-x:auto; width:100%; ">
             <table style="width:100%; border-collapse:collapse; font-family:Arial, sans-serif;">
                 <thead>
                     <tr style="background-color:#f9fafb;">
@@ -92,6 +91,19 @@
                             style="padding:12px 16px; text-align:left; font-size:12px; font-weight:600; color:#6b7280; text-transform:uppercase; letter-spacing:0.05em; border-bottom:1px solid #e5e7eb;">
                             Status
                         </th>
+                        <th
+                            style="padding:12px 16px; text-align:left; font-size:12px; font-weight:600; color:#6b7280; text-transform:uppercase; letter-spacing:0.05em; border-bottom:1px solid #e5e7eb;">
+                            Jumlah Aktivasi
+                        </th>
+                        <th
+                            style="padding:12px 16px; text-align:left; font-size:12px; font-weight:600; color:#6b7280; text-transform:uppercase; letter-spacing:0.05em; border-bottom:1px solid #e5e7eb;">
+                            Jumlah RO Basic
+                        </th>
+                        <th
+                            style="padding:12px 16px; text-align:left; font-size:12px; font-weight:600; color:#6b7280; text-transform:uppercase; letter-spacing:0.05em; border-bottom:1px solid #e5e7eb;">
+                            Jumlah Mitra yang menerima
+                        </th>
+
                     </tr>
                 </thead>
                 <tbody>
@@ -116,6 +128,19 @@
                                     </span>
                                 @endif
                             </td>
+                            <td style="padding:12px 16px; font-size:14px; border-bottom:1px solid #e5e7eb;">
+                                {{ $row['omzet_aktivasi'] !== null ? number_format($row['omzet_aktivasi'], 0, ',', '.') : '' }}
+                            </td>
+                            <td style="padding:12px 16px; font-size:14px; border-bottom:1px solid #e5e7eb;">
+                                {{ $row['omzet_ro_basic'] !== null ? number_format($row['omzet_ro_basic'], 0, ',', '.') : '' }}
+                            </td>
+                            <td style="padding:12px 16px; font-size:14px; border-bottom:1px solid #e5e7eb;">
+                                {{ $row['total_member'] !== null ? number_format($row['total_member'], 0, ',', '.') : '' }}
+                            </td>
+
+                            {{-- <td style="padding:12px 16px; font-size:14px; border-bottom:1px solid #e5e7eb;">
+                                {{ $row['total'] }}
+                            </td> --}}
                         </tr>
                     @endforeach
                 </tbody>

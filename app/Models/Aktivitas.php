@@ -20,4 +20,12 @@ class Aktivitas extends Model
 
     // Pastikan timestamps aktif
     public $timestamps = true;
+
+    /**
+     * Get the user that owns the aktivitas.
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

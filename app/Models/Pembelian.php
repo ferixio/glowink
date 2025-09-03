@@ -41,6 +41,7 @@ class Pembelian extends Model
     {
         return $this->belongsTo(User::class, 'beli_dari');
     }
+   
 
     public function sponsor()
     {

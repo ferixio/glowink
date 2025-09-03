@@ -96,7 +96,7 @@ class UserStockisResource extends Resource
                                                 $status = [];
                                                 if ($user->status_qr) {
                                                     $status[] = 'Mitra Karir';
-                                                }else{
+                                                } else {
                                                     $status[] = 'Mitra Basic';
                                                 }
 
@@ -148,7 +148,16 @@ class UserStockisResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('plan_karir_sekarang')
+                    ->options([
+                        'bronze' => 'Bronze',
+                        'silver' => 'Silver',
+                        'gold' => 'Gold',
+                        'platinum' => 'Platinum',
+                        'titanium' => 'Titanium',
+                        'ambassador' => 'Ambassador',
+                        'chairman' => 'Chairman',
+                    ]),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -167,7 +176,7 @@ class UserStockisResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()->where(function ($query) {
-            $query->where('isStockis', true) ->orderByDesc('updated_at');
+            $query->where('isStockis', true)->orderByDesc('updated_at');
         });
     }
 

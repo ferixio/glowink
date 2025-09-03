@@ -14,7 +14,7 @@
                             Nama</th>
                         <th
                             style="padding: 0.75rem 1.5rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em;">
-                            Email</th>
+                            ID Mitra</th>
                         <th
                             style="padding: 0.75rem 1.5rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em;">
                             Poin Reward</th>
@@ -34,9 +34,11 @@
                             <td style="padding: 1rem 1.5rem; white-space: nowrap; font-size: 0.875rem; color: #6b7280;">
                                 {{ $mitra->nama ?? '-' }}</td>
                             <td style="padding: 1rem 1.5rem; white-space: nowrap; font-size: 0.875rem; color: #6b7280;">
-                                {{ $mitra->email ?? '-' }}</td>
+                                {{ $mitra->id_mitra ?? '-' }}</td>
                             <td style="padding: 1rem 1.5rem; white-space: nowrap; font-size: 0.875rem; color: #6b7280;">
-                                {{ $mitra->poin_reward ?? '0' }}</td>
+                                {{ (int) ($mitra->poin_reward ?? 0) }}
+
+                            </td>
                             <td style="padding: 1rem 1.5rem; white-space: nowrap; font-size: 0.875rem; color: #6b7280;">
                                 {{ $mitra->tgl_daftar ? \Carbon\Carbon::parse($mitra->tgl_daftar)->format('d-m-Y') : '-' }}
                             </td>

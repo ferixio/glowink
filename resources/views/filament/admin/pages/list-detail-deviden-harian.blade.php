@@ -24,16 +24,17 @@
                         </th>
                         <th
                             style="padding: 0.75rem 1.5rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em;">
+                            Beli dari
+                        </th>
+                        <th
+                            style="padding: 0.75rem 1.5rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em;">
                             Nama Produk
                         </th>
                         <th
                             style="padding: 0.75rem 1.5rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em;">
                             Harga Beli
                         </th>
-                        <th
-                            style="padding: 0.75rem 1.5rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em;">
-                            Status Pembelian
-                        </th>
+
                     </tr>
                 </thead>
                 <tbody style="background: white;">
@@ -55,15 +56,16 @@
                                 {{ $detail->pembelian->tgl_beli ?? '-' }}
                             </td>
                             <td style="padding: 1rem 1.5rem; white-space: nowrap; font-size: 0.875rem; color: #6b7280;">
+                                {{ $detail->pembelian->seller->nama ?? '-' }}
+                            </td>
+                            <td style="padding: 1rem 1.5rem; white-space: nowrap; font-size: 0.875rem; color: #6b7280;">
                                 {{ $detail->nama_produk ?? '-' }}
                             </td>
                             <td
                                 style="padding: 1rem 1.5rem; white-space: nowrap; font-size: 0.875rem; font-weight: 600; color: #16a34a;">
                                 Rp {{ number_format($detail->harga_beli, 0, ',', '.') }}
                             </td>
-                            <td style="padding: 1rem 1.5rem; white-space: nowrap; font-size: 0.875rem; color: #6b7280;">
-                                {{ $detail->pembelian->status_pembelian ?? '-' }}
-                            </td>
+
                         </tr>
                     @empty
                         <tr>

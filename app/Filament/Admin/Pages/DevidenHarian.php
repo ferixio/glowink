@@ -276,6 +276,9 @@ class DevidenHarian extends Page implements HasForms
             $statuses[] = [
                 'date' => $dateString,
                 'processed' => $exists,
+                'omzet_aktivasi' => $exists ? ModelDevidenHarian::whereDate('tanggal_deviden', $dateString)->first()->omzet_aktivasi : null,
+                'omzet_ro_basic' => $exists ? ModelDevidenHarian::whereDate('tanggal_deviden', $dateString)->first()->omzet_ro_basic : null,
+                'total_member' => $exists ? ModelDevidenHarian::whereDate('tanggal_deviden', $dateString)->first()->total_member : null,
             ];
             $date->addDay();
         }

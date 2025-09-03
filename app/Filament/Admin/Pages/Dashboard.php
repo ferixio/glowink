@@ -25,4 +25,11 @@ class Dashboard extends BaseDashboard
             // \App\Filament\Admin\Widgets\StatsOverviewWidget::class,
         ];
     }
+
+    protected function getFooterWidgets(): array
+    {
+        return [
+            \App\Filament\Admin\Widgets\AktivitasTableWidget::class,
+        ];
+    }
 }
