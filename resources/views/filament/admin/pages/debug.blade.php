@@ -116,9 +116,9 @@
                     {{ $this->form }}
 
                     <div class="flex justify-end gap-4">
-                        <x-filament::button type="submit" wire:click="makePurchaseForROBasic" color="primary">
+                        {{-- <x-filament::button type="submit" wire:click="makePurchaseForROBasic" color="primary">
                             Lakukan Pembelian untuk Kategori RO Basic (hari ini)
-                        </x-filament::button>
+                        </x-filament::button> --}}
                         <x-filament::button type="submit" wire:click="makePurchaseForROBulanan" color="primary">
                             Lakukan Pembelian untuk Kategori RO Bulanan
                         </x-filament::button>

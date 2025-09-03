@@ -35,52 +35,79 @@ class MitraSeeder extends Seeder
             fclose($handle);
         }
 
+        // Distribusi level untuk variasi data mitra
+        $levelDistributions = [
+            ['level' => null, 'count' => 10, 'min' => 0, 'max' => 0],
+            ['level' => 'bronze', 'count' => 10, 'min' => 20, 'max' => 80],
+            ['level' => 'silver', 'count' => 10, 'min' => 100, 'max' => 300],
+            ['level' => 'gold', 'count' => 8, 'min' => 750, 'max' => 1200],
+            ['level' => 'platinum', 'count' => 6, 'min' => 3000, 'max' => 6000],
+            ['level' => 'titanium', 'count' => 5, 'min' => 15000, 'max' => 22000],
+            ['level' => 'ambassador', 'count' => 4, 'min' => 60000, 'max' => 90000],
+            ['level' => 'chairman', 'count' => 3, 'min' => 150000, 'max' => 200000],
+        ];
+
         $createdUsers = [];
-        for ($i = 0; $i < 15; $i++) {
-            $urutan = str_pad($i + 1, 2, '0', STR_PAD_LEFT);
-            $today = '20250723';
-            $idMitra = 'G' . $today . $urutan;
-            $mitraNumber = $i + 1; // Index 0-14 menjadi 1-15
-            $username = 'mitra' . $mitraNumber;
-            $email = $username . '@gmail.com';
-            [$provinsi, $kabupaten] = $this->getFirstProvinceAndRegency($provinces, $regencies);
-            $groupSponsor = array_column(array_slice($createdUsers, max(0, $i - 9), 9), 'id');
+        $index = 0;
+        $today = now()->format('Ymd');
 
-            $idSponsor = $i > 0 ? $createdUsers[$i - 1]['id'] : null;
+        foreach ($levelDistributions as $dist) {
+            for ($c = 0; $c < $dist['count']; $c++) {
+                $urutan = str_pad($index + 1, 2, '0', STR_PAD_LEFT);
+                $idMitra = 'G' . $today . $urutan;
+                $mitraNumber = $index + 1;
+                $username = 'mitra' . $mitraNumber;
+                $email = $username . '@gmail.com';
+                [$provinsi, $kabupaten] = $this->getFirstProvinceAndRegency($provinces, $regencies);
+                $groupSponsor = array_column(array_slice($createdUsers, max(0, $index - 9), 9), 'id');
 
-            $poinReward = in_array($i, [2, 6]) ? 25 : 0;
-            $statusQR = $poinReward != 0;
+                $idSponsor = $index > 0 ? $createdUsers[$index - 1]['id'] : null;
 
-            $user = User::create([
-                'id_mitra' => $idMitra,
-                'username' => $username,
-                'email' => $email,
-                'password' => Hash::make('password'),
-                'isAdmin' => false,
-                'isStockis' => false,
-                'status_qr' => $statusQR,
-                'id_sponsor' => $idSponsor,
-                'nama' => 'Mitra Glowink ' . $mitraNumber,
-                'provinsi' => $provinsi,
-                'kabupaten' => $kabupaten,
-                'alamat' => 'Jl. Mitra No. ' . $mitraNumber,
-                'no_telp' => '0812345678' . str_pad($mitraNumber, 2, '0', STR_PAD_LEFT),
-                'no_rek' => '12345678' . str_pad($mitraNumber, 2, '0', STR_PAD_LEFT),
-                'nama_rekening' => 'Mitra Glowink ' . $mitraNumber,
-                'bank' => 'BNI',
-                'tgl_daftar' => now(),
-                'group_sponsor' => $groupSponsor,
-                'saldo_penghasilan' => 0,
-                'poin_reward' => $poinReward,
-                'plan_karir_sekarang' => $poinReward == 0 ? null : 'bronze',
-                'next_plan_karir' => null,
-                'next_poin_karir' => 0,
-            ]);
+                // Tentukan poin berdasarkan rentang agar beragam namun valid utk level tsb
+                if ($dist['min'] === $dist['max']) {
+                    $poinReward = $dist['min'];
+                } else {
+                    $range = $dist['max'] - $dist['min'];
+                    $step = (int) floor($range / max(1, $dist['count'] - 1));
+                    $poinReward = $dist['min'] + ($step * $c);
+                }
 
-            $createdUsers[] = [
-                'id' => $user->id,
-                'id_mitra' => $idMitra,
-            ];
+                $statusQR = $dist['level'] !== null || ($index % 2 === 0); // Banyak yang true, sebagian non-level juga true
+                $planKarir = $dist['level'];
+
+                $user = User::create([
+                    'id_mitra' => $idMitra,
+                    'username' => $username,
+                    'email' => $email,
+                    'password' => Hash::make('password'),
+                    'isAdmin' => false,
+                    'isStockis' => false,
+                    'status_qr' => $statusQR,
+                    'id_sponsor' => $idSponsor,
+                    'nama' => 'Mitra Glowink ' . $mitraNumber,
+                    'provinsi' => $provinsi,
+                    'kabupaten' => $kabupaten,
+                    'alamat' => 'Jl. Mitra No. ' . $mitraNumber,
+                    'no_telp' => '0812345678' . str_pad($mitraNumber, 2, '0', STR_PAD_LEFT),
+                    'no_rek' => '12345678' . str_pad($mitraNumber, 2, '0', STR_PAD_LEFT),
+                    'nama_rekening' => 'Mitra Glowink ' . $mitraNumber,
+                    'bank' => 'BNI',
+                    'tgl_daftar' => now(),
+                    'group_sponsor' => $groupSponsor,
+                    'saldo_penghasilan' => 0,
+                    'poin_reward' => $poinReward,
+                    'plan_karir_sekarang' => $planKarir,
+                    'next_plan_karir' => null,
+                    'next_poin_karir' => 0,
+                ]);
+
+                $createdUsers[] = [
+                    'id' => $user->id,
+                    'id_mitra' => $idMitra,
+                ];
+
+                $index++;
+            }
         }
     }
 
