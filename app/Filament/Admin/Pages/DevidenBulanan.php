@@ -318,10 +318,13 @@ class DevidenBulanan extends Page implements HasForms
 
             // Ambil semua level karir untuk perbandingan poin_reward
             $allLevelKarir = \App\Models\LevelKarir::orderBy('poin_reward', 'asc')->get();
+            // Keyed helpers agar tidak melakukan pencarian berulang di collection
+            $levelDetailsByName = $detailDevidenBulanan->keyBy('nama_level');
+            $levelsByName = $allLevelKarir->keyBy('nama_level');
 
             foreach ($detailDevidenBulanan as $detail) {
                 // Ambil level karir untuk mendapatkan minimal RO QR dan poin_reward
-                $levelKarir = \App\Models\LevelKarir::where('nama_level', $detail->nama_level)->first();
+                $levelKarir = $levelsByName->get($detail->nama_level);
                 $minimalROQR = $levelKarir ? $levelKarir->minimal_RO_QR : 0;
                 $levelPoinReward = $levelKarir ? $levelKarir->poin_reward : 0;
 
@@ -335,13 +338,10 @@ class DevidenBulanan extends Page implements HasForms
                     $totalDevidenForUser = 0;
                     $devidenDetails = [];
 
-                    // Loop melalui semua level karir untuk mengecek poin_reward
+                    // Loop melalui semua level karir dari terbawah ke level user (cumulative bonus)
                     foreach ($allLevelKarir as $level) {
-                        // Jika poin_reward user >= poin_reward level, user berhak mendapat deviden dari level tersebut
                         if ($user->poin_reward >= $level->poin_reward) {
-                            // Cari detail deviden untuk level ini
-                            $levelDetail = $detailDevidenBulanan->where('nama_level', $level->nama_level)->first();
-
+                            $levelDetail = $levelDetailsByName->get($level->nama_level);
                             if ($levelDetail) {
                                 $totalDevidenForUser += $levelDetail->nominal_deviden_bulanan;
                                 $devidenDetails[] = [
@@ -377,14 +377,17 @@ class DevidenBulanan extends Page implements HasForms
                             'kategori_bonus' => 'deviden bulanan',
                             'status_qr' => 'selesai',
                         ]);
-                        \App\Models\Aktivitas::create([
-                            'user_id' => $user->id,
-                            'judul' => 'Deviden Bulanan',
-                            'keterangan' => "Menerima deviden bulanan ",
-                            'status' => 'success',
-                            'tipe' => 'plus',
-                            'nominal' => $totalDevidenForUser,
-                        ]);
+                        // Buat aktivitas untuk setiap level yang didapat
+                        foreach ($devidenDetails as $levelDetail) {
+                            \App\Models\Aktivitas::create([
+                                'user_id' => $user->id,
+                                'judul' => 'Deviden Bulanan - ' . ucfirst($levelDetail['level']),
+                                'keterangan' => "Menerima deviden bulanan level {$levelDetail['level']} sebesar Rp " . number_format($levelDetail['nominal'], 0, ',', '.'),
+                                'status' => 'success',
+                                'tipe' => 'plus',
+                                'nominal' => $levelDetail['nominal'],
+                            ]);
+                        }
 
                         $totalUsersUpdated++;
                         $totalIncomeDistributed += $totalDevidenForUser;
