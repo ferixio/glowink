@@ -54,7 +54,7 @@ class MitraSeeder extends Seeder
         foreach ($levelDistributions as $dist) {
             for ($c = 0; $c < $dist['count']; $c++) {
                 $urutan = str_pad($index + 1, 2, '0', STR_PAD_LEFT);
-                $idMitra = 'G' . $today . $urutan;
+                $idMitra = 'G20250723' . $urutan;
                 $mitraNumber = $index + 1;
                 $username = 'mitra' . $mitraNumber;
                 $email = $username . '@gmail.com';
