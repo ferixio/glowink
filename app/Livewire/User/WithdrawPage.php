@@ -16,6 +16,11 @@ class WithdrawPage extends Component
     public function toggleWithdrawForm()
     {
         $this->showWithdrawForm = !$this->showWithdrawForm;
+
+        // When opening the form, prefill with user's current saldo_penghasilan
+        if ($this->showWithdrawForm && $this->user) {
+            $this->nominal_withdraw = (int) ($this->user->saldo_penghasilan ?? 0);
+        }
     }
 
     public function updatedNominalWithdraw($value)
@@ -35,6 +40,10 @@ class WithdrawPage extends Component
     public function mount()
     {
         $this->user = Auth::user();
+        // Default nominal withdraw to user's current saldo_penghasilan
+        if ($this->user) {
+            $this->nominal_withdraw = (int) ($this->user->saldo_penghasilan ?? 0);
+        }
     }
 
     public function createWithdraw()

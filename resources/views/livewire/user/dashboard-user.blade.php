@@ -20,7 +20,7 @@
     {{-- Group 1: Info Akun --}}
     <div class="bg-white rounded-xl shadow p-6 space-y-4">
         <h2 class="text-xl font-semibold text-gray-800">Info Akun</h2>
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4">
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
 
             <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm">
                 <div class="text-sm text-gray-500">ID</div>
@@ -40,9 +40,14 @@
                 </div>
             </div>
             <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm">
-                <div class="text-sm text-gray-500">Total Penghasilan</div>
+                <div class="text-sm text-gray-500">Point</div>
+                <div class="mt-1 text-lg font-semibold text-gray-700">
+                    {{ number_format($user->poin_reward, 0, ',', '.') }}</div>
+            </div>
+            <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm">
+                <div class="text-sm text-gray-500">Total </div>
                 <div class="mt-1 text-lg font-semibold text-green-600">Rp.
-                    {{ number_format($user->saldo_withdraw, 0, ',', '.') }}</div>
+                    {{ number_format($user->saldo_withdraw + $user->saldo_penghasilan, 0, ',', '.') }}</div>
             </div>
             <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm">
                 <div class="text-sm text-gray-500">Pending Income</div>
@@ -50,10 +55,11 @@
                     {{ number_format($user->saldo_penghasilan, 0, ',', '.') }}</div>
             </div>
             <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm">
-                <div class="text-sm text-gray-500">Point</div>
-                <div class="mt-1 text-lg font-semibold text-gray-700">
-                    {{ number_format($user->poin_reward, 0, ',', '.') }}</div>
+                <div class="text-sm text-gray-500">Withdraw Income</div>
+                <div class="mt-1 text-lg font-semibold text-green-600">Rp.
+                    {{ number_format($user->saldo_withdraw, 0, ',', '.') }}</div>
             </div>
+
         </div>
     </div>
 
@@ -161,8 +167,9 @@
                             <div class="text-right">
                                 @if ($activity->nominal)
                                     <p
-                                        class="text-sm font-bold {{ $activity->tipe === 'plus' ? 'text-green-600' : '' }}">
-                                        {{ $activity->tipe === 'plus' ? '+' : '-' }} Rp
+                                        class="text-sm font-bold {{ $activity->tipe === 'plus' ? 'text-green-600' : ($activity->tipe === 'minus' ? 'text-red-600' : 'text-gray-700') }}">
+                                        {{ $activity->tipe === 'plus' ? '+' : ($activity->tipe === 'minus' ? '-' : '') }}
+                                        {{ $activity->nominal > 50 ? 'Rp ' : '' }}
                                         {{ number_format($activity->nominal, 0, ',', '.') }}
                                     </p>
                                 @else

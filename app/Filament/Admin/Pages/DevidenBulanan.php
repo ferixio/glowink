@@ -147,6 +147,8 @@ class DevidenBulanan extends Page implements HasForms
             $jumlahMitraTransaksi = \App\Models\User::where('plan_karir_sekarang', $namaLevel)
                 ->where('jml_ro_bulanan', '>=', $minimalROQR)
                 ->count();
+
+            Log::info("Level: {$namaLevel}, Minimal RO QR: {$minimalROQR}, Jumlah Mitra: {$jumlahMitra}, Jumlah Mitra Transaksi: {$jumlahMitraTransaksi}");
             $result[$namaLevel] = [
                 'jumlahMitra' => $jumlahMitra,
                 'jumlahMitraTransaksi' => $jumlahMitraTransaksi,
@@ -178,8 +180,15 @@ class DevidenBulanan extends Page implements HasForms
             $levelKarir = \App\Models\LevelKarir::where('nama_level', $namaLevel)->first();
             if ($levelKarir) {
                 $nominalDevidenBulanan = 0;
-                if ($stats['jumlahMitra'] > 0) {
-                    $nominalDevidenBulanan = ($levelKarir->angka_deviden * $omsetRObulanan) / $stats['jumlahMitra'];
+                if ($stats['jumlahMitraTransaksi'] > 0) {
+                    //rumus
+                    $nominalDevidenBulanan = ($levelKarir->angka_deviden * $omsetRObulanan) / $stats['jumlahMitraTransaksi'];
+                    Log::info("Perhitungan nominalDevidenBulanan untuk level {$namaLevel}:", [
+                        'angka_deviden' => $levelKarir->angka_deviden,
+                        'omsetRObulanan' => $omsetRObulanan,
+                        'jumlahMitraTransaksi' => $stats['jumlahMitraTransaksi'],
+                        'nominalDevidenBulanan' => $nominalDevidenBulanan,
+                    ]);
                 }
 
                 $this->detailDevidenBulananData[] = [
@@ -187,6 +196,7 @@ class DevidenBulanan extends Page implements HasForms
                     'jumlah_mitra' => $stats['jumlahMitra'],
                     'jumlah_mitra_transaksi' => $stats['jumlahMitraTransaksi'],
                     'omzet_ro_qr' => $omsetRObulanan,
+                    'minimal_RO_QR' => $levelKarir->minimal_RO_QR,
                     'angka_deviden' => $levelKarir->angka_deviden,
                     'nominal_deviden_bulanan' => $nominalDevidenBulanan,
                 ];

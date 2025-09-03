@@ -17,6 +17,8 @@ class ProsesPembelianDiterima
 
         $user = \App\Models\User::find($pembelian->user_id);
 
+        $isUserUpdateQR = false;
+
         // ini fungsi untuk cek user jika masih belum qr dan membuatnya menjadi plan karir
         if ($user && $user->status_qr == 0) {
             $targetCategories = ['stock pribadi', 'repeat order', 'repeat order bulanan'];
@@ -27,7 +29,7 @@ class ProsesPembelianDiterima
                         // Update user's status_qr to 1
                         $user->status_qr = 1;
                         $user->save();
-
+                        $isUserUpdateQR = true;
                         if ($user->id_sponsor) {
                             $sponsor = \App\Models\User::find($user->id_sponsor);
                             if ($sponsor) {
@@ -54,11 +56,15 @@ class ProsesPembelianDiterima
                                 $sponsor->saldo_penghasilan += 20000;
                                 $sponsor->save();
 
+                                $format = function ($number) {
+                                    return 'Rp. ' . number_format((float) $number, 0, ',', '.');
+                                };
+
                                 \App\Models\PembelianBonus::create([
                                     'pembelian_id' => $pembelian->id,
                                     'user_id' => $sponsor->id,
                                     'tipe' => 'bonus',
-                                    'keterangan' => "bonus sponsor (Member update Quick Reward) Rp.20000 dari mitra #{$user->id_mitra}",
+                                    'keterangan' => "ID {$sponsor->id_mitra} Menerima bonus sponsor (Member update Quick Reward) {$format(20000)} dari mitra #{$user->id_mitra}",
                                 ]);
                             }
                         }
@@ -121,12 +127,15 @@ class ProsesPembelianDiterima
         //     }
         // }
         if ($pembelian->kategori_pembelian == 'aktivasi member') {
+
             event(new BonusSponsor($pembelian));
+
             event(new BonusGenerasi($pembelian, true));
 
         }
         if ($pembelian->kategori_pembelian == 'repeat order') {
-            event(new BonusReward($pembelian));
+
+            event(new BonusReward($pembelian, $isUserUpdateQR));
 
         }
         if ($pembelian->kategori_pembelian == 'stock pribadi') {

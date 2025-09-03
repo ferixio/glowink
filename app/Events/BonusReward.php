@@ -11,9 +11,11 @@ class BonusReward
     use Dispatchable, SerializesModels;
 
     public $pembelian;
+    public $isUserUpdateQR; 
 
-    public function __construct(Pembelian $pembelian)
+    public function __construct(Pembelian $pembelian, $isUserUpdateQR = false)
     {
         $this->pembelian = $pembelian;
+        $this->isUserUpdateQR = $isUserUpdateQR;
     }
 }

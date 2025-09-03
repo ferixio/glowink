@@ -19,13 +19,13 @@ class ChangeLevelUserListener
 
         // Daftar level dan ketentuannya (urutan dari terendah ke tertinggi)
         $levels = [
-            'Bronze' => ['poin' => 20, 'bonus' => 100000],
-            'Silver' => ['poin' => 100, 'bonus' => 400000],
-            'Gold' => ['poin' => 750, 'bonus' => 2500000],
-            'Platinum' => ['poin' => 3000, 'bonus' => 10000000],
-            'Titanium' => ['poin' => 15000, 'bonus' => 50000000],
-            'Ambassador' => ['poin' => 60000, 'bonus' => 200000000],
-            'Chairman' => ['poin' => 150000, 'bonus' => 500000000],
+            'bronze' => ['poin' => 20, 'bonus' => 100000],
+            'silver' => ['poin' => 100, 'bonus' => 400000],
+            'gold' => ['poin' => 750, 'bonus' => 2500000],
+            'platinum' => ['poin' => 3000, 'bonus' => 10000000],
+            'titanium' => ['poin' => 15000, 'bonus' => 50000000],
+            'ambassador' => ['poin' => 60000, 'bonus' => 200000000],
+            'chairman' => ['poin' => 150000, 'bonus' => 500000000],
         ];
 
         // Tentukan level sebelumnya (jika null, dianggap belum punya level)

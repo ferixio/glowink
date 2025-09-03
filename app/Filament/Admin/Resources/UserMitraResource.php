@@ -120,7 +120,16 @@ class UserMitraResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('plan_karir_sekarang')
+                    ->options([
+                        'bronze' => 'Bronze',
+                        'silver' => 'Silver',
+                        'gold' => 'Gold',
+                        'platinum' => 'Platinum',
+                        'titanium' => 'Titanium',
+                        'ambassador' => 'Ambassador',
+                        'chairman' => 'Chairman',
+                    ]),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

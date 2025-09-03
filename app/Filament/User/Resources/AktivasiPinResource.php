@@ -59,11 +59,24 @@ class AktivasiPinResource extends Resource
                 </div>
             ";
                     })
-                    ->searchable(),
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->whereHas('produk', function ($query) use ($search) {
+                            $query->where('nama', 'like', "%{$search}%");
+                        })->orWhere('pin', 'like', "%{$search}%");
+                    }),
 
             ])
             ->filters([
-                //
+
+                Tables\Filters\SelectFilter::make('is_accept')
+                    ->label('Status')
+                    ->options([
+                        '1' => 'Aktivasi',
+                        '0' => 'Belum Aktivasi',
+                    
+                    ])
+                    ->searchable(),
+
             ])
             ->actions([
                 Tables\Actions\Action::make('accept')
