@@ -13,6 +13,7 @@ class BonusRewardListener
     public function handle(BonusReward $event)
     {
         $pembelian = $event->pembelian;
+        $isUserUpdateQR = $event->isUserUpdateQR;
         $user = $pembelian->user;
         $sponsor = User::find($user->id_sponsor);
         $statusQr = $user->status_qr;
@@ -24,7 +25,7 @@ class BonusRewardListener
         };
 
         // Cek apakah user memiliki QR aktif
-        if ($user->status_qr && $sponsor) {
+        if ($user->status_qr && $sponsor && !$isUserUpdateQR) {
             $hasPaket2 = false;
             $totalBonus = 0;
 
@@ -124,6 +125,6 @@ class BonusRewardListener
         }
 
         // Panggil event BonusGenerasi untuk menangani bonus reward upline
-        event(new \App\Events\BonusGenerasi($pembelian, false));
+        event(new \App\Events\BonusGenerasi($pembelian, $isUserUpdateQR));
     }
 }
