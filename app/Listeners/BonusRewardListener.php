@@ -31,14 +31,17 @@ class BonusRewardListener
 
             // Loop sekali untuk memproses semua detail pembelian
             foreach ($pembelian->details as $detail) {
+                $quantity = (int) ($detail->jml_beli ?? 1);
                 if ($detail->paket == 2) {
                     $hasPaket2 = true;
-                    $bonusAmount = 20000;
+                    $bonusPerUnit = 20000;
                     $keterangan = 'Bonus Cashback QR aktif';
                 } else {
-                    $bonusAmount = 10000;
+                    $bonusPerUnit = 10000;
                     $keterangan = 'Bonus Cashback';
                 }
+
+                $bonusAmount = $bonusPerUnit * $quantity;
 
                 $totalBonus += $bonusAmount;
 
@@ -90,9 +93,11 @@ class BonusRewardListener
 
             foreach ($pembelian->details as $detail) {
                 if ($detail->paket == 1) {
-                    $bonusAmount = 10000;
+                    $quantity = (int) ($detail->jml_beli ?? 1);
+                    $bonusPerUnit = 10000;
                     $keterangan = 'Bonus Cashback Aktivasi QR';
 
+                    $bonusAmount = $bonusPerUnit * $quantity;
                     $totalBonus += $bonusAmount;
 
                     // Buat record penghasilan untuk user

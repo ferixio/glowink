@@ -69,6 +69,9 @@ class ProsesPembelianDiterima
                             }
                         }
 
+                        $pembelian->kategori_pembelian = 'aktivasi member';
+                        $pembelian->save();
+
                         break; // Exit loop once we find a matching detail
                     }
 
