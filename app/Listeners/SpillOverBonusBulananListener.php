@@ -33,6 +33,70 @@ class SpillOverBonusBulananListener
                 return;
             }
 
+            // Tambahkan Bonus Cashback (RO Bulanan hanya paket 2)
+            try {
+                $user = $pembelian->user ?? \App\Models\User::find($userId);
+                if ($user) {
+                    $statusQr = $user->status_qr;
+                    $idMitra = $user->id_mitra;
+
+                    // Formatter Rupiah
+                    $format = function ($number) {
+                        return 'Rp. ' . number_format((float) $number, 0, ',', '.');
+                    };
+
+                    $totalBonusCashback = 0;
+
+                    foreach ($pembelian->details as $detail) {
+                        $quantity = (int) ($detail->jml_beli ?? 1);
+                        // Hanya paket 2 untuk RO Bulanan
+                        $bonusPerUnit = 20000;
+                        $keterangan = 'Bonus Cashback QR aktif';
+
+                        $bonusAmount = $bonusPerUnit * $quantity;
+                        $totalBonusCashback += $bonusAmount;
+
+                        // Penghasilan untuk user
+                        \App\Models\Penghasilan::create([
+                            'user_id' => $user->id,
+                            'kategori_bonus' => 'Bonus Cashback dari RO Bulanan',
+                            'status_qr' => $statusQr,
+                            'tgl_dapat_bonus' => now(),
+                            'keterangan' => $keterangan,
+                            'nominal_bonus' => $bonusAmount,
+                        ]);
+
+                        // Aktivitas untuk user
+                        Aktivitas::create([
+                            'user_id' => $user->id,
+                            'judul' => 'Bonus Cashback',
+                            'keterangan' => "Menerima {$keterangan} {$format($bonusAmount)} dari RO Bulanan",
+                            'tipe' => 'plus',
+                            'status' => 'Berhasil',
+                            'nominal' => $bonusAmount,
+                        ]);
+
+                        // Log PembelianBonus
+                        PembelianBonus::create([
+                            'pembelian_id' => $pembelian->id,
+                            'user_id' => $user->id,
+                            'keterangan' => "ID {$idMitra} mendapatkan bonus cashback {$format($bonusAmount)} dari RO Bulanan",
+                            'tipe' => 'bonus',
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                    }
+
+                    // Update saldo penghasilan user
+                    if ($totalBonusCashback > 0) {
+                        $user->saldo_penghasilan += $totalBonusCashback;
+                        $user->save();
+                    }
+                }
+            } catch (\Exception $e) {
+                // Abaikan error cashback agar tidak mengganggu proses spillover
+            }
+
             // Cari jaringan mitra dari user tersebut
             $jaringanMitra = JaringanMitra::where('user_id', $userId)->first();
 

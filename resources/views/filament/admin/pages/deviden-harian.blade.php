@@ -10,7 +10,7 @@
                     <x-heroicon-o-currency-dollar class="w-8 h-8" />
                 </div>
                 <div>
-                    <div class="text-gray-500 text-sm">Omzet Aktivasi</div>
+                    <div class="text-gray-500 text-sm">Jumlah Aktivasi</div>
                     <div class="text-2xl font-bold">
                         <div class="text-blue-600 hover:underline">
 
@@ -25,7 +25,7 @@
                     <x-heroicon-o-currency-dollar class="w-8 h-8" />
                 </div>
                 <div>
-                    <div class="text-gray-500 text-sm">Omzet RO Basic</div>
+                    <div class="text-gray-500 text-sm">Jumlah RO Basic</div>
                     <div class="text-2xl font-bold">
                         {{ $devidenHarian ? $devidenHarian->omzet_ro_basic : $searchResults->omzet_ro_basic }}
                     </div>
