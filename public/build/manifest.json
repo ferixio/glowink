@@ -1,11 +1,15 @@
 {
+  "public/images/bg_login.png": {
+    "file": "assets/bg_login-W2xpSUz5.png",
+    "src": "public/images/bg_login.png"
+  },
   "resources/css/app.css": {
     "file": "assets/app-QZ3Ls3d0.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
   "resources/css/filament/user/theme.css": {
-    "file": "assets/theme-DZw_DdAn.css",
+    "file": "assets/theme-BDtQRdle.css",
     "src": "resources/css/filament/user/theme.css",
     "isEntry": true
   },
