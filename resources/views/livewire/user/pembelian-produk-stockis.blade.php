@@ -84,7 +84,7 @@
                 </div>
 
                 {{-- Cart Summary --}}
-                <div class="p-4 border-t bg-gray-50">
+                <div class="p-4 border-t bg-gray-50 sticky bottom-0">
                     <h3 class="text-sm font-semibold text-gray-800 mb-2">Total Pembelian</h3>
                     <div class="flex justify-between text-sm text-gray-700 mb-2">
                         <span>Total Quantity</span>
@@ -103,6 +103,7 @@
             </div>
         </div>
     @endif
+
 
     {{-- Produk --}}
     <div class="w-full lg:w-8/12 pt-0">

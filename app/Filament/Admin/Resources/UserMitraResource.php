@@ -112,6 +112,10 @@ class UserMitraResource extends Resource
                     ->label('Plan Karir'),
                 Tables\Columns\TextColumn::make('saldo_penghasilan')
                     ->money('IDR'),
+                      Tables\Columns\TextColumn::make('sponsor.id_mitra')
+                      ->sortable()
+                    ->label('ID Sponsor')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('poin_reward')
                     ->numeric(),
                 Tables\Columns\TextColumn::make('created_at')
