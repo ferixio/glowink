@@ -3,6 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Models\User;
+use App\Models\Produk;
+use App\Models\ProdukStok;
+use App\Models\JaringanMitra;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -17,11 +20,11 @@ class MigrateOldToUsers extends Command
 
         DB::transaction(function () {
             // Step 1: Ambil data uplink untuk mapping
-            $uplinks = DB::connection('mysql_old')
-                ->table('user')
-                ->select('username', 'uplink')
-                ->get()
-                ->keyBy('username');
+            // $uplinks = DB::connection('mysql_old')
+            //     ->table('user')
+            //     ->select('username', 'uplink')
+            //     ->get()
+            //     ->keyBy('username');
 
             // Step 2: Insert users tanpa id_sponsor dulu
             $oldUsers = DB::connection('mysql_old')
@@ -30,7 +33,11 @@ class MigrateOldToUsers extends Command
                 ->leftJoin('rekening as r', 'u.username', '=', 'r.username')
                 ->leftJoin('stokis as s', 'u.username', '=', 's.username')
                 ->leftJoin('penghasilan as p', 'u.username', '=', 'p.username')
+                ->leftJoin('up as up', 'u.username', '=', 'up.id_mem')
+                ->leftJoin('bonuspending as bp', 'u.username', '=', 'bp.username')
+
                 ->select(
+                    'u.id',
                     'u.username',
                     'u.nama',
                     'a.alamatlengkap',
@@ -45,12 +52,18 @@ class MigrateOldToUsers extends Command
                     'p.point',
                     'p.qr',
                     's.username as stokis_username',
-                    'u.uplink'
+                    'up.id_sponsor as uplink',
+                    'bp.bonuspending'
                 )
+                ->orderBy('u.id' ,'ASC')
                 ->get();
 
             $mapping = []; // username → id baru
             $skipped = 0;
+            // foreach ($oldUsers as $data) {
+            //     echo $data->id . ' # '. $data->username .' # '. $data->nama;
+            // }
+            // dd('ok');
 
             foreach ($oldUsers as $old) {
                 // Cek apakah user dengan id_mitra ini sudah ada
@@ -71,13 +84,16 @@ class MigrateOldToUsers extends Command
                 $planKarirSekarang = $this->determineCareerLevel($poin);
 
                 // Tentukan id_sponsor jika uplink ada
-                $idSponsor = null;
-                if ($old->uplink && isset($mapping[$old->uplink])) {
-                    $idSponsor = $mapping[$old->uplink];
-                }
+                // $idSponsor = null;
+                // if ($old->uplink && isset($mapping[$old->uplink])) {
+                //     $idSponsor = $mapping[$old->uplink];
+                // }
 
                 $newUser = User::create([
+                    'id' =>$old->id,
                     'id_mitra' => substr($old->username, 0, 255), // username → id_mitra
+                    'username' => substr($old->username, 0, 255), // username → id_mitra
+                    'email' => substr($old->username, 0, 255).'@glowink.net', // username → id_mitra
                     'nama' => substr($old->nama ?? '', 0, 255),
                     'alamat' => substr($old->alamatlengkap ?? '', 0, 255), // alamatlengkap → alamat
                     'created_at' => $old->pendaftaran, // pendaftaran → created_at
@@ -92,7 +108,8 @@ class MigrateOldToUsers extends Command
                     'plan_karir_sekarang' => $planKarirSekarang,
                     'status_qr' => $old->qr == 1 ? true : false, // qr → status_qr (boolean)
                     'isStockis' => $old->stokis_username ? 1 : 0, // stokis username → isStockis
-                    'id_sponsor' => $idSponsor, // uplink → id_sponsor (mapping ke ID)
+                    'saldo_penghasilan'=>$old->bonuspending ?? 0
+                    // 'id_sponsor' => $old->uplink, // uplink → id_sponsor (mapping ke ID)
                 ]);
 
                 $mapping[$old->username] = $newUser->id;
@@ -101,7 +118,92 @@ class MigrateOldToUsers extends Command
                 User::setEventDispatcher(app('events'));
             }
 
-            $this->info('Migrasi selesai! Total user: ' . count($mapping) . ', Dilewati: ' . $skipped);
+            DB::transaction(function () {
+                User::all()->map(function ($data){
+                    $id_sponsor_old = DB::connection('mysql_old')->table('up')->where('id_mem' , $data->username)->value('id_sponsor');
+                    $id_sponsor_new =  User::where('id_mitra' , $id_sponsor_old)->value('id');
+
+                    $data->update(['id_sponsor' => $id_sponsor_new]);
+                });
+            });
+
+            //level 1
+            $users = User::all();
+            foreach ($users as $mitra) {
+                if ($mitra->id_sponsor !== null) {
+                    $data_insert = [
+                        'user_id'=>$mitra->id ,
+                        'sponsor_id'=>$mitra->id_sponsor ,
+                        'level' =>1,
+                    ];
+                    JaringanMitra::create($data_insert);
+                }
+            }
+
+            // level 2
+           $data = JaringanMitra::where('level' ,1)->orderBy('sponsor_id')->get();
+           foreach ($data as $mitra) {
+                $id_sponsor_level1 = $mitra->sponsor_id;
+                $data_level2= JaringanMitra::where('sponsor_id' , $mitra->user_id)->get();
+                foreach ($data_level2  as $mitra2) {
+                    if ($mitra2->sponsor_id !== null ) {
+                        # code...
+                        $data_insert = [
+                            'user_id'=>$mitra2->user_id ,
+                            'sponsor_id'=>$id_sponsor_level1 ,
+                            'level' =>2,
+                        ];
+                        JaringanMitra::create($data_insert);
+                    }
+                }
+           }
+
+          for ($k=3; $k <  30; $k++) {
+             //level 3
+                $data = JaringanMitra::where('level' , $k-1)->orderBy('sponsor_id')->get();
+                foreach ($data as $mitra) {
+                        //get data yang akan dimasukan ke dalam level 3
+                        $data_level = JaringanMitra::where('level' , 1)->where('sponsor_id' , $mitra->user_id)->get();
+                    foreach ($data_level as $new_mitra) {
+
+                        //yang jadi sponsor sekarang sebgai level 3
+                            $id_sponsor = $new_mitra->sponsor_id;
+                            for ($i=1; $i < $k+1 ; $i++) {
+                                $id_sponsor = User::where('id', $id_sponsor)->value('id_sponsor');
+
+                            }
+
+
+                            if (!jaringanMitra::where('user_id' , $new_mitra->user_id)->where('sponsor_id' , $id_sponsor)->exists()) {
+                                    if ($id_sponsor !== null) {
+                                    $data_insert = [
+                                        'user_id'    => $new_mitra->user_id,
+                                        'sponsor_id' => $id_sponsor,
+                                        'level'      => $k,
+                                    ];
+                                    JaringanMitra::create($data_insert);
+                            }
+                            }
+
+                    }
+                }
+            }
+
+            //update stok produk
+            $data_stok = DB::connection('mysql_old')->table('stokis_produk')->where('stok' , '>' , 0)->get();
+            foreach ($data_stok as $data) {
+                $produk_id = Produk::where('nama' , $data->nama_produk)->value('id');
+                $user_id = User::where('username' , $data->stokis)->value('id');
+                $data_stok =[
+                    'produk_id' => $produk_id,
+                    'user_id'   => $user_id,
+                    'stok'      => $data->stok
+                ];
+                ProdukStok::create($data_stok);
+            }
+
+
+            $this->info('Migrasi selesai!');
         });
     }
 

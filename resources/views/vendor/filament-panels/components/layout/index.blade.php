@@ -27,7 +27,7 @@
 
         }
     </style>
-    <div class="fi-layout flex min-h-screen w-full flex-row-reverse overflow-x-clip">
+    <div class="flex flex-row-reverse w-full min-h-screen fi-layout overflow-x-clip">
         <div @if (filament()->isSidebarCollapsibleOnDesktop()) x-data="{}"
                 x-bind:class="{
                     'fi-main-ctn-sidebar-open': $store.sidebar.isOpen,
@@ -59,9 +59,10 @@
                 {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::TOPBAR_BEFORE, scopes: $livewire->getRenderHookScopes()) }}
 
                 {{-- Mobile Logo Overlay (only shows on mobile) --}}
-                <div class="lg:hidden fixed top-0 left-0 z-50 p-4">
+                <div class="fixed top-0 left-0 z-50 p-4 lg:hidden">
                     <a href="/user" class="flex items-center">
-                        <img src="{{ asset('images/logo.svg') }}" alt="Logo" class="h-8 w-auto">
+                        {{-- <img src="{{ asset('images/logo.svg') }}" alt="Logo" class="w-auto h-8"> --}}
+                        <h1 style="font-size:18px"><b>Glowink System</b></h1>
                     </a>
                 </div>
 
@@ -115,7 +116,7 @@
             {{-- Desktop Sidebar --}}
             <div x-cloak x-data="{}" x-on:click="$store.sidebar.close()" x-show="$store.sidebar.isOpen"
                 x-transition.opacity.300ms
-                class="fi-sidebar-close-overlay fixed inset-0 z-30  transition duration-500 dark:bg-gray-950/75 lg:hidden">
+                class="fixed inset-0 z-30 transition duration-500 fi-sidebar-close-overlay dark:bg-gray-950/75 lg:hidden">
             </div>
 
             {{-- Mobile Sidebar (hidden by default, shown when Menu clicked) --}}
@@ -123,12 +124,12 @@
                 x-show="$store.sidebar.isOpen" style="z-index: 60;" />
 
             {{-- Desktop Sidebar --}}
-            <x-filament-panels::sidebar :navigation="$navigation" class="fi-main-sidebar hidden lg:block" />
+            <x-filament-panels::sidebar :navigation="$navigation" class="hidden fi-main-sidebar lg:block" />
 
             {{-- Mobile Bottom Navigation --}}
             <div x-data="mobileNav()"
-                style="position: fixed; bottom: 0; left: 0; right: 0; z-index: 40; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); border-top: 1px solid rgb(229 231 235); box-shadow: 0 -2px 4px -1px rgba(0, 0, 0, 0.1);"
-                class="lg:hidden  dark:bg-gray-900/95 dark:border-gray-700">
+                style="position: fixed; bottom: 0; left: 0; right: 0; z-index: 40; backdrop-filter: blur(8px);"
+                class="lg:hidden dark:bg-gray-900/95 dark:border-gray-700">
 
                 {{-- Submenu Overlay --}}
                 <div x-show="activeSubmenu" x-transition.opacity.300ms style="position: fixed; inset: 0;  z-index: 50;"
@@ -148,7 +149,7 @@
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-lg font-semibold text-gray-900 dark:text-white" x-text="submenuTitle"></h3>
                             <button @click="closeSubmenu()"
-                                class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white transition">
+                                class="p-1 text-gray-500 transition rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M6 18L18 6M6 6l12 12"></path>
@@ -160,7 +161,7 @@
                         <div class="space-y-2">
                             <template x-for="item in submenuItems" :key="item.url">
                                 <a :href="item.url"
-                                    class="flex items-center p-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 hover:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-white transition">
+                                    class="flex items-center p-3 text-gray-700 transition rounded-lg dark:text-gray-300 hover:bg-gray-50 hover:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-white">
                                     <span x-text="item.label" class="font-medium"></span>
                                 </a>
                             </template>
@@ -170,7 +171,7 @@
 
                 {{-- Navigation Items --}}
                 <div
-                    style="display: flex; align-items: center; justify-content: space-around; padding: 0.5rem 0.5rem 0.75rem;">
+                    style="border-radius:50px  50px  0 0;display: flex; align-items: center; justify-content: space-around; padding: 0.5rem 0.5rem 0.5rem;background:rgb(193, 237, 255);box-shadow: 0 -2px 4px -1px rgba(0, 0, 0, 0.1);">
 
                     {{-- Dashboard --}}
                     <a href="/user/dashboard"
@@ -189,7 +190,7 @@
                     {{-- Transaksi --}}
                     <button
                         @click="openSubmenu('Transaksi', [
-                            {label: 'Belanja', url: '/user/pembelian-produk'}, 
+                            {label: 'Belanja', url: '/user/pembelian-produk'},
                             @if (auth()->user()->poin_reward >= 20) {label: 'RO Bulanan', url: '/user/pembelian-r-o-bulanan'}, @endif
                             {label: 'Aktivasi PIN', url: '/user/aktivasi-pins'}
                         ])"

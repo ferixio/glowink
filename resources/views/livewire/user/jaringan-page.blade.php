@@ -24,13 +24,13 @@
 
         @foreach ($levelStats as $stat)
             <button wire:click="filterByLevel({{ $stat->level }})"
-                style="background-color: {{ $selectedLevel == $stat->level ? '#059669' : '#ecfdf5' }}; 
-                       padding: 12px; 
-                       border-radius: 8px; 
-                       border: 1px solid #bbf7d0; 
-                       display: flex; 
-                       align-items: center; 
-                       cursor: pointer; 
+                style="background-color: {{ $selectedLevel == $stat->level ? '#059669' : '#ecfdf5' }};
+                       padding: 12px;
+                       border-radius: 8px;
+                       border: 1px solid #bbf7d0;
+                       display: flex;
+                       align-items: center;
+                       cursor: pointer;
                        transition: all 0.2s;
                        {{ $selectedLevel == $stat->level ? 'color: white;' : '' }}"
                 onmouseover="this.style.backgroundColor='{{ $selectedLevel == $stat->level ? '#047857' : '#d1fae5' }}'"
@@ -101,43 +101,47 @@
     <!-- Tabel Data -->
     <div class="space-y-3">
         @forelse($jaringanMitra as $index => $item)
-            <div class="p-4 bg-white rounded-lg shadow hover:shadow-md transition">
-                <div class="flex justify-between items-center">
+            <div class="p-4 transition bg-white rounded-lg shadow hover:shadow-md">
+                <div class="flex items-center justify-between">
                     {{-- Kiri: ID Mitra & Nama --}}
                     <div>
                         <p class="text-lg font-bold text-blue-500">
-                            {{ $item->user->id_mitra }}
-                        </p>
-                        <p class="text-sm font-medium text-gray-700">
                             {{ $item->user->nama ?? 'N/A' }}
                         </p>
-                        <p class=" text-xs text-gray-500">
-                            ID Mitra Sponsor: <strong
-                                class="text-green-600 font-bold text-base ">{{ $item->user->sponsorWithMitra->id_mitra ?? 'N/A' }}</strong>
+                        <p class="text-sm font-medium text-gray-700">
+                            {{ $item->user->id_mitra }} ( {{ $item->user->id }} )
                         </p>
+
+                        <div>
+                            @if ($item->user->status_qr ?? false)
+                                <span class="inline-block px-4 py-1 text-xs text-green-700 bg-green-100 rounded-full">
+                                    QR Aktif
+                                </span>
+                            @else
+                                <span class="inline-block px-4 py-1 text-xs text-red-700 bg-red-100 rounded-full">
+                                    QR non Aktif
+                                </span>
+                            @endif
+                             <span class="inline-block px-2 py-1 text-xs text-gray-700 bg-gray-100 rounded-full">
+                                {{ number_format($item->user->poin_reward , 0) ?? 0 }} Poin
+                            </span>
+                        </div>
                     </div>
 
                     {{-- Kanan: Poin & Status --}}
                     <div class="text-right">
-                        <span class="inline-block px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-700">
-                            {{ $item->user->poin_reward ?? 0 }} Poin
-                        </span>
+
                         <div class="mt-2">
-                            @if ($item->user->status_qr ?? false)
-                                <span class="inline-block px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">
-                                    QR Aktif
-                                </span>
-                            @else
-                                <span class="inline-block px-2 py-1 text-xs rounded-full bg-red-100 text-red-700">
-                                    QR non Aktif
-                                </span>
-                            @endif
+                            <p class="text-xs text-gray-500 ">
+                            ID Mitra Sponsor:<br> <strong
+                                class="text-base font-bold text-green-600 ">{{ $item->user->sponsorWithMitra->id_mitra ?? 'N/A' }}</strong>
+                        </p>
                         </div>
                     </div>
                 </div>
             </div>
         @empty
-            <div class="p-4 bg-white rounded-lg shadow text-center text-gray-500">
+            <div class="p-4 text-center text-gray-500 bg-white rounded-lg shadow">
                 Belum ada data jaringan mitra
             </div>
         @endforelse
