@@ -68,7 +68,7 @@
             <label for="level" style="font-size: 13px; font-weight: 500; margin-bottom: 4px; display: block;">Filter
                 Level</label>
             <select wire:model.live="selectedLevel" id="level"
-                style="width: 150px; padding: 8px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px;">
+                style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px;">
                 <option value="">Semua Level</option>
                 @foreach ($availableLevels as $level)
                     <option value="{{ $level }}">Level {{ $level }}</option>
@@ -106,19 +106,19 @@
                     {{-- Kiri: ID Mitra & Nama --}}
                     <div>
                         <p class="text-lg font-bold text-blue-500">
-                            {{ $item->user->nama ?? 'N/A' }}
+                            {{ $item->user->nama ?? '-' }}
                         </p>
                         <p class="text-sm font-medium text-gray-700">
-                            {{ $item->user->id_mitra }} ( {{ $item->user->id }} )
+                            ID Mitra : {{ $item->user->id_mitra }} <br>ID System :  {{ $item->user->id }}
                         </p>
 
                         <div>
                             @if ($item->user->status_qr ?? false)
-                                <span class="inline-block px-4 py-1 text-xs text-green-700 bg-green-100 rounded-full">
+                                <span class="inline-block py-1 text-xs text-green-700 bg-green-100 rounded-full">
                                     QR Aktif
                                 </span>
                             @else
-                                <span class="inline-block px-4 py-1 text-xs text-red-700 bg-red-100 rounded-full">
+                                <span class="inline-block py-1 text-xs text-red-700 bg-red-100 rounded-full">
                                     QR non Aktif
                                 </span>
                             @endif

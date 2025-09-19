@@ -8,6 +8,9 @@ use App\Models\ProdukStok;
 use App\Models\JaringanMitra;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Database\Eloquent\Collection;
+use Spatie\LaravelIgnition\Recorders\DumpRecorder\Dump;
 
 class MigrateOldToUsers extends Command
 {
@@ -16,6 +19,257 @@ class MigrateOldToUsers extends Command
 
     public function handle()
     {
+        $this->migrateTableUser();
+        $this->migrateTableUp();
+        User::query()->update(['password' => bcrypt('password')]);
+        $this->setJaringan();
+    }
+
+    public function migrateTableUp(){
+        $this->info('Proses migrasi  dari table up ...');
+            DB::transaction(function(){
+                $old_user = DB::connection('mysql_old')
+                            ->table('up as u')
+                            ->select(
+                                'u.id_mem as id_mitra',
+                                'u.id_mem as username',
+                                DB::raw("CONCAT(u.id_mem , '@glowink.net') as email"),
+                                'u.id_sponsor as id_sponsor_old',
+                            )
+                            ->where('u.id_mem' ,'NOT LIKE' , '%-%')
+                            ->whereNotIn('u.id_mem' , function ($query){
+                                $query->select('username')->from('user');
+                            })
+                            ->orderBy('u.id' ,'ASC')
+                            ->groupBy('u.id_mem')
+                            ->get();
+
+                    $new_user =  collect($old_user)->map(function($user){
+                        return (array)$user;
+                    })->toArray() ;
+
+
+                    User::insert((array)$new_user);
+
+            });
+            $this->info('Proses migrasi dari table up selesai ...');
+
+    }
+
+     public function migrateTableUser(){
+        $this->info('Proses migrasi dari table user ...');
+        DB::transaction(function(){
+            $old_user = DB::connection('mysql_old')
+                        ->table('user as u')
+                        ->leftJoin('alamat as a', 'u.username', '=', 'a.username')
+                        ->leftJoin('rekening as r', 'u.username', '=', 'r.username')
+                        ->leftJoin('stokis as s', 'u.username', '=', 's.username')
+                        ->select(
+                            'u.username as id_mitra',
+                            'u.username as username',
+                            DB::raw("CONCAT(u.username , '@glowink.net') as email"),
+                            'u.nama as nama',
+                            'a.alamatlengkap as alamat',
+                            'u.pendaftaran as tgl_daftar',
+                            'u.nohp as no_telp',
+                            'u.password as password',
+                            's.kota as kabupaten',
+                            's.provinsi as provinsi',
+                            'r.bank as bank',
+                            'r.nama as nama_rekening',
+                            'r.rekening as no_rek',
+                            'u.uplink as id_sponsor_old',
+                        )
+                        ->where('u.username' ,'NOT LIKE' , '%-%')
+                        ->orderBy('u.id' ,'ASC')
+                        ->groupBy('u.username')
+                        ->get();
+
+                 $new_user =  collect($old_user)->map(function($user){
+                    return (array)$user;
+                 })->toArray() ;
+
+                User::insert($new_user);
+        });
+        $this->info('Proses migrasi dari table user  selesai...');
+    }
+
+    public function setJaringan(){
+         $this->info('set jaringan di table jaringan mitra...');
+         $this->info('Proses update id sponsor dengan id system baru ...');
+
+
+         User::all()->map(function ($data){
+
+                $id_sponsor_old = DB::connection('mysql_old')->table('up')->where('id_mem' , $data->username)->value('id_sponsor');
+                $id_sponsor_new =  User::where('id_mitra' , $id_sponsor_old)->value('id');
+
+                $data->update(['id_sponsor' => $id_sponsor_new]);
+            });
+
+            //level 1
+            $this->info('Proses set jaringan level 1');
+            $users       = User::all();
+            $count_data  = count($users);
+            $data_insert = [];
+            $j           = 0;
+
+            foreach ($users as $mitra) {
+                if ($mitra->id_sponsor !== null) {
+                    $data_insert[] = [
+                        'user_id'=>$mitra->id ,
+                        'sponsor_id'=>$mitra->id_sponsor ,
+                        'level' =>1,
+                    ];
+                }
+                $j++;
+                 $this->info("Proses set jaringan level 1 dengan jumlah data $count_data, user ke $j  dari total $count_data ");
+            }
+            $this->info("Proses set jaringan level 1  ke database ");
+            JaringanMitra::insertOrIgnore($data_insert);
+            $this->info("Proses set jaringan level 1 Selesai ");
+
+        //     // level 2
+        //    $data       = JaringanMitra::where('level' ,1)->orderBy('sponsor_id')->get();
+        //    $count_data = count($data);
+        //    $j          = 0;
+        //    foreach ($data as $mitra) {
+        //         $this->info('Proses set jaringan level 2');
+        //         $id_sponsor_level1 = $mitra->sponsor_id;
+        //         $data_level2= JaringanMitra::where('sponsor_id' , $mitra->user_id)->get();
+        //         $data_insert = [];
+        //         $i = 0;
+        //         $count_data_user = count($data_level2);
+        //         foreach ($data_level2  as $mitra2) {
+        //             if ($mitra2->sponsor_id !== null ) {
+        //                 # code...
+        //                 $data_insert[] = [
+        //                     'user_id'=>$mitra2->user_id ,
+        //                     'sponsor_id'=>$id_sponsor_level1 ,
+        //                     'level' =>2,
+        //                 ];
+
+        //             }
+        //             $i++;
+        //             $this->info("Proses set jaringan level 2 dengan jumlah data $count_data_user, user ke $j dengan sponsor urutan ke $i dari total $count_data ");
+        //         }
+        //         $j++;
+        //         $this->info("Proses set jaringan level 2 ke database untuk user ke $j dari total $count_data");
+        //         JaringanMitra::insertOrIgnore($data_insert);
+        //         $this->info("Proses set jaringan level 2 ke database untuk user ke $j selesai");
+        //     }
+        //     $this->info('Proses set jaringan level 2 selesai');
+
+        //generate table jaringan dari 2 dst
+            for ($k=2; $k <  100; $k++) {
+             //mencari data level 2 dst
+
+
+                $data = JaringanMitra::where('level' , $k-1)->orderBy('sponsor_id')->get();
+                $x = 0;
+                foreach ($data as $mitra) {
+                    $x++;
+                    $y=0;
+                    //get data yang akan dimasukan ke dalam level selanjutnya
+                    $data_level = JaringanMitra::where('level' , 1)->where('sponsor_id' , $mitra->user_id)->get();
+                    foreach ($data_level as $new_mitra) {
+                        $y++;
+
+                            $id_sponsor = $new_mitra->sponsor_id;
+                            for ($i=1; $i < $k ; $i++) {
+                                $id_sponsor = User::where('id', $id_sponsor)->value('id_sponsor');
+
+                            }
+
+
+                            if (!jaringanMitra::where('user_id' , $new_mitra->user_id)->where('sponsor_id' , $id_sponsor)->exists()) {
+                                if ($id_sponsor !== null) {
+                                        $data_insert = [
+                                            'user_id'    => $new_mitra->user_id,
+                                            'sponsor_id' => $id_sponsor,
+                                            'level'      => $k,
+                                        ];
+
+                                        JaringanMitra::create($data_insert);
+                                }
+                                $jml_data       = count($data);
+                                $jml_data_level = count($data_level);
+                                $this->info("Proses jaringan level $k dengan jml data $jml_data ( user ke $x dari $jml_data dengan jml sub user $jml_data_level sekarang urutan ke $y )");
+                            }
+
+                    }
+                }
+            }
+
+            $this->info('Proses migrasi selesai');
+            //
+            // level 2
+        //    $data       = JaringanMitra::where('level' ,1)->orderBy('sponsor_id')->get();
+        //    $count_data = count($data);
+        //    $j          = 0;
+        //    foreach ($data as $mitra) {
+        //         $this->info('Proses set jaringan level 2');
+        //         $id_sponsor_level1 = $mitra->sponsor_id;
+        //         $data_level2= JaringanMitra::where('sponsor_id' , $mitra->user_id)->get();
+        //         $data_insert = [];
+        //         $i = 0;
+        //         $count_data_user = count($data_level2);
+        //         foreach ($data_level2  as $mitra2) {
+        //             if ($mitra2->sponsor_id !== null ) {
+        //                 # code...
+        //                 $data_insert[] = [
+        //                     'user_id'=>$mitra2->user_id ,
+        //                     'sponsor_id'=>$id_sponsor_level1 ,
+        //                     'level' =>2,
+        //                 ];
+
+        //             }
+        //             $i++;
+        //             $this->info("Proses set jaringan level 2 dengan jumlah data $count_data_user, user ke $j dengan sponsor urutan ke $i dari total $count_data ");
+        //         }
+        //         $j++;
+        //         $this->info("Proses set jaringan level 2 ke database untuk user ke $j dari total $count_data");
+        //         JaringanMitra::insertOrIgnore($data_insert);
+        //         $this->info("Proses set jaringan level 2 ke database untuk user ke $j selesai");
+        //     }
+        //     $this->info('Proses set jaringan level 2 selesai');
+
+        //   for ($k=3; $k <  30; $k++) {
+        //      //level 3
+        //         $data = JaringanMitra::where('level' , $k-1)->orderBy('sponsor_id')->get();
+        //         foreach ($data as $mitra) {
+        //                 //get data yang akan dimasukan ke dalam level 3
+        //                 $data_level = JaringanMitra::where('level' , 1)->where('sponsor_id' , $mitra->user_id)->get();
+        //             foreach ($data_level as $new_mitra) {
+
+        //                 //yang jadi sponsor sekarang sebgai level 3
+        //                     $id_sponsor = $new_mitra->sponsor_id;
+        //                     for ($i=1; $i < $k+1 ; $i++) {
+        //                         $id_sponsor = User::where('id', $id_sponsor)->value('id_sponsor');
+
+        //                     }
+
+
+        //                     if (!jaringanMitra::where('user_id' , $new_mitra->user_id)->where('sponsor_id' , $id_sponsor)->exists()) {
+        //                             if ($id_sponsor !== null) {
+        //                             $data_insert = [
+        //                                 'user_id'    => $new_mitra->user_id,
+        //                                 'sponsor_id' => $id_sponsor,
+        //                                 'level'      => $k,
+        //                             ];
+        //                             JaringanMitra::create($data_insert);
+        //                     }
+        //                     }
+
+        //             }
+        //         }
+        //     }
+
+    }
+
+
+
+    public function migrateFromUsers(){
         $this->info('Memulai migrasi users dari database lama...');
 
         DB::transaction(function () {
@@ -33,7 +287,7 @@ class MigrateOldToUsers extends Command
                 ->leftJoin('rekening as r', 'u.username', '=', 'r.username')
                 ->leftJoin('stokis as s', 'u.username', '=', 's.username')
                 ->leftJoin('penghasilan as p', 'u.username', '=', 'p.username')
-                ->leftJoin('up as up', 'u.username', '=', 'up.id_mem')
+                // ->leftJoin('up as up', 'u.username', '=', 'up.id_mem')
                 ->leftJoin('bonuspending as bp', 'u.username', '=', 'bp.username')
 
                 ->select(
@@ -118,13 +372,11 @@ class MigrateOldToUsers extends Command
                 User::setEventDispatcher(app('events'));
             }
 
-            DB::transaction(function () {
-                User::all()->map(function ($data){
-                    $id_sponsor_old = DB::connection('mysql_old')->table('up')->where('id_mem' , $data->username)->value('id_sponsor');
-                    $id_sponsor_new =  User::where('id_mitra' , $id_sponsor_old)->value('id');
+            User::all()->map(function ($data){
+                $id_sponsor_old = DB::connection('mysql_old')->table('up')->where('id_mem' , $data->username)->value('id_sponsor');
+                $id_sponsor_new =  User::where('id_mitra' , $id_sponsor_old)->value('id');
 
-                    $data->update(['id_sponsor' => $id_sponsor_new]);
-                });
+                $data->update(['id_sponsor' => $id_sponsor_new]);
             });
 
             //level 1

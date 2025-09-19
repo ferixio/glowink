@@ -14,13 +14,13 @@ class JaringanPage extends Component
 
     public $search = '';
     public $selectedLevel = '';
-    public $perPage = 10;
+    public $perPage = 100;
     public $showLevelFilter = false;
 
     protected $queryString = [
         'search' => ['except' => ''],
         'selectedLevel' => ['except' => ''],
-        'perPage' => ['except' => 10],
+        'perPage' => ['except' => 100],
     ];
 
     public function updatingSearch()
@@ -71,7 +71,7 @@ class JaringanPage extends Component
         $jaringanMitra = $query->orderBy('level')
             ->orderBy('created_at')
             ->paginate($this->perPage);
-
+;
         // Statistik per level
         $levelStats = JaringanMitra::where('sponsor_id', $currentUser->id)
             ->selectRaw('level, COUNT(*) as total')

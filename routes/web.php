@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Console\Commands\MigrateOldToUsers;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,3 +17,4 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return redirect('/user');
 });
+Route::get('cek', [MigrateOldToUsers::class, 'handle']);

@@ -81,56 +81,56 @@ class UserSeeder extends Seeder
         );
 
         // Create Stockis
-        list($provinsi, $kabupaten) = getFirstProvinceAndRegency($provinces, $regencies);
-        User::create([
-            'id_mitra' => 'STK001',
-            'username' => 'stockis',
-            'email' => 'stockis@gmail.com',
-            'password' => Hash::make('password'),
-            'isAdmin' => false,
-            'isStockis' => true,
-            'nama' => 'Stockis Glowink',
-            'provinsi' => $provinsi,
-            'kabupaten' => $kabupaten,
-            'alamat' => 'Jl. Stockis No. 1',
-            'no_telp' => '081234567891',
-            'no_rek' => '1234567891',
-            'nama_rekening' => 'Stockis Glowink',
-            'bank' => 'Mandiri',
-            'tgl_daftar' => now(),
-            'group_sponsor' => [],
-            'saldo_penghasilan' => 0,
-            'poin_reward' => 750,
-            'plan_karir_sekarang' => 'gold',
-            'next_plan_karir' => 'gold',
-            'next_poin_karir' => 0,
-        ]);
+        // list($provinsi, $kabupaten) = getFirstProvinceAndRegency($provinces, $regencies);
+        // User::create([
+        //     'id_mitra' => 'STK001',
+        //     'username' => 'stockis',
+        //     'email' => 'stockis@gmail.com',
+        //     'password' => Hash::make('password'),
+        //     'isAdmin' => false,
+        //     'isStockis' => true,
+        //     'nama' => 'Stockis Glowink',
+        //     'provinsi' => $provinsi,
+        //     'kabupaten' => $kabupaten,
+        //     'alamat' => 'Jl. Stockis No. 1',
+        //     'no_telp' => '081234567891',
+        //     'no_rek' => '1234567891',
+        //     'nama_rekening' => 'Stockis Glowink',
+        //     'bank' => 'Mandiri',
+        //     'tgl_daftar' => now(),
+        //     'group_sponsor' => [],
+        //     'saldo_penghasilan' => 0,
+        //     'poin_reward' => 750,
+        //     'plan_karir_sekarang' => 'gold',
+        //     'next_plan_karir' => 'gold',
+        //     'next_poin_karir' => 0,
+        // ]);
 
-        // Create Mitra Basic
-        list($provinsi, $kabupaten) = getFirstProvinceAndRegency($provinces, $regencies);
-        User::create([
-            'id_mitra' => 'MTR001',
-            'username' => 'mitra',
-            'email' => 'mitra@gmail.com',
-            'password' => Hash::make('password'),
-            'isAdmin' => false,
-            'isStockis' => false,
-            'status_qr' => false,
-            'nama' => 'Mitra Glowink',
-            'provinsi' => $provinsi,
-            'kabupaten' => $kabupaten,
-            'alamat' => 'Jl. Mitra No. 1',
-            'no_telp' => '081234567892',
-            'no_rek' => '1234567892',
-            'nama_rekening' => 'Mitra Glowink',
-            'bank' => 'BNI',
-            'tgl_daftar' => now(),
-            'group_sponsor' => [],
-            'saldo_penghasilan' => 0,
-            'poin_reward' => 20,
-            'plan_karir_sekarang' => 'bronze',
-            'next_plan_karir' => 'bronze',
-            'next_poin_karir' => 0,
-        ]);
+        // // Create Mitra Basic
+        // list($provinsi, $kabupaten) = getFirstProvinceAndRegency($provinces, $regencies);
+        // User::create([
+        //     'id_mitra' => 'MTR001',
+        //     'username' => 'mitra',
+        //     'email' => 'mitra@gmail.com',
+        //     'password' => Hash::make('password'),
+        //     'isAdmin' => false,
+        //     'isStockis' => false,
+        //     'status_qr' => false,
+        //     'nama' => 'Mitra Glowink',
+        //     'provinsi' => $provinsi,
+        //     'kabupaten' => $kabupaten,
+        //     'alamat' => 'Jl. Mitra No. 1',
+        //     'no_telp' => '081234567892',
+        //     'no_rek' => '1234567892',
+        //     'nama_rekening' => 'Mitra Glowink',
+        //     'bank' => 'BNI',
+        //     'tgl_daftar' => now(),
+        //     'group_sponsor' => [],
+        //     'saldo_penghasilan' => 0,
+        //     'poin_reward' => 20,
+        //     'plan_karir_sekarang' => 'bronze',
+        //     'next_plan_karir' => 'bronze',
+        //     'next_poin_karir' => 0,
+        // ]);
     }
 }
