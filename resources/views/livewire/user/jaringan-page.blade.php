@@ -5,11 +5,11 @@
 
     <!-- Statistik Overview -->
     <div
-        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px;">
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px;">
         <div
             style="background-color: #ebf5ff; padding: 12px; border-radius: 8px; border: 1px solid #cce4ff; display: flex; align-items: center;">
             <div style="padding: 8px; background-color: #dceeff; border-radius: 6px;">
-                <svg style="width: 24px; height: 24px; color: #2563eb;" fill="none" stroke="currentColor"
+                <svg style="width: 100%; height: 24px; color: #2563eb;" fill="none" stroke="currentColor"
                     viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">

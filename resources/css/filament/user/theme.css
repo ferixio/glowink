@@ -2,9 +2,30 @@
 
 @config 'tailwind.config.js';
 
+
 section.flex.flex-col {
     gap: 8px;
     padding-top: 14px;
+}
+
+.fi-sidebar{
+    background: linear-gradient(to bottom , #2ec4e2 , #034fb3) !important;
+}
+
+.fi-topbar nav {
+    background:linear-gradient(to right , #CAD018 , #4e9cf5) !important;
+    border-radius: 50px !important;
+    margin: 10px !important;
+    padding:10px !important;
+}
+.fi-sidebar-header{
+    background: #2ec4e2 !important;
+}
+.fi-sidebar-item span , .fi-sidebar-group-label , .fi-sidebar-item-icon{
+    color: #ffffff !important;
+}
+.fi-sidebar-item-active span , .fi-badge span , .fi-sidebar-item-active .fi-sidebar-item-icon , .fi-sidebar-item:hover span , .fi-sidebar-item:hover .fi-sidebar-item-icon{
+    color:#0B5261 !important;
 }
 
 .fi-simple-layout {
