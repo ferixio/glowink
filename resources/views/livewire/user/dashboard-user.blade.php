@@ -189,7 +189,7 @@
                 <div class="mt-2 text-sm font-bold text-gray-500">Ambassador ( <span class="text-blue-500 rounded-full ">{{ $level['ambassador'] }} </span> )</div>
 
             </div>
-            <div class="flex flex-col items-center p-4 text-center border border-gray-200 shadow-sm bg-gray-50 rounded-xl">
+            <div class="flex flex-col items-center p-4 text-center border border-gray-200 shadow-sm col-span-full bg-gray-50 rounded-xl">
                 <img src="/images/icon/level/07.png" alt="" srcset="" style="width: 48px">
                 <div class="mt-2 text-sm font-bold text-gray-500">Chairman ( <span class="text-blue-500 rounded-full ">{{ $level['chairman'] }} </span> )</div>
 
