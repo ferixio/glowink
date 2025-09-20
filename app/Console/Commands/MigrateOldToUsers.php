@@ -21,8 +21,8 @@ class MigrateOldToUsers extends Command
     {
         $this->migrateTableUser();
         $this->migrateTableUp();
-        // $this->setJaringan();
-        // $this->cekStokisAndStok();
+        $this->setJaringan();
+        $this->cekStokisAndStok();
 
 
     }
