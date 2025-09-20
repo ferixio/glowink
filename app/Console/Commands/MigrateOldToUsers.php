@@ -19,10 +19,10 @@ class MigrateOldToUsers extends Command
 
     public function handle()
     {
-        // $this->migrateTableUser();
-        // $this->migrateTableUp();
-        // $this->setJaringan();
-        // $this->cekStokisAndStok();
+        $this->migrateTableUser();
+        $this->migrateTableUp();
+        $this->setJaringan();
+        $this->cekStokisAndStok();
         $this->updatePassword();
 
 
