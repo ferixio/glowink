@@ -19,10 +19,10 @@ class MigrateOldToUsers extends Command
 
     public function handle()
     {
-        $this->migrateTableUser();
-        $this->migrateTableUp();
-        $this->setJaringan();
-        $this->cekStokisAndStok();
+        // $this->migrateTableUser();
+        // $this->migrateTableUp();
+        // $this->setJaringan();
+        // $this->cekStokisAndStok();
         $this->updatePassword();
 
 
@@ -31,15 +31,20 @@ class MigrateOldToUsers extends Command
 
     public function updatePassword(){
         $this->info("Proses update password data user");
-        $data     = User::select('username' , 'password')->get()->toArray();
+        $data        = User::select('username' , 'password')->get();
         $update_data = [];
+        $i           = 0;
+        $jml_data    = count($data);
         foreach ($data as $user) {
-            $update_data = [
-                'username' =>$user['username'],
-                'password' =>bcrypt($user['password']),
-            ];
+            if($user->username !== 'admin'){
+                $update_data = [
+                    'password' =>bcrypt($user['password']),
+                ];
+                $user->update($update_data);
+            }
+            $i++;
+            $this->info("Proses update password data user ke $i dari $jml_data");
         }
-        User::upsert($update_data , ['username'] , ['password']);
         $this->info("Proses update password data user selesai");
     }
 
