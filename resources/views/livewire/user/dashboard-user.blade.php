@@ -45,7 +45,7 @@
                 <a href="/user/approve-pembelians?tableFilters[status_pembelian][value]=menunggu"
                     class="p-4 border border-gray-200 shadow-sm bg-gray-50 rounded-xl">
                    <div class="flex">
-                       <div>
+                       <div class="pt-2">
                          <img src="/images/icon/stockis.png" alt="" srcset=""  style="max-width: 96px;">
                        </div>
                        <div style="padding: 5px 20px" class="">
@@ -138,7 +138,7 @@
     {{-- Group 2: Dividen Omset Nasional --}}
     <div class="p-6 space-y-4 bg-white shadow rounded-xl">
         <h2 class="text-xl font-semibold text-gray-800">Detail Dividen</h2>
-        <div class="grid grid-cols-3 gap-4 sm:grid-cols-3 lg:grid-cols-3">
+        <div class="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div class="">
                 <div class="text-sm text-gray-500">Deviden Harian</div>
                 <div class="mt-1 text-lg font-semibold text-gray-700">Rp. 0</div>
@@ -147,7 +147,7 @@
                 <div class="text-sm text-gray-500">Deviden Bulanan</div>
                 <div class="mt-1 text-lg font-semibold text-gray-700">Rp. 0</div>
             </div>
-            <div class="">
+            <div class="p-4 bg-blue-100 rounded-lg col-span-full">
                 <div class="text-sm text-gray-500">Total Deviden</div>
                 <div class="mt-1 text-lg font-semibold text-gray-700">Rp. 0</div>
             </div>
@@ -160,7 +160,7 @@
     {{-- Group 4: Member Quick Reward --}}
     <div class="p-6 space-y-4 bg-white shadow rounded-xl">
         <h2 class="text-xl font-semibold text-gray-800">Level Karir</h2>
-        <div class="grid grid-cols-3 gap-4 sm:grid-cols-4 lg:grid-cols-7">
+        <div class="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-7">
             <div class="flex flex-col items-center p-4 border border-gray-200 shadow-sm bg-gray-10 rounded-xl">
                 <img src="/images/icon/level/01.png" alt="" srcset="" style="width: 48px">
                 <div class="mt-2 text-sm font-bold text-gray-500">Bronze ( <span class="text-blue-500 rounded-full ">{{ $level['bronze'] }} </span> )</div>
