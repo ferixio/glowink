@@ -31,19 +31,21 @@ class MigrateOldToUsers extends Command
 
     public function updatePassword(){
         $this->info("Proses update password data user");
-        $data        = User::select('username' , 'password')->get();
+        $data        = User::select('username' , 'password')->get()->toArray();
         $update_data = [];
         $i           = 0;
         $jml_data    = count($data);
         foreach ($data as $user) {
-            if($user->username !== 'admin'){
-                $update_data = [
-                    'password' =>bcrypt($user['password']),
-                ];
-                $user->update($update_data);
+            $username     = $user['username'] ;
+            $password     = $user['password'];
+            $new_password = bcrypt($user['password']);
+
+            if($user['username'] !== 'admin'){
+                User::where('username' , $username)->update(['password' =>$new_password]);
             }
             $i++;
-            $this->info("Proses update password data user ke $i dari $jml_data");
+
+            $this->info("Proses update password data user ke $i dari $jml_data , username $username password $password new password $new_password ");
         }
         $this->info("Proses update password data user selesai");
     }
