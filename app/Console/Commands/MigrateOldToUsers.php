@@ -23,10 +23,29 @@ class MigrateOldToUsers extends Command
         // $this->migrateTableUp();
         // $this->setJaringan();
         // $this->cekStokisAndStok();
-        $this->updatePassword();
+        // $this->updatePassword();
+        $this->updateStok();
 
+    }
 
-
+    public function updateStok(){
+            $this->info("Proses update stok produk");
+            $data_stok = DB::connection('mysql_old')->table('stokis_produk')->where('stok' , '>' , 0)->get();
+            $jml_data  = count($data_stok);
+            $i         = 0 ;
+            foreach ($data_stok as $data) {
+                $produk_id = Produk::where('nama' , $data->nama_produk)->value('id');
+                $user_id = User::where('username' , $data->stokis)->value('id');
+                $data_stok =[
+                    'produk_id' => $produk_id,
+                    'user_id'   => $user_id,
+                    'stok'      => $data->stok
+                ];
+                ProdukStok::create($data_stok);
+                $i++;
+                $this->info("Proses update stok produk yang ke $i dari total $jml_data");
+            }
+            $this->info("Proses update stok produk");
     }
 
     public function updatePassword(){
@@ -45,7 +64,7 @@ class MigrateOldToUsers extends Command
             }
             $i++;
 
-            $this->info("Proses update password data user ke $i dari $jml_data , username $username password $password new password $new_password ");
+            $this->info("Proses update password data user ke $i dari $jml_data , username $username ");
         }
         $this->info("Proses update password data user selesai");
     }
