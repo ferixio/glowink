@@ -2,11 +2,12 @@
 
 namespace App\Livewire\User;
 
-use App\Models\Aktivitas;
-use App\Models\DevidenHarian;
-use App\Models\Pembelian;
-use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 use Livewire\Component;
+use App\Models\Aktivitas;
+use App\Models\Pembelian;
+use App\Models\DevidenHarian;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardUser extends Component
 {
@@ -22,12 +23,21 @@ class DashboardUser extends Component
         if ($isStockis) {
             $totalPembelianStockis = Pembelian::where('beli_dari', auth()->id())->where('status_pembelian', 'menunggu')->count();
         }
+        $level = [
+            'bronze' =>User::where('plan_karir_sekarang' , 'bronze')->count(),
+            'silver' =>User::where('plan_karir_sekarang' , 'silver')->count(),
+            'gold' =>User::where('plan_karir_sekarang' , 'gold')->count(),
+            'platinum' =>User::where('plan_karir_sekarang' , 'platinum')->count(),
+            'titanium' =>User::where('plan_karir_sekarang' , 'titanium')->count(),
+            'ambassador' =>User::where('plan_karir_sekarang' , 'ambassador')->count(),
+            'chairman' =>User::where('plan_karir_sekarang' , 'chairman')->count(),
+        ];
         // Fetch aktivitas data for current user
         $aktivitas = Aktivitas::where('user_id', $user->id)
             ->orderBy('created_at', 'desc')
             ->limit(10)
             ->get();
 
-        return view('livewire.user.dashboard-user', compact('user', 'isStockis', 'devidenHarian', 'totalDevidenBulanLalu', 'isCompletedRObulanan', 'aktivitas', 'totalPembelianStockis'));
+        return view('livewire.user.dashboard-user', compact('user', 'isStockis', 'devidenHarian', 'totalDevidenBulanLalu', 'isCompletedRObulanan', 'aktivitas', 'totalPembelianStockis' , 'level'));
     }
 }
