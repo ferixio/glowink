@@ -13,7 +13,7 @@ section.flex.flex-col {
 }
 
 .fi-topbar nav {
-    background:linear-gradient(to right , #CAD018 , #4e9cf5) !important;
+    background:linear-gradient(to left , #CAD018 , #034fb3) !important;
     border-radius: 50px !important;
     margin: 10px !important;
     padding:10px !important;
@@ -21,7 +21,7 @@ section.flex.flex-col {
 .fi-sidebar-header{
     background: #2ec4e2 !important;
 }
-.fi-sidebar-item span , .fi-sidebar-group-label , .fi-sidebar-item-icon{
+.fi-sidebar-item span , .fi-sidebar-group-label , .fi-sidebar-item-icon , .fi-icon-btn-icon{
     color: #ffffff !important;
 }
 .fi-sidebar-item-active span , .fi-badge span , .fi-sidebar-item-active .fi-sidebar-item-icon , .fi-sidebar-item:hover span , .fi-sidebar-item:hover .fi-sidebar-item-icon{

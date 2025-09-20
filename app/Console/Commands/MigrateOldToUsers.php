@@ -19,12 +19,26 @@ class MigrateOldToUsers extends Command
 
     public function handle()
     {
-        // $this->migrateTableUser();
-        // $this->migrateTableUp();
-        // User::query()->update(['password' => bcrypt('password')]);
+        $this->migrateTableUser();
+        $this->migrateTableUp();
         // $this->setJaringan();
-        $this->cekStokisAndStok();
+        // $this->cekStokisAndStok();
 
+
+    }
+
+    public function updatePassword(){
+        $this->info("Proses update password data user");
+        $data     = User::select('username' , 'password')->get()->toArray();
+        $insert_data = [];
+        foreach ($data as $user) {
+            $insert_data = [
+                'username' =>$user['username'],
+                'password' =>bcrypt($user['password']),
+            ];
+        }
+        User::upsert($insert_data , ['username'] , ['password']);
+        $this->info("Proses update password data user selesai");
     }
 
     public function cekStokisAndStok(){
@@ -63,7 +77,9 @@ class MigrateOldToUsers extends Command
                             ->get();
 
                     $new_user =  collect($old_user)->map(function($user){
-                        return (array)$user;
+                        $data_user = (object)$user;
+                        $data_user->password = bcrypt('password');
+                        return (array)$data_user;
                     })->toArray() ;
 
 
@@ -111,9 +127,10 @@ class MigrateOldToUsers extends Command
                  $new_user =  collect($old_user)->map(function($user){
                         $poin = $user->poin_reward ?? 0;
                         $planKarirSekarang = $this->determineCareerLevel($poin);
-                        $userObj = (object)$user;
-                        $userObj->plan_karir_sekarang = $planKarirSekarang;
-                    return (array)$userObj;
+                        $data_user = (object)$user;
+                        $data_user->plan_karir_sekarang = $planKarirSekarang;
+                        $data_user->password = $data_user->password !== '' ? bcrypt($data_user->password) : bcrypt('password');
+                    return (array)$data_user;
                  })->toArray() ;
 
 

@@ -2,6 +2,40 @@
     <img src="{{asset('images/logo.svg')}}" alt="" srcset="" style="margin:20px auto;max-width:300px;">
     <h2 class="mt-4 text-xl font-bold text-blue-500 md:text-3xl ">Halo, {{ $user->nama }} </h2>
 
+    {{-- Group menu --}}
+    <div class="p-6 space-y-4 bg-white shadow rounded-xl">
+        <h2 class="text-xl font-semibold text-gray-800">Menu Utama</h2>
+        <div class="grid grid-cols-2 gap-8 text-center auto-rows-max xs:grid-cols-4 sm:grid-cols-4 lg:grid-cols-4">
+
+            <a href="/user/pembelian-produk">
+                <div class="p-4 border border-gray-200 shadow-sm bg-gray-50 rounded-xl">
+                    <img src="/images/icon/shopping.png" alt="" srcset="">
+                    <p class="py-2 font-bold font-lg"">Belanja</p>
+                </div>
+            </a>
+            <a href="/user/penghasilans">
+                <div class="p-4 border border-gray-200 shadow-sm bg-gray-50 rounded-xl">
+                   <img src="/images/icon/earning.png" alt="" srcset="">
+                   <p class="py-2 font-bold font-lg"">Penghasilan</p>
+                </div>
+            </a>
+            <a href="/user/jaringan">
+                <div class="p-4 border border-gray-200 shadow-sm bg-gray-50 rounded-xl">
+                   <img src="/images/icon/networking.png" alt="" srcset="">
+                   <p class="py-2 font-bold font-lg"">Jaringan</p>
+                </div>
+            </a>
+            <a href="/user/product-stocks">
+                <div class="p-4 border border-gray-200 shadow-sm bg-gray-50 rounded-xl">
+                   <img src="/images/icon/stok.png" alt="" srcset="">
+                   <p class="py-2 font-bold font-lg"">Stok</p>
+                </div>
+            </a>
+
+
+        </div>
+    </div>
+
     {{-- Group 1: Info Akun --}}
     @if ($isStockis)
         <div class="p-6 space-y-4 bg-white shadow rounded-xl">
@@ -18,6 +52,8 @@
             </div>
         </div>
     @endif
+
+
     {{-- Group 1: Info Akun --}}
     <div class="p-6 space-y-4 bg-white shadow rounded-xl">
         <h2 class="text-xl font-semibold text-gray-800">Info Akun</h2>

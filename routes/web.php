@@ -17,4 +17,3 @@ use App\Console\Commands\MigrateOldToUsers;
 Route::get('/', function () {
     return redirect('/user');
 });
-Route::get('cek', [MigrateOldToUsers::class, 'handle']);

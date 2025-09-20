@@ -59,10 +59,10 @@
                 {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::TOPBAR_BEFORE, scopes: $livewire->getRenderHookScopes()) }}
 
                 {{-- Mobile Logo Overlay (only shows on mobile) --}}
-                <div class="fixed z-50 p-4 top-3 left-4 lg:hidden">
+                <div class="fixed z-50 p-4 lg:hidden">
                     <a href="/user" class="flex items-center">
                         {{-- <img src="{{ asset('images/logo.svg') }}" alt="Logo" class="w-auto h-8"> --}}
-                        <h1 style="font-size:18px"><b>Glowink System</b></h1>
+                        <h1 style="font-size:18px;padding-top:10px;padding-left:20px;color:white"><b>Glowink System</b></h1>
                     </a>
                 </div>
 
